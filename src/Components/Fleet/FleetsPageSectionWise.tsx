@@ -1,17 +1,27 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import FleetCard, { Vehicle } from "./FleetCard";
 import fleetData from "@/data/fleet.json";
 import { useBookingModal } from "@/context/BookingContext";
+import { buildSectionVehicles } from "@/lib/fleetResolver";
+import { VehicleCard } from "@/types/api";
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
 import { ArrowRight } from "lucide-react";
 
-export default function FleetsPageSectionWise() {
-  const { openModal } = useBookingModal();
+interface FleetsPageSectionWiseProps {
+  initialVehicles?: VehicleCard[];
+}
 
-  // 1. Executive Travel Section
-  const executiveVehicles: Vehicle[] = [
+export default function FleetsPageSectionWise({ initialVehicles = [] }: FleetsPageSectionWiseProps) {
+  const { openModal, vehicles: liveVehicles } = useBookingModal();
+
+  // Prefer live client catalog from BookingContext, fall back to SSR-fetched API vehicles
+  const apiVehicles =
+    liveVehicles && liveVehicles.length > 0 ? liveVehicles : initialVehicles;
+
+  // 1. Executive Travel Section Fallbacks
+  const fallbackExecutive: Vehicle[] = [
     {
       id: "mercedes-e-class",
       slug: "mercedes-e-class",
@@ -68,8 +78,8 @@ export default function FleetsPageSectionWise() {
     },
   ];
 
-  // 2. Maxi Cabs & MPVs Section
-  const maxiCabVehicles: Vehicle[] = [
+  // 2. Maxi Cabs & MPVs Section Fallbacks
+  const fallbackMaxi: Vehicle[] = [
     fleetData.vehicles.find((v) => v.id === "6-seater") || {
       id: "6-seater",
       slug: "6-seater",
@@ -124,8 +134,8 @@ export default function FleetsPageSectionWise() {
     },
   ];
 
-  // 3. Minibuses & Specialized Vehicles Section
-  const minibusVehicles: Vehicle[] = [
+  // 3. Minibuses & Specialized Vehicles Section Fallbacks
+  const fallbackMinibus: Vehicle[] = [
     fleetData.vehicles.find((v) => v.id === "13-seater") || {
       id: "13-seater",
       slug: "13-seater",
@@ -182,6 +192,11 @@ export default function FleetsPageSectionWise() {
     },
   ];
 
+  // Dynamically assemble sections from live API vehicles
+  const { executive, maxiCabs, minibuses } = useMemo(() => {
+    return buildSectionVehicles(apiVehicles, fallbackExecutive, fallbackMaxi, fallbackMinibus);
+  }, [apiVehicles]);
+
   return (
     <div className="w-full flex flex-col items-center bg-white">
       {/* 1. Page Header (from fleetdeign.html) */}
@@ -218,7 +233,7 @@ export default function FleetsPageSectionWise() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {executiveVehicles.map((vehicle) => (
+            {executive.map((vehicle) => (
               <FleetCard key={vehicle.id} vehicle={vehicle} />
             ))}
           </div>
@@ -239,7 +254,7 @@ export default function FleetsPageSectionWise() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {maxiCabVehicles.map((vehicle) => (
+            {maxiCabs.map((vehicle) => (
               <FleetCard key={vehicle.id} vehicle={vehicle} />
             ))}
           </div>
@@ -260,7 +275,7 @@ export default function FleetsPageSectionWise() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {minibusVehicles.map((vehicle) => (
+            {minibuses.map((vehicle) => (
               <FleetCard key={vehicle.id} vehicle={vehicle} />
             ))}
           </div>

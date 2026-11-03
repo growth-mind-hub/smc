@@ -253,6 +253,258 @@
           "answer": "You can book a 2-way trip with flexible return timing. Just message us 30 minutes before discharge, and your driver will be waiting."
         }
       ]
+    },
+    {
+      "id": "vip-delegate-limousine",
+      "slug": "vip-delegate-limousine",
+      "title": "VIP & Delegate Limousine Services",
+      "subtitle": "Diplomatic Protocol, Red-Carpet & Executive Chauffeur Excellence",
+      "shortDescription": "First-class Mercedes-Benz S-Class, E-Class, and VIP Lounge MPVs for foreign dignitaries, state delegates, and high-net-worth VIPs.",
+      "heroDescription": "White-glove executive limousine service tailored for state visits, corporate VIP delegations, high-profile keynote speakers, and private luxury travel across Singapore.",
+      "icon": "Crown",
+      "tags": ["Diplomatic Protocol", "Mercedes S-Class", "VIP Meet & Greet"],
+      "inclusions": [
+        "Discreet, security-conscious chauffeurs trained in diplomatic protocol",
+        "Flagship Mercedes-Benz S-Class, E-Class, and VIP Lounge 7-Seater fleet",
+        "Airside VIP tarmac coordination & JetQuay CIP Terminal assistance",
+        "Trained in multi-vehicle motorcade convoy routing & security liaison",
+        "Bottled artisan mineral water, fresh mints & onboard Wi-Fi",
+        "Complimentary mobile charging cables & device adapters",
+        "Strict non-disclosure confidentiality agreements (NDAs) for all drivers",
+        "24/7 dedicated executive operations manager on standby"
+      ],
+      "pricing": [
+        { "vehicle": "Mercedes-Benz E-Class Sedan", "rate": "$85 SGD" },
+        { "vehicle": "VIP Lounge 7-Seater MPV", "rate": "$90 SGD" },
+        { "vehicle": "Mercedes-Benz S-Class Flagship", "rate": "$160 SGD" },
+        { "vehicle": "3-Hour VIP Standby Charter", "rate": "$255 SGD" },
+        { "vehicle": "8-Hour Full-Day Diplomatic Standby", "rate": "$680 SGD" },
+        { "vehicle": "JetQuay CIP Meet & Greet Add-on", "rate": "+$40 SGD" }
+      ],
+      "faqs": [
+        {
+          "question": "Can you accommodate JetQuay CIP terminal pickups?",
+          "answer": "Yes, we regularly provide tarmac and JetQuay CIP terminal pickups with personalized name boards, escorting dignitaries directly through private immigration channels."
+        },
+        {
+          "question": "Do your chauffeurs sign non-disclosure agreements (NDAs)?",
+          "answer": "Yes, our executive chauffeurs adhere to strict professional confidentiality, privacy standards, and non-disclosure protocols for high-profile clients."
+        },
+        {
+          "question": "Can you coordinate multi-vehicle motorcades for delegations?",
+          "answer": "Absolutely. Our operations dispatch team coordinates synchronized arrivals, lead security cars, luggage support vans, and hotel convoy departures."
+        }
+      ]
+    },
+    {
+      "id": "shipping-crew-agent-services",
+      "slug": "shipping-crew-agent-services",
+      "title": "Shipping Crew & Maritime Agent Services",
+      "subtitle": "24/7 Port Terminal, Shipyard & Crew Change Transportation",
+      "shortDescription": "Round-the-clock transfers to Jurong Port, PSA Terminals, Marina South Pier, and shipyards for crew sign-on/sign-off and maritime agents.",
+      "heroDescription": "Specialized 24/7 port transit and crew change logistics across all Singapore seaports, anchorages, and shipyards. Seamless dispatch for shipping lines, vessel agents, and maritime technicians.",
+      "icon": "Anchor",
+      "tags": ["24/7 Port Access", "Crew Change", "PSA & Jurong Port"],
+      "inclusions": [
+        "PSA Port Pass & Jurong Port terminal security clearance access",
+        "Direct transfers to Marina South Pier, Keppel, Tuas, and Jurong Shipyards",
+        "Vessel crew change sign-on & sign-off transit management",
+        "High-capacity 9-seater & 13-seater minibuses for large seafarer sea bags",
+        "Immigration checkpoint & ICA Seamen's pass processing buffer",
+        "Medical clinic & occupational health checkup escort for sign-on crew",
+        "Consolidated monthly corporate billing for shipping agents & ship managers",
+        "Round-the-clock 24/7 dispatch with flight-to-vessel real-time tracking"
+      ],
+      "pricing": [
+        { "vehicle": "One-Way Marina South Pier Transfer", "rate": "$70 SGD" },
+        { "vehicle": "PSA / Jurong Port Gate Transfer", "rate": "$75 SGD" },
+        { "vehicle": "13-Seater Minibus Crew Change (Bulk Luggage)", "rate": "$85 SGD" },
+        { "vehicle": "3-Hour Port Standby / Medical Escort", "rate": "$210 SGD" },
+        { "vehicle": "8-Hour Full Day Maritime Agent Charter", "rate": "$520 SGD" },
+        { "vehicle": "Late Night / Round-The-Clock Dispatch", "rate": "Zero Surcharge" }
+      ],
+      "faqs": [
+        {
+          "question": "Do your drivers have access to PSA terminals and Jurong Port gates?",
+          "answer": "Yes, our experienced drivers carry the required port entry credentials and understand security clearance procedures at PSA Terminals, Jurong Port, and Tuas marine facilities."
+        },
+        {
+          "question": "Can your minibuses accommodate heavy seafarer duffel bags and maritime equipment?",
+          "answer": "Yes! Our 9-seater maxi cabs and 13-seater minibuses have high roof clearance and dedicated rear luggage compartments designed to hold bulky sea bags and technical gear."
+        },
+        {
+          "question": "Can you coordinate sign-on medical clinic visits on the way to the pier?",
+          "answer": "Yes, we regularly provide multi-stop transfers including clinic visits for fit-to-sail medical endorsements before proceeding to the pier or shipyard."
+        }
+      ]
+    },
+    {
+      "id": "f1-restricted-access-transport",
+      "slug": "f1-restricted-access-transport",
+      "title": "Formula 1 Team & Restricted Access Transport",
+      "subtitle": "Marina Bay Street Circuit, Paddock Shuttles & Accredited Security Zones",
+      "shortDescription": "Accredited chauffeur service with circuit access passes for F1 racing teams, paddock club guests, sponsors, and restricted airbase/military zones.",
+      "heroDescription": "Precision-timed ground transport during the Singapore Grand Prix and restricted high-security zones. Dedicated logistics for F1 race teams, broadcast engineers, VIP paddock hospitality, and security-accredited venues.",
+      "icon": "Flag",
+      "tags": ["F1 Circuit Access", "Paddock Shuttles", "Security Clearance"],
+      "inclusions": [
+        "Marina Bay Street Circuit accredited route knowledge & access gate clearance",
+        "F1 team crew, race engineers & VIP paddock club transport",
+        "Road closure navigation & pre-cleared perimeter bypass lanes",
+        "Multi-day Grand Prix race week standby packages (Thu–Sun)",
+        "Airport-to-paddock express priority dispatch",
+        "Changi airside, Seletar private hangars & restricted zone capabilities",
+        "Dedicated operations liaison on-site at Marina Bay perimeter",
+        "Spacious 7, 9 & 13-seater fleets for broadcast gear and team telemetry cases"
+      ],
+      "pricing": [
+        { "vehicle": "Circuit Perimeter Single Transfer", "rate": "From $90 SGD" },
+        { "vehicle": "4-Hour Race Week Standby", "rate": "$360 SGD" },
+        { "vehicle": "8-Hour Full-Day F1 Team Standby", "rate": "$680 SGD" },
+        { "vehicle": "3-Day Grand Prix All-Inclusive Charter", "rate": "Custom Package" },
+        { "vehicle": "VIP Lounge Mercedes MPV Circuit Transfer", "rate": "$120 SGD" },
+        { "vehicle": "Broadcast Equipment Cargo Van Support", "rate": "On Request" }
+      ],
+      "faqs": [
+        {
+          "question": "Do your drivers know how to navigate the Singapore GP road closures?",
+          "answer": "Yes, our dispatchers and drivers specialize in the annual LTA road closure grid and designated perimeter access corridors around City Hall and Marina Centre."
+        },
+        {
+          "question": "Can you arrange dedicated vehicles for the entire race week?",
+          "answer": "Yes, we provide full 4-day and 7-day race week retainers with designated vehicles and drivers assigned exclusively to your team or hospitality guests."
+        },
+        {
+          "question": "Are vehicles allowed to drop off inside or near Paddock Club gates?",
+          "answer": "Vehicles with valid race access labels can proceed directly to designated access points, while other guests are dropped at the closest approved VIP transit gates."
+        }
+      ]
+    },
+    {
+      "id": "mice-events-charter",
+      "slug": "mice-events-charter",
+      "title": "MICE Events & Hourly Charter Services",
+      "subtitle": "Marina Bay Sands Expo, Suntec & Singapore EXPO Transportation",
+      "shortDescription": "Synchronized hourly fleet charters for conferences, trade summits, gala dinners, and convention delegates with on-site dispatchers.",
+      "heroDescription": "Premier ground logistics for Singapore's world-class MICE industry (Meetings, Incentives, Conferences, and Exhibitions). Turnkey fleet charters, VIP speaker transfers, and continuous delegate shuttles.",
+      "icon": "Building2",
+      "tags": ["MICE Conventions", "Hourly Standby", "MBS Expo & Suntec"],
+      "inclusions": [
+        "Dedicated event marshalling & on-site dispatcher coordination",
+        "Custom circular shuttle routing between partner hotels & convention venues",
+        "Direct drop-off access at Marina Bay Sands Expo, Suntec & Singapore EXPO",
+        "Synchronized arrivals for keynote speakers, exhibitors & delegates",
+        "Branded vehicle signage & delegate name board identification",
+        "Flexible hourly standby with unlimited venue transitions",
+        "Itemized corporate invoicing with cost-center breakdown",
+        "Combined fleet of Mercedes limousines, 9-seater cabs & 13-seater minibuses"
+      ],
+      "pricing": [
+        { "vehicle": "Half-Day Event Charter (4 Hours)", "rate": "$280 SGD" },
+        { "vehicle": "Full-Day Convention Standby (8 Hours)", "rate": "$520 SGD" },
+        { "vehicle": "Dual 13-Seater Delegate Shuttle Loop", "rate": "From $150/hr SGD" },
+        { "vehicle": "VIP Keynote Speaker Limousine Transfer", "rate": "$85 SGD" },
+        { "vehicle": "3-Day Trade Show Multi-Fleet Logistics", "rate": "Custom Quote" },
+        { "vehicle": "On-Site Traffic Marshall Add-on", "rate": "Available on Request" }
+      ],
+      "faqs": [
+        {
+          "question": "Can you coordinate shuttles across multiple hotels to Marina Bay Sands Expo?",
+          "answer": "Yes, our MICE event team schedules timed circular loops across hotel belts (Orchard, Bugis, City Hall) directly to MBS Expo, Suntec, or Singapore EXPO."
+        },
+        {
+          "question": "What happens if convention sessions or evening networking dinners run late?",
+          "answer": "Our standby charter packages include flexible on-demand extensions. Your assigned dispatch coordinator adjusts departure times without interrupting your event."
+        },
+        {
+          "question": "Can we place event logos or convention name boards on the vehicles?",
+          "answer": "Yes, we facilitate customized branded vehicle placards and airport arrival welcome signage for your delegates and international attendees."
+        }
+      ]
+    },
+    {
+      "id": "pilot-aircrew-transfers",
+      "slug": "pilot-aircrew-transfers",
+      "title": "Pilot & Aircrew Daily Transfers",
+      "subtitle": "Zero-Delay Scheduled Chauffeur Logistics for Airline Flight Crews",
+      "shortDescription": "Punctual, guaranteed daily pick-up and drop-off for commercial airline pilots, flight attendants, and cargo flight crews at Changi and Seletar.",
+      "heroDescription": "Contracted, time-critical transportation for airline flight deck and cabin crew. Strict zero-delay punctuality, 24/7 flight ops tracking, and seamless hotel-to-crew-centre transfers.",
+      "icon": "Compass",
+      "tags": ["Airline Flight Crew", "Zero Delay Guarantee", "24/7 Changi & Seletar"],
+      "inclusions": [
+        "Strict 100% on-time guarantee with mandatory 15-minute advance arrival",
+        "Direct transfers to Changi Flight Operations Centre (FOC) & Seletar Airport",
+        "Airline layover hotel shuttles across Singapore",
+        "24/7 round-the-clock operations desk monitoring flight dispatch shifts",
+        "Generous storage for pilot flight bags, crew roller luggage & garment bags",
+        "Quiet, comfortable cabin environment for restorative pre-flight rest",
+        "Automated driver check-in alerts sent to airline crew operations",
+        "Corporate billing with flight number reference and crew roster matching"
+      ],
+      "pricing": [
+        { "vehicle": "One-Way Crew Transfer (Hotel to Changi FOC)", "rate": "$70 SGD" },
+        { "vehicle": "Seletar Airport Aircrew Transfer", "rate": "$75 SGD" },
+        { "vehicle": "13-Seater Full Cabin Crew Shuttle", "rate": "$85 SGD" },
+        { "vehicle": "Split Shift / Standby Reserve Transport", "rate": "$65/hr SGD" },
+        { "vehicle": "Monthly Scheduled Airline Roster Contract", "rate": "Corporate Rates" },
+        { "vehicle": "Midnight / Early Dawn Transfers (01:00–05:00)", "rate": "Zero Surcharge" }
+      ],
+      "faqs": [
+        {
+          "question": "How do you guarantee punctuality for critical flight briefing times?",
+          "answer": "All crew transfers operate under our strict airline protocol: chauffeurs arrive on site at least 15 minutes before scheduled pick-up time with automated dispatch confirmation."
+        },
+        {
+          "question": "Can you handle last-minute flight schedule changes or delays?",
+          "answer": "Yes, our round-the-clock operations desk monitors airline schedules in real time, automatically recalibrating pick-up timings whenever departure slots change."
+        },
+        {
+          "question": "Do you provide scheduled corporate contracts for international airlines?",
+          "answer": "Yes, we manage contracted daily roster transfers for commercial airlines, corporate aviation operators, and cargo freight carriers layovering in Singapore."
+        }
+      ]
+    },
+    {
+      "id": "city-tours-sightseeing",
+      "slug": "city-tours-sightseeing",
+      "title": "City Tours & Hourly Sightseeing",
+      "subtitle": "Custom Island Itineraries, Cultural Landmarks & Iconic Attractions",
+      "shortDescription": "Private, customizable sightseeing tours of Marina Bay, Sentosa, Merlion Park, Chinatown, and hidden gems with an experienced local chauffeur.",
+      "heroDescription": "Discover the best of Singapore in air-conditioned comfort. Create your own bespoke itinerary or let our knowledgeable chauffeurs guide you through the city's iconic landmarks, food havens, and cultural districts.",
+      "icon": "MapPin",
+      "tags": ["Custom Route", "Free & Easy", "Luggage Storage Included"],
+      "inclusions": [
+        "Customizable itinerary: Marina Bay Sands, Gardens by the Bay, Sentosa & more",
+        "Door-to-door hotel pickup and return anywhere on the island",
+        "Driver stays on standby while you explore attractions at your own pace",
+        "All ERP gantries, road tolls, fuel, and standard parking fees included",
+        "Safe in-vehicle storage for your shopping bags, strollers, and luggage",
+        "Local insider tips on the best hawker centres, photo spots & timings",
+        "Spacious 6, 7, 9 & 13-seater options for couples, families, and tour groups",
+        "Complimentary cold bottled water and onboard mobile phone charging"
+      ],
+      "pricing": [
+        { "vehicle": "3-Hour Highlights City Tour (6-Seater)", "rate": "$180 SGD ($60/hr)" },
+        { "vehicle": "4-Hour Half-Day Island Sightseeing", "rate": "$240 SGD ($60/hr)" },
+        { "vehicle": "6-Hour Extended Tour (Heritage + Sentosa)", "rate": "$360 SGD" },
+        { "vehicle": "8-Hour Full-Day Singapore Grand Tour", "rate": "$480 SGD ($60/hr)" },
+        { "vehicle": "13-Seater Minibus Sightseeing Tour", "rate": "$220 SGD (3h min)" },
+        { "vehicle": "Additional Extra Hours", "rate": "$60/hr SGD" }
+      ],
+      "faqs": [
+        {
+          "question": "Can we customize our own tour route and stops?",
+          "answer": "Yes! You have 100% complete flexibility. You can choose exactly which attractions to visit, how long to stay at each, and adjust your itinerary on the fly."
+        },
+        {
+          "question": "Can we leave our shopping bags and luggage inside the vehicle?",
+          "answer": "Yes, your dedicated driver remains with the vehicle throughout your tour, keeping your personal belongings locked, secure, and air-conditioned."
+        },
+        {
+          "question": "Does the driver wait for us at each attraction?",
+          "answer": "Yes, your chauffeur will drop you at the entrance and wait at the designated pick-up point, ready to proceed whenever you message or call."
+        }
+      ]
     }
   ]
 }

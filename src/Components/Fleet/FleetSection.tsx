@@ -6,6 +6,7 @@ import FleetCard, { Vehicle } from "./FleetCard";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { useBookingModal } from "@/context/BookingContext";
+import { transformApiVehicleToCard } from "@/lib/fleetResolver";
 
 export default function FleetSection() {
   const { vehicles: liveVehicles } = useBookingModal();
@@ -13,54 +14,7 @@ export default function FleetSection() {
   // Transform live API vehicles or fallback to static fleetData
   const vehiclesToDisplay: Vehicle[] =
     liveVehicles && liveVehicles.length > 0
-      ? liveVehicles.map((v) => {
-          const slug =
-            v.passengerCapacity === 6
-              ? "6-seater"
-              : v.passengerCapacity === 7
-              ? "7-seater"
-              : v.passengerCapacity === 9
-              ? "9-seater"
-              : v.passengerCapacity === 13
-              ? "13-seater"
-              : `vehicle-${v.id}`;
-          const localMatch = fleetData.vehicles.find(
-            (fv) => fv.slug === slug || fv.id === slug
-          );
-
-          const pointToPoint =
-            v.prices?.departure_transfer?.amount ||
-            v.prices?.arrival?.amount ||
-            (localMatch ? parseInt(localMatch.price.replace(/[^0-9]/g, "")) : 70);
-          const meetAndGreet =
-            v.prices?.arrival?.amount || pointToPoint + 10;
-          const hourlyRate = v.prices?.hourly?.amount || 65;
-
-          return {
-            id: String(v.id),
-            slug,
-            name: v.name,
-            model: v.description || v.vehicleType || localMatch?.model || "Executive Maxi Cab",
-            price: `$${pointToPoint}`,
-            currency: v.currency || "SGD",
-            description:
-              v.description ||
-              localMatch?.description ||
-              "Comfortable luxury maxi cab with air-conditioned cabin and professional chauffeur.",
-            heroDescription: localMatch?.heroDescription,
-            pax: `${v.passengerCapacity || 7} Pax`,
-            paxCount: v.passengerCapacity || 7,
-            bags: `${v.luggageCapacity || 5} Bags`,
-            luggageCount: v.luggageCapacity || 5,
-            badge: v.recommendation ? "Recommended" : localMatch?.badge,
-            image: v.imageUrl || localMatch?.image || "/images/Cab.png",
-            meetAndGreet: `$${meetAndGreet} SGD`,
-            charter3h: v.prices?.hourly?.threeHourAmount
-              ? `$${v.prices.hourly.threeHourAmount} SGD`
-              : `$${hourlyRate * 3} SGD`,
-            buttonText: `Reserve ${v.name.split(" ")[0]}`,
-          };
-        })
+      ? liveVehicles.map((v) => transformApiVehicleToCard(v))
       : fleetData.vehicles;
 
   // Show only 3 fleets (1 row of 3 cards on desktop), route to /fleets for the rest

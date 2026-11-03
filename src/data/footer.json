@@ -23,10 +23,10 @@
       "links": [
         { "label": "Airport Transfers", "href": "/services/airport-transfers" },
         { "label": "Corporate Transport", "href": "/services/corporate-business" },
-        { "label": "City Tour / Island Tour", "href": "/services/groups-event-shuttles" },
-        { "label": "Hourly Booking", "href": "/services/hourly-booking-standby" },
-        { "label": "Weddings", "href": "/services/weddings-special-occasions" },
-        { "label": "Wheelchair Transport", "href": "/services/wheelchair-transport" }
+        { "label": "VIP Limousine Services", "href": "/services/vip-delegate-limousine" },
+        { "label": "City Tours & Sightseeing", "href": "/services/city-tours-sightseeing" },
+        { "label": "Weddings & Events", "href": "/services/weddings-special-occasions" },
+        { "label": "Shipping Crew & Port Transfers", "href": "/services/shipping-crew-agent-services" }
       ]
     },
     {

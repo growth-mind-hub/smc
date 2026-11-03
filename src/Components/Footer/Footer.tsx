@@ -38,11 +38,11 @@ export default function Footer() {
         title: "SERVICES",
         links: [
           { label: "Airport Transfers", href: "/services/airport-transfers" },
-          { label: "Limousine & Chauffeur", href: "/services/corporate-business" },
-          { label: "City Tour (Free & Easy)", href: "/services/hourly-booking-standby" },
+          { label: "VIP Limousine & Chauffeur", href: "/services/vip-delegate-limousine" },
+          { label: "City Tours & Sightseeing", href: "/services/city-tours-sightseeing" },
           { label: "Corporate Transport", href: "/services/corporate-business" },
-          { label: "Wedding Car", href: "/services/weddings-special-occasions" },
-          { label: "Wheelchair Transport", href: "/services/wheelchair-transport" },
+          { label: "Weddings & Special Occasions", href: "/services/weddings-special-occasions" },
+          { label: "Shipping Crew & Port Services", href: "/services/shipping-crew-agent-services" },
         ],
       },
       {

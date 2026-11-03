@@ -2,7 +2,21 @@
 
 import React from "react";
 import Link from "next/link";
-import { Plane, Briefcase, Heart, Users, Clock, Accessibility, ArrowRight } from "lucide-react";
+import {
+  Plane,
+  Briefcase,
+  Heart,
+  Users,
+  Clock,
+  Accessibility,
+  Crown,
+  Anchor,
+  Flag,
+  Building2,
+  Compass,
+  MapPin,
+  ArrowRight,
+} from "lucide-react";
 import servicesData from "@/data/services.json";
 
 interface ServicesDropdownProps {
@@ -26,6 +40,18 @@ export default function ServicesDropdown({ onItemClick }: ServicesDropdownProps)
       case "HeartHandshake":
       case "Accessibility":
         return <Accessibility className="w-5 h-5 text-[#C6A45A]" />;
+      case "Crown":
+        return <Crown className="w-5 h-5 text-[#C6A45A]" />;
+      case "Anchor":
+        return <Anchor className="w-5 h-5 text-[#C6A45A]" />;
+      case "Flag":
+        return <Flag className="w-5 h-5 text-[#C6A45A]" />;
+      case "Building2":
+        return <Building2 className="w-5 h-5 text-[#C6A45A]" />;
+      case "Compass":
+        return <Compass className="w-5 h-5 text-[#C6A45A]" />;
+      case "MapPin":
+        return <MapPin className="w-5 h-5 text-[#C6A45A]" />;
       default:
         return <Plane className="w-5 h-5 text-[#C6A45A]" strokeWidth={1.5} />;
     }

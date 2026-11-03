@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowLeft, ArrowRight, Check, Zap } from "lucide-react";
 import { useBookingModal } from "@/context/BookingContext";
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
+import { findMatchingApiVehicle, getVehicleImage } from "@/lib/fleetResolver";
 
 export interface VehicleDetail {
   id: string;
@@ -31,18 +32,22 @@ export interface VehicleDetail {
 
 export default function FleetDetailTemplate({ vehicle }: { vehicle: VehicleDetail }) {
   const { openModal, vehicles: liveVehicles } = useBookingModal();
-  const [imgSrc, setImgSrc] = useState(vehicle.image || "/images/Cab.png");
+  // If live vehicles loaded in BookingContext, check for live pricing & image synchronization
+  const matchedLiveVehicle =
+    liveVehicles.find(
+      (lv) =>
+        lv.id === vehicle.apiVehicleId ||
+        lv.name.toLowerCase() === vehicle.name.toLowerCase()
+    ) || findMatchingApiVehicle(vehicle.slug || vehicle.id, liveVehicles);
+
+  const [imgSrc, setImgSrc] = useState(
+    getVehicleImage(matchedLiveVehicle, vehicle.image || "/images/Cab.png")
+  );
 
   useEffect(() => {
-    setImgSrc(vehicle.image || "/images/Cab.png");
-  }, [vehicle.image]);
-
-  // If live vehicles loaded in BookingContext, check for live pricing synchronization
-  const matchedLiveVehicle = liveVehicles.find(
-    (lv) =>
-      lv.id === vehicle.apiVehicleId ||
-      lv.name.toLowerCase() === vehicle.name.toLowerCase()
-  );
+    const liveImg = getVehicleImage(matchedLiveVehicle, vehicle.image || "/images/Cab.png");
+    setImgSrc(liveImg);
+  }, [vehicle.image, matchedLiveVehicle]);
 
   const displayPrice = matchedLiveVehicle?.prices?.departure_transfer?.amount
     ? `$${matchedLiveVehicle.prices.departure_transfer.amount}`

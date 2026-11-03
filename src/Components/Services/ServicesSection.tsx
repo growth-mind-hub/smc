@@ -3,7 +3,21 @@
 import React from "react";
 import Link from "next/link";
 import servicesData from "@/data/services.json";
-import { Plane, Briefcase, Sparkles, Users, Clock, HeartHandshake, ArrowRight } from "lucide-react";
+import {
+  Plane,
+  Briefcase,
+  Sparkles,
+  Users,
+  Clock,
+  HeartHandshake,
+  Crown,
+  Anchor,
+  Flag,
+  Building2,
+  Compass,
+  MapPin,
+  ArrowRight,
+} from "lucide-react";
 
 interface ServicesSectionProps {
   isPage?: boolean;
@@ -24,6 +38,18 @@ export default function ServicesSection({ isPage = false }: ServicesSectionProps
         return <Clock className="w-6 h-6 text-[#123F6B]" />;
       case "HeartHandshake":
         return <HeartHandshake className="w-6 h-6 text-[#123F6B]" />;
+      case "Crown":
+        return <Crown className="w-6 h-6 text-[#123F6B]" />;
+      case "Anchor":
+        return <Anchor className="w-6 h-6 text-[#123F6B]" />;
+      case "Flag":
+        return <Flag className="w-6 h-6 text-[#123F6B]" />;
+      case "Building2":
+        return <Building2 className="w-6 h-6 text-[#123F6B]" />;
+      case "Compass":
+        return <Compass className="w-6 h-6 text-[#123F6B]" />;
+      case "MapPin":
+        return <MapPin className="w-6 h-6 text-[#123F6B]" />;
       default:
         return <Plane className="w-6 h-6 text-[#123F6B]" strokeWidth={1.5} />;
     }

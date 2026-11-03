@@ -4,6 +4,8 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { useBookingModal } from "@/context/BookingContext";
+import { findMatchingApiVehicle, getVehicleImage } from "@/lib/fleetResolver";
 
 interface FleetItem {
   name: string;
@@ -80,36 +82,43 @@ interface FleetsDropdownProps {
 }
 
 export default function FleetsDropdown({ onItemClick }: FleetsDropdownProps) {
+  const { vehicles: liveVehicles } = useBookingModal();
+
   return (
     <div className="w-[360px] sm:w-[504px] overflow-hidden bg-white rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col z-50">
       {/* Scrollable Vehicle List */}
       <div className="max-h-[360px] sm:max-h-[380px] overflow-y-auto p-2 sm:p-3 flex flex-col divide-y divide-slate-100">
-      {fleets.map((fleet, index) => (
-        <Link
-          key={index}
-          href={`/fleets#${fleet.slug}`}
-          onClick={onItemClick}
-          className="p-3 sm:p-3.5 rounded-xl flex items-center gap-3.5 hover:bg-[#FBF7EC] active:scale-[0.99] transition-all group"
-        >
-          <div className="w-14 h-11 shrink-0 relative rounded-md overflow-hidden bg-slate-100 flex items-center justify-center p-1 border border-slate-200/70">
-            <Image
-              src={fleet.image}
-              alt={fleet.name}
-              fill
-              sizes="56px"
-              className="object-contain group-hover:scale-105 transition-transform"
-            />
-          </div>
-          <div className="flex flex-col items-start gap-0.5">
-            <span className="text-[#071E3B] text-sm sm:text-base font-semibold font-manrope leading-snug group-hover:text-[#C6A45A] transition-colors">
-              {fleet.name}
-            </span>
-            <span className="text-[#667085] text-xs font-normal font-manrope leading-4">
-              {fleet.capacity}
-            </span>
-          </div>
-        </Link>
-      ))}
+      {fleets.map((fleet, index) => {
+        const matchedApi = findMatchingApiVehicle(fleet.slug, liveVehicles);
+        const resolvedImage = getVehicleImage(matchedApi, fleet.image);
+
+        return (
+          <Link
+            key={index}
+            href={`/fleets#${fleet.slug}`}
+            onClick={onItemClick}
+            className="p-3 sm:p-3.5 rounded-xl flex items-center gap-3.5 hover:bg-[#FBF7EC] active:scale-[0.99] transition-all group"
+          >
+            <div className="w-14 h-11 shrink-0 relative rounded-md overflow-hidden bg-slate-100 flex items-center justify-center p-1 border border-slate-200/70">
+              <Image
+                src={resolvedImage}
+                alt={fleet.name}
+                fill
+                sizes="56px"
+                className="object-contain group-hover:scale-105 transition-transform"
+              />
+            </div>
+            <div className="flex flex-col items-start gap-0.5">
+              <span className="text-[#071E3B] text-sm sm:text-base font-semibold font-manrope leading-snug group-hover:text-[#C6A45A] transition-colors">
+                {fleet.name}
+              </span>
+              <span className="text-[#667085] text-xs font-normal font-manrope leading-4">
+                {fleet.capacity}
+              </span>
+            </div>
+          </Link>
+        );
+      })}
       </div>
 
       {/* Sticky Bottom Footer: View All Fleets */}
