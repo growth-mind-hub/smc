@@ -210,6 +210,7 @@ export function buildSectionVehicles(
   }
 
   const usedApiIds = new Set<number>();
+  const seenVehicleIds = new Set<string>();
 
   const matchSlot = (slotSlug: string, fallback: Vehicle): Vehicle => {
     const matched = apiVehicles.find(
@@ -217,8 +218,11 @@ export function buildSectionVehicles(
     );
     if (matched) {
       usedApiIds.add(matched.id);
-      return transformApiVehicleToCard(matched, fallback);
+      const card = transformApiVehicleToCard(matched, fallback);
+      seenVehicleIds.add(card.id);
+      return card;
     }
+    seenVehicleIds.add(fallback.id);
     return fallback;
   };
 
@@ -233,6 +237,9 @@ export function buildSectionVehicles(
 
   for (const v of remainingApi) {
     const card = transformApiVehicleToCard(v);
+    if (seenVehicleIds.has(card.id)) continue;
+    seenVehicleIds.add(card.id);
+
     const vName = (v.name || "").toLowerCase();
     const pax = v.passengerCapacity ?? 7;
 

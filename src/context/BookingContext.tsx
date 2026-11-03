@@ -79,6 +79,7 @@ interface BookingContextType {
   step: number;
   bookingData: BookingData;
   vehicles: VehicleCard[];
+  isLoadingVehicles: boolean;
   services: ServiceItem[];
   addOns: AddOnItem[];
   quote: QuoteResponse | null;
@@ -137,6 +138,7 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
 
   // Live Catalog State from API
   const [vehicles, setVehicles] = useState<VehicleCard[]>([]);
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState(true);
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [addOns, setAddOns] = useState<AddOnItem[]>([]);
 
@@ -153,6 +155,7 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
     let isMounted = true;
     async function loadCatalog() {
       try {
+        setIsLoadingVehicles(true);
         const [vehiclesRes, servicesRes, addOnsRes] = await Promise.allSettled([
           getVehicles(),
           getServices(),
@@ -172,6 +175,10 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
         }
       } catch (e) {
         console.warn("Could not connect to live backend catalog, using local fallbacks:", e);
+      } finally {
+        if (isMounted) {
+          setIsLoadingVehicles(false);
+        }
       }
     }
     loadCatalog();
@@ -533,6 +540,7 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
         step,
         bookingData,
         vehicles,
+        isLoadingVehicles,
         services,
         addOns,
         quote,

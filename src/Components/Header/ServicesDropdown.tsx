@@ -58,17 +58,17 @@ export default function ServicesDropdown({ onItemClick }: ServicesDropdownProps)
   };
 
   return (
-    <div className="w-[360px] sm:w-[504px] overflow-hidden bg-white rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col z-50">
-      {/* Scrollable Services List */}
-      <div className="max-h-[360px] sm:max-h-[380px] overflow-y-auto p-2 sm:p-3 flex flex-col divide-y divide-slate-100">
+    <div className="w-[360px] sm:w-[504px] max-h-[calc(100vh-100px)] overflow-hidden bg-white rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col z-50">
+      {/* Full Services List with natural height */}
+      <div className="min-h-0 flex-1 overflow-y-auto p-2 sm:p-2.5 flex flex-col divide-y divide-slate-100 [scrollbar-width:thin] [scrollbar-color:#C6A45A_transparent]">
         {servicesData.services.map((item) => (
           <Link
             key={item.id}
             href={`/services/${item.slug}`}
             onClick={onItemClick}
-            className="p-3 sm:p-3.5 rounded-xl flex items-center gap-3.5 hover:bg-[#FBF7EC] active:scale-[0.99] transition-all group"
+            className="p-2.5 sm:p-3 rounded-xl flex items-center gap-3.5 hover:bg-[#FBF7EC] active:scale-[0.99] transition-all group"
           >
-            <div className="w-11 h-11 shrink-0 rounded-xl bg-[#FBF7EC] border border-[#F4EAD1] flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 shrink-0 rounded-xl bg-[#FBF7EC] border border-[#F4EAD1] flex items-center justify-center group-hover:scale-105 transition-transform">
               {getServiceIcon(item.icon)}
             </div>
             <div className="flex flex-col items-start gap-0.5">

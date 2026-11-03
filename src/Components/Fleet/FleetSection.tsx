@@ -1,15 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import fleetData from "@/data/fleet.json";
 import FleetCard, { Vehicle } from "./FleetCard";
+import FleetCardSkeleton from "./FleetCardSkeleton";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { useBookingModal } from "@/context/BookingContext";
 import { transformApiVehicleToCard } from "@/lib/fleetResolver";
 
 export default function FleetSection() {
-  const { vehicles: liveVehicles } = useBookingModal();
+  const { vehicles: liveVehicles, isLoadingVehicles } = useBookingModal();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const showSkeleton = !mounted || isLoadingVehicles;
 
   // Transform live API vehicles or fallback to static fleetData
   const vehiclesToDisplay: Vehicle[] =
@@ -43,9 +51,17 @@ export default function FleetSection() {
         {/* Fleet Grid */}
         <div className="w-full flex flex-col gap-6 sm:gap-8">
           <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            {displayedVehicles.map((vehicle: Vehicle) => (
-              <FleetCard key={vehicle.id} vehicle={vehicle} />
-            ))}
+            {showSkeleton ? (
+              <>
+                <FleetCardSkeleton />
+                <FleetCardSkeleton />
+                <FleetCardSkeleton />
+              </>
+            ) : (
+              displayedVehicles.map((vehicle: Vehicle) => (
+                <FleetCard key={vehicle.id} vehicle={vehicle} />
+              ))
+            )}
           </div>
 
           {/* Bottom Banner: +5 More Vehicles */}

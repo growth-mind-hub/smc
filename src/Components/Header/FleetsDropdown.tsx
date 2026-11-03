@@ -85,9 +85,9 @@ export default function FleetsDropdown({ onItemClick }: FleetsDropdownProps) {
   const { vehicles: liveVehicles } = useBookingModal();
 
   return (
-    <div className="w-[360px] sm:w-[504px] overflow-hidden bg-white rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col z-50">
-      {/* Scrollable Vehicle List */}
-      <div className="max-h-[360px] sm:max-h-[380px] overflow-y-auto p-2 sm:p-3 flex flex-col divide-y divide-slate-100">
+    <div className="w-[360px] sm:w-[504px] max-h-[calc(100vh-100px)] overflow-hidden bg-white rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col z-50">
+      {/* Full Vehicle List with natural height */}
+      <div className="min-h-0 flex-1 overflow-y-auto p-2 sm:p-3 flex flex-col divide-y divide-slate-100 [scrollbar-width:thin] [scrollbar-color:#C6A45A_transparent]">
       {fleets.map((fleet, index) => {
         const matchedApi = findMatchingApiVehicle(fleet.slug, liveVehicles);
         const resolvedImage = getVehicleImage(matchedApi, fleet.image);
@@ -97,7 +97,7 @@ export default function FleetsDropdown({ onItemClick }: FleetsDropdownProps) {
             key={index}
             href={`/fleets#${fleet.slug}`}
             onClick={onItemClick}
-            className="p-3 sm:p-3.5 rounded-xl flex items-center gap-3.5 hover:bg-[#FBF7EC] active:scale-[0.99] transition-all group"
+            className="p-2.5 sm:p-3 rounded-xl flex items-center gap-3.5 hover:bg-[#FBF7EC] active:scale-[0.99] transition-all group"
           >
             <div className="w-14 h-11 shrink-0 relative rounded-md overflow-hidden bg-slate-100 flex items-center justify-center p-1 border border-slate-200/70">
               <Image

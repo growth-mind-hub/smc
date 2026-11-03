@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import FleetCard, { Vehicle } from "./FleetCard";
+import FleetCardSkeleton from "./FleetCardSkeleton";
 import fleetData from "@/data/fleet.json";
 import { useBookingModal } from "@/context/BookingContext";
 import { buildSectionVehicles } from "@/lib/fleetResolver";
@@ -14,11 +15,19 @@ interface FleetsPageSectionWiseProps {
 }
 
 export default function FleetsPageSectionWise({ initialVehicles = [] }: FleetsPageSectionWiseProps) {
-  const { openModal, vehicles: liveVehicles } = useBookingModal();
+  const { openModal, vehicles: liveVehicles, isLoadingVehicles } = useBookingModal();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Prefer live client catalog from BookingContext, fall back to SSR-fetched API vehicles
   const apiVehicles =
     liveVehicles && liveVehicles.length > 0 ? liveVehicles : initialVehicles;
+
+  const showSkeleton =
+    !mounted || (isLoadingVehicles && (!initialVehicles || initialVehicles.length === 0));
 
   // 1. Executive Travel Section Fallbacks
   const fallbackExecutive: Vehicle[] = [
@@ -233,9 +242,17 @@ export default function FleetsPageSectionWise({ initialVehicles = [] }: FleetsPa
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {executive.map((vehicle) => (
-              <FleetCard key={vehicle.id} vehicle={vehicle} />
-            ))}
+            {showSkeleton ? (
+              <>
+                <FleetCardSkeleton />
+                <FleetCardSkeleton />
+                <FleetCardSkeleton />
+              </>
+            ) : (
+              executive.map((vehicle) => (
+                <FleetCard key={vehicle.id} vehicle={vehicle} />
+              ))
+            )}
           </div>
         </section>
 
@@ -254,9 +271,17 @@ export default function FleetsPageSectionWise({ initialVehicles = [] }: FleetsPa
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {maxiCabs.map((vehicle) => (
-              <FleetCard key={vehicle.id} vehicle={vehicle} />
-            ))}
+            {showSkeleton ? (
+              <>
+                <FleetCardSkeleton />
+                <FleetCardSkeleton />
+                <FleetCardSkeleton />
+              </>
+            ) : (
+              maxiCabs.map((vehicle) => (
+                <FleetCard key={vehicle.id} vehicle={vehicle} />
+              ))
+            )}
           </div>
         </section>
 
@@ -275,9 +300,17 @@ export default function FleetsPageSectionWise({ initialVehicles = [] }: FleetsPa
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {minibuses.map((vehicle) => (
-              <FleetCard key={vehicle.id} vehicle={vehicle} />
-            ))}
+            {showSkeleton ? (
+              <>
+                <FleetCardSkeleton />
+                <FleetCardSkeleton />
+                <FleetCardSkeleton />
+              </>
+            ) : (
+              minibuses.map((vehicle) => (
+                <FleetCard key={vehicle.id} vehicle={vehicle} />
+              ))
+            )}
           </div>
         </section>
       </div>
