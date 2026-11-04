@@ -112,8 +112,14 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
 
       {/* Header */}
       <div className="flex flex-col justify-start items-start pr-8 sm:pr-0">
-        <div className="text-[#C6A45A] text-[11px] sm:text-xs font-bold font-manrope leading-4 uppercase tracking-wider">
-          QUICK &amp; EASY BOOKING
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#C6A45A] font-manrope">
+            Step 3 of 4
+          </span>
+          <span className="text-slate-300">•</span>
+          <span className="text-xs font-medium text-[#667085] font-manrope">
+            Passenger Details
+          </span>
         </div>
         <div className="text-[#071E3B] text-lg sm:text-xl font-bold font-manrope leading-6 sm:leading-7 pt-0.5">
           Tell Us About Your Journey

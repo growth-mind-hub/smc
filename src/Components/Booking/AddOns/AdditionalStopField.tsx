@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Check } from "lucide-react";
+import { useBookingModal } from "@/context/BookingContext";
 
 interface AdditionalStopFieldProps {
   onRemove: () => void;
@@ -9,18 +10,19 @@ interface AdditionalStopFieldProps {
 }
 
 export default function AdditionalStopField({ onRemove, onChange }: AdditionalStopFieldProps) {
+  const { addOns } = useBookingModal();
   const [stops, setStops] = useState(1);
   const [address, setAddress] = useState("");
+
+  const stopAddOn = addOns?.find(
+    (a) => a.code === "STOP_WITHIN_2KM" || a.name.toLowerCase().includes("stop")
+  );
+  const stopPrice = stopAddOn?.price ?? 10;
 
   const handleStopChange = (delta: number) => {
     const newVal = Math.max(1, stops + delta);
     setStops(newVal);
     onChange?.({ stops: newVal, address });
-  };
-
-  const handleAddressChange = (val: string) => {
-    setAddress(val);
-    onChange?.({ stops, address: val });
   };
 
   return (
@@ -42,7 +44,7 @@ export default function AdditionalStopField({ onRemove, onChange }: AdditionalSt
               Additional Stops
             </h4>
             <span className="text-xs sm:text-sm font-semibold text-[#C6A45A] font-inter">
-              From +$10 / stop
+              From +${stopPrice} / stop
             </span>
           </div>
           <p className="text-xs sm:text-sm text-[#667085] font-manrope">

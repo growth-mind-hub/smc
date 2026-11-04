@@ -114,19 +114,19 @@ const defaultBookingData: BookingData = {
   baseFare: 70,
   pickupDate: new Date().toISOString().split("T")[0],
   pickupTime: "17:15",
-  flightNo: "SQ 321",
-  flightNumber: "SQ 321",
-  signboardName: "MR. ALEXANDER WRIGHT",
+  flightNo: "",
+  flightNumber: "",
+  signboardName: "",
   terminal: "Terminal (TBA)",
   babySeat: false,
   nightTravel: false,
   extraStopsWithin2km: 0,
   extraStopsOver2km: 0,
   specialRequests: "",
-  name: "Alexander Wright",
-  phone: "91234567",
+  name: "",
+  phone: "",
   countryCode: "+65",
-  email: "alexander.wright@example.com",
+  email: "",
 };
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
@@ -539,18 +539,30 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
       }
     }
 
+    const meetGreetItem = addOns.find((a) => a.code === "MEET_GREET" || a.name.toLowerCase().includes("meet"));
+    const meetGreetPrice = meetGreetItem ? meetGreetItem.price : 20;
+
+    const babySeatItem = addOns.find((a) => a.code === "BABY_SEAT" || a.name.toLowerCase().includes("baby") || a.name.toLowerCase().includes("child"));
+    const babySeatPrice = babySeatItem ? babySeatItem.price : 20;
+
+    const stopWithin2kmItem = addOns.find((a) => a.code === "STOP_WITHIN_2KM" || a.name.toLowerCase().includes("within 2km") || a.name.toLowerCase().includes("stop"));
+    const stopWithin2kmPrice = stopWithin2kmItem ? stopWithin2kmItem.price : 10;
+
+    const stopOver2kmItem = addOns.find((a) => a.code === "STOP_OVER_2KM" || a.name.toLowerCase().includes("over 2km"));
+    const stopOver2kmPrice = stopOver2kmItem ? stopOver2kmItem.price : 20;
+
     if (bookingData.meetAndGreet) {
-      total += 20 * (bookingData.meetGreetPax || 1);
+      total += meetGreetPrice * (bookingData.meetGreetPax || 1);
     }
     if (bookingData.babySeat) {
-      total += 20 * (bookingData.babySeatsCount || 1);
+      total += babySeatPrice * (bookingData.babySeatsCount || 1);
     }
     const stops = bookingData.additionalStopsCount || bookingData.extraStopsWithin2km || 0;
     if (stops > 0) {
-      total += 10 * stops;
+      total += stopWithin2kmPrice * stops;
     }
     if (bookingData.extraStopsOver2km && bookingData.extraStopsOver2km > 0) {
-      total += 20 * bookingData.extraStopsOver2km;
+      total += stopOver2kmPrice * bookingData.extraStopsOver2km;
     }
     return total;
   };

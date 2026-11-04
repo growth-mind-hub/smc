@@ -176,9 +176,15 @@ export default function CityTourCard({ isModal = true }: CityTourCardProps) {
 
       {/* Header */}
       <div className="self-stretch flex flex-col justify-start items-start gap-1 pr-8 sm:pr-0">
-        <span className="text-[#C6A45A] text-xs font-semibold font-manrope leading-4 tracking-wider uppercase">
-          City Tour
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#C6A45A] font-manrope">
+            Step 1 of 4
+          </span>
+          <span className="text-slate-300">•</span>
+          <span className="text-xs font-medium text-[#667085] font-manrope">
+            City Tour
+          </span>
+        </div>
         <h2 className="text-[#071E3B] text-base sm:text-lg font-bold font-manrope uppercase leading-6 tracking-wide">
           FIXED ALL-INCLUSIVE FARE
         </h2>

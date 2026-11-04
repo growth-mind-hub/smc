@@ -5,7 +5,46 @@ import { useBookingModal } from "@/context/BookingContext";
 import { Plane, Clock, Car, MapPin, Check, ShieldCheck, ChevronRight, ArrowRight, X } from "lucide-react";
 
 export default function CommonServiceSelectionModal() {
-  const { setStep, updateBookingData, closeModal } = useBookingModal();
+  const { setStep, updateBookingData, closeModal, vehicles, addOns } = useBookingModal();
+
+  // Dynamic meet & greet add-on rate from live API
+  const meetGreetAddOn = addOns?.find(
+    (a) => a.code === "MEET_GREET" || a.name.toLowerCase().includes("meet")
+  );
+  const meetGreetPrice = meetGreetAddOn?.price ?? 20;
+
+  // Dynamic baseline starting rates calculated directly from live API vehicles
+  const minAirportFare = React.useMemo(() => {
+    if (!vehicles || vehicles.length === 0) return 70;
+    const fares = vehicles
+      .map((v) => v.prices?.arrival?.amount || v.prices?.departure_transfer?.amount)
+      .filter((f): f is number => typeof f === "number" && f > 0);
+    return fares.length > 0 ? Math.min(...fares) : 70;
+  }, [vehicles]);
+
+  const minCityFare = React.useMemo(() => {
+    if (!vehicles || vehicles.length === 0) return 65;
+    const fares = vehicles
+      .map((v) => v.prices?.departure_transfer?.amount || v.prices?.arrival?.amount)
+      .filter((f): f is number => typeof f === "number" && f > 0);
+    return fares.length > 0 ? Math.min(...fares) : 65;
+  }, [vehicles]);
+
+  const minHourlyRate = React.useMemo(() => {
+    if (!vehicles || vehicles.length === 0) return 65;
+    const rates = vehicles
+      .map((v) => v.prices?.hourly?.amount)
+      .filter((r): r is number => typeof r === "number" && r > 0);
+    return rates.length > 0 ? Math.min(...rates) : 65;
+  }, [vehicles]);
+
+  const minCityTourFare = React.useMemo(() => {
+    if (!vehicles || vehicles.length === 0) return 80;
+    const fares = vehicles
+      .map((v) => v.prices?.departure_transfer?.amount || v.prices?.arrival?.amount)
+      .filter((f): f is number => typeof f === "number" && f > 0);
+    return fares.length > 0 ? Math.min(...fares) + 10 : 80;
+  }, [vehicles]);
 
   const handleSelect = (service: {
     title: string;
@@ -32,13 +71,12 @@ export default function CommonServiceSelectionModal() {
       title: "Airport Transfer",
       displayTitle: "Arrival / Departure",
       discount: "10% OFF",
-      fromPrice: "From $75",
-      fare: 75,
+      fromPrice: `From $${minAirportFare}`,
+      fare: minAirportFare,
       fleet: "Mercedes-Benz V-Class / Toyota Vellfire",
       slug: "7-seater",
-      description:
-        "Changi Airport meet & greet with flight tracking & 60-min terminal grace period. Fixed rates from $75.",
-      tags: ["Meet & Greet", "60m Grace", "Flight Monitored"],
+      description: `Changi Airport meet & greet (+$${meetGreetPrice}) with flight tracking & 60-min terminal grace period. Fixed rates from $${minAirportFare}.`,
+      tags: [`Meet & Greet (+$${meetGreetPrice})`, "60m Grace", "Flight Monitored"],
       icon: <Plane className="w-3.5 h-3.5 text-[#C6A45A]" strokeWidth={1.5} />,
       pickup: "Singapore Changi Airport (SIN)",
       dropoff: "Marina Bay Sands Hotel",
@@ -49,12 +87,11 @@ export default function CommonServiceSelectionModal() {
       title: "Hourly Charter",
       displayTitle: "Hourly Charter",
       discount: "10% OFF",
-      fromPrice: "From $75",
-      fare: 75,
+      fromPrice: `From $${minHourlyRate}/hr`,
+      fare: minHourlyRate,
       fleet: "Toyota Vellfire / Alphard Executive",
       slug: "7-seater",
-      description:
-        "Dedicated chauffeur at your disposal, flexible itinerary, 3 hr minimum. From $65/hr.",
+      description: `Dedicated chauffeur at your disposal, flexible itinerary, 3 hr minimum. From $${minHourlyRate}/hr.`,
       tags: ["3h Minimum", "Unlimited Stops", "On-Standby"],
       icon: <Clock className="w-3.5 h-3.5 text-[#C6A45A]" />,
       pickup: "Hotel Grand Pacific Singapore",
@@ -66,12 +103,11 @@ export default function CommonServiceSelectionModal() {
       title: "City Transfer",
       displayTitle: "City Transfer",
       discount: "10% OFF",
-      fromPrice: "From $65",
-      fare: 65,
+      fromPrice: `From $${minCityFare}`,
+      fare: minCityFare,
       fleet: "Toyota Vellfire / Alphard",
       slug: "6-seater",
-      description:
-        "Effortless hotel, office, and point-to-point journeys across Singapore. Fixed rates from $65.",
+      description: `Effortless hotel, office, and point-to-point journeys across Singapore. Fixed rates from $${minCityFare}.`,
       tags: ["Direct Route", "Zero Surge", "Luggage Assist"],
       icon: <Car className="w-3.5 h-3.5 text-[#C6A45A]" />,
       pickup: "Marina Bay Financial Centre",
@@ -83,12 +119,11 @@ export default function CommonServiceSelectionModal() {
       title: "City Tour",
       displayTitle: "City Tour",
       discount: "10% OFF",
-      fromPrice: "From $75",
-      fare: 75,
+      fromPrice: `From $${minCityTourFare}`,
+      fare: minCityTourFare,
       fleet: "Mercedes-Benz Vito / Toyota HiAce",
       slug: "9-seater",
-      description:
-        "Customized island tour, Marina Bay, Sentosa, cultural landmarks. From 1 day.",
+      description: `Customized island tour, Marina Bay, Sentosa, cultural landmarks. From $${minCityTourFare}.`,
       tags: ["Full Day Options", "Bespoke Route", "Local Guide"],
       icon: <MapPin className="w-3.5 h-3.5 text-[#C6A45A]" />,
       pickup: "Marina Bay Sands Foyer",
@@ -203,7 +238,7 @@ export default function CommonServiceSelectionModal() {
         </div>
         <div className="text-[#071E3B] font-bold">24/7 Dispatch (+65) 8800 6006</div>
         <div className="px-2.5 py-0.5 rounded-md bg-[#FBF7EC] border border-[#F4EAD1] text-[#A77E3C] font-bold">
-          Step 1 of 3
+          Service Selection
         </div>
       </div>
     </div>

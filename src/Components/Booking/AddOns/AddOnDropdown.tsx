@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Check } from "lucide-react";
+import { useBookingModal } from "@/context/BookingContext";
 
 export interface AddOnOption {
   id: string;
@@ -14,17 +15,34 @@ interface AddOnDropdownProps {
   activeIds: string[];
 }
 
-export const ADDON_OPTIONS: AddOnOption[] = [
-  { id: "meet-greet", name: "Meet & Greet service", priceNote: "+$20" },
-  { id: "baby-seat", name: "Baby Seat", priceNote: "+$20" },
-  { id: "additional-stops", name: "Additional Stops", priceNote: "From +$10" },
-  { id: "wheelchair", name: "Wheelchair Accessible", priceNote: "Available" },
-];
-
 export default function AddOnDropdown({ onSelect, activeIds }: AddOnDropdownProps) {
+  const { addOns } = useBookingModal();
+
+  const meetGreetAddOn = addOns?.find(
+    (a) => a.code === "MEET_GREET" || a.name.toLowerCase().includes("meet")
+  );
+  const meetGreetPrice = meetGreetAddOn?.price ?? 20;
+
+  const babySeatAddOn = addOns?.find(
+    (a) => a.code === "BABY_SEAT" || a.name.toLowerCase().includes("baby") || a.name.toLowerCase().includes("child")
+  );
+  const babySeatPrice = babySeatAddOn?.price ?? 20;
+
+  const stopAddOn = addOns?.find(
+    (a) => a.code === "STOP_WITHIN_2KM" || a.name.toLowerCase().includes("stop")
+  );
+  const stopPrice = stopAddOn?.price ?? 10;
+
+  const dynamicOptions: AddOnOption[] = [
+    { id: "meet-greet", name: "Meet & Greet service", priceNote: `+$${meetGreetPrice}` },
+    { id: "baby-seat", name: "Baby Seat", priceNote: `+$${babySeatPrice}` },
+    { id: "additional-stops", name: "Additional Stops", priceNote: `From +$${stopPrice}` },
+    { id: "wheelchair", name: "Wheelchair Accessible", priceNote: "Available" },
+  ];
+
   return (
     <div className="w-full bg-white rounded-xl border border-slate-200/90 shadow-xl p-2 flex flex-col gap-1 z-30 animate-in fade-in zoom-in-95 duration-150">
-      {ADDON_OPTIONS.map((opt) => {
+      {dynamicOptions.map((opt) => {
         const isSelected = activeIds.includes(opt.id);
         return (
           <button

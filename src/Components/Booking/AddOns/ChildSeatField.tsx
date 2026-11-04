@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Check } from "lucide-react";
+import { useBookingModal } from "@/context/BookingContext";
 
 interface ChildSeatFieldProps {
   onRemove: () => void;
@@ -9,9 +10,15 @@ interface ChildSeatFieldProps {
 }
 
 export default function ChildSeatField({ onRemove, onChange }: ChildSeatFieldProps) {
+  const { addOns } = useBookingModal();
   const [seats, setSeats] = useState(1);
   const [seatType, setSeatType] = useState<"Infant" | "Toddler">("Toddler");
   const [childAge, setChildAge] = useState("");
+
+  const babySeatAddOn = addOns?.find(
+    (a) => a.code === "BABY_SEAT" || a.name.toLowerCase().includes("baby") || a.name.toLowerCase().includes("child")
+  );
+  const babySeatPrice = babySeatAddOn?.price ?? 20;
 
   const handleSeatChange = (delta: number) => {
     const newVal = Math.max(1, seats + delta);
@@ -48,7 +55,7 @@ export default function ChildSeatField({ onRemove, onChange }: ChildSeatFieldPro
               Child Seat
             </h4>
             <span className="text-xs sm:text-sm font-semibold text-[#C6A45A] font-inter">
-              +$20 / seat
+              +${babySeatPrice} / seat
             </span>
           </div>
           <p className="text-xs sm:text-sm text-[#667085] font-manrope">

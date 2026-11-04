@@ -38,6 +38,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
     quoteError,
     isCheckingOut,
     checkoutError,
+    addOns,
   } = useBookingModal();
 
   const [isSuccess, setIsSuccess] = useState(false);
@@ -124,9 +125,24 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       });
     });
   } else {
+    const meetGreetItem = addOns?.find(
+      (a) => a.code === "MEET_GREET" || a.name.toLowerCase().includes("meet")
+    );
+    const meetGreetPrice = meetGreetItem?.price ?? 20;
+
+    const babySeatItem = addOns?.find(
+      (a) => a.code === "BABY_SEAT" || a.name.toLowerCase().includes("baby") || a.name.toLowerCase().includes("child")
+    );
+    const babySeatPrice = babySeatItem?.price ?? 20;
+
+    const stopItem = addOns?.find(
+      (a) => a.code === "STOP_WITHIN_2KM" || a.name.toLowerCase().includes("stop")
+    );
+    const stopPrice = stopItem?.price ?? 10;
+
     if (bookingData.meetAndGreet) {
       const pax = bookingData.meetGreetPax || 1;
-      const amt = 20 * pax;
+      const amt = meetGreetPrice * pax;
       selectedAddOnsList.push({
         id: "meet-greet",
         title: "Meet & Greet Service",
@@ -138,7 +154,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
     if (bookingData.babySeat) {
       const seats = bookingData.babySeatsCount || 1;
-      const amt = 20 * seats;
+      const amt = babySeatPrice * seats;
       const typeStr = bookingData.babySeatType || "Toddler";
       const ageStr = bookingData.babySeatAge ? ` (${bookingData.babySeatAge})` : "";
       selectedAddOnsList.push({
@@ -152,7 +168,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
     const stops = bookingData.additionalStopsCount || bookingData.extraStopsWithin2km || 0;
     if (stops > 0) {
-      const amt = 10 * stops;
+      const amt = stopPrice * stops;
       selectedAddOnsList.push({
         id: "additional-stops",
         title: `Additional Stop${stops > 1 ? "s" : ""} (${stops} stop${stops > 1 ? "s" : ""})`,
@@ -223,8 +239,8 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         : `*Dropoff / Scope:* ${bookingData.dropoff || "As-Directed City Tour"}%0A`) +
       `*Date & Time:* ${bookingData.pickupDate || "24 Oct 2024"} at ${bookingData.pickupTime || "17:15"} SGT%0A` +
       `*Pax:* ${bookingData.passengers || 7} | *Luggage:* ${bookingData.luggage || 5} Bags%0A` +
-      `*Passenger Name:* ${bookingData.name || "Alexander Wright"}%0A` +
-      `*Phone/WhatsApp:* ${bookingData.countryCode} ${bookingData.phone || "88006006"}%0A` +
+      `*Passenger Name:* ${bookingData.name || "Customer"}%0A` +
+      `*Phone/WhatsApp:* ${bookingData.phone ? `${bookingData.countryCode} ${bookingData.phone}` : "Via WhatsApp"}%0A` +
       `*Email:* ${bookingData.email || "booking@singaporemaxicabs.com.sg"}%0A` +
       (bookingData.flightNumber ? `*Flight Number:* ${bookingData.flightNumber}%0A` : "") +
       (bookingData.signboardName ? `*Signboard Name:* ${bookingData.signboardName}%0A` : "") +
@@ -338,10 +354,16 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
       {/* Header */}
       <div className="flex flex-col justify-start items-start pr-8 sm:pr-0">
-        <div className="text-[#C6A45A] text-xs font-semibold font-manrope leading-4 uppercase">
-          QUICK &amp; EASY BOOKING
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#C6A45A] font-manrope">
+            Step 4 of 4
+          </span>
+          <span className="text-slate-300">•</span>
+          <span className="text-xs font-medium text-[#667085] font-manrope">
+            Review &amp; Payment
+          </span>
         </div>
-        <div className="text-[#071E3B] text-xl font-semibold font-manrope leading-7">
+        <div className="text-[#071E3B] text-xl font-semibold font-manrope leading-7 pt-0.5">
           Review Your Journey
         </div>
       </div>
@@ -476,8 +498,8 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               {bookingData.signboardName
                 ? bookingData.signboardName.toUpperCase()
                 : bookingData.name
-                ? `MR. ${bookingData.name.toUpperCase()}`
-                : "MR. ALEXANDER WRIGHT"}
+                ? bookingData.name.toUpperCase()
+                : "PASSENGER SIGNBOARD"}
             </div>
             <div className="text-[#5F6B7A] text-xs sm:text-sm font-medium font-manrope leading-5">
               Driver will hold in Arrival Hall
@@ -491,10 +513,10 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             PASSENGER
           </span>
           <div className="text-[#071E3B] text-base font-bold font-manrope leading-6">
-            {bookingData.name || "Alexander Wright"}
+            {bookingData.name || "Customer"}
           </div>
           <div className="text-[#5F6B7A] text-xs sm:text-sm font-medium font-manrope leading-5">
-            {bookingData.countryCode} {bookingData.phone || "9123 4567"}
+            {bookingData.phone ? `${bookingData.countryCode} ${bookingData.phone}` : "Contact on file"}
           </div>
         </div>
 

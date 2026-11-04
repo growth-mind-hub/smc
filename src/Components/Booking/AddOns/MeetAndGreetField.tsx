@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Check } from "lucide-react";
+import { useBookingModal } from "@/context/BookingContext";
 
 interface MeetAndGreetFieldProps {
   onRemove: () => void;
@@ -9,7 +10,13 @@ interface MeetAndGreetFieldProps {
 }
 
 export default function MeetAndGreetField({ onRemove, onChange }: MeetAndGreetFieldProps) {
+  const { addOns } = useBookingModal();
   const [passengers, setPassengers] = useState(1);
+
+  const meetGreetAddOn = addOns?.find(
+    (a) => a.code === "MEET_GREET" || a.name.toLowerCase().includes("meet")
+  );
+  const meetGreetPrice = meetGreetAddOn?.price ?? 20;
 
   const handlePaxChange = (delta: number) => {
     const newVal = Math.max(1, passengers + delta);
@@ -36,7 +43,7 @@ export default function MeetAndGreetField({ onRemove, onChange }: MeetAndGreetFi
               Meet &amp; Greet service
             </h4>
             <span className="text-xs sm:text-sm font-semibold text-[#C6A45A] font-inter">
-              +$20 SGD
+              +${meetGreetPrice} SGD
             </span>
           </div>
           <p className="text-xs sm:text-sm text-[#667085] font-manrope">

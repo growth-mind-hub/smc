@@ -12,8 +12,14 @@ interface AirportTransferCardProps {
 }
 
 export default function AirportTransferCard({ isModal = true }: AirportTransferCardProps) {
-  const { bookingData, updateBookingData, setStep, closeModal, vehicles } = useBookingModal();
+  const { bookingData, updateBookingData, setStep, closeModal, vehicles, addOns } = useBookingModal();
   const [showTooltip, setShowTooltip] = useState(false);
+
+  // Dynamic meet & greet add-on rate from live API
+  const meetGreetAddOn = addOns?.find(
+    (a) => a.code === "MEET_GREET" || a.name.toLowerCase().includes("meet")
+  );
+  const meetGreetPrice = meetGreetAddOn?.price ?? 20;
 
   // Derive fleet options from live API vehicles with fallback to fleet.json
   const fleetOptions =
@@ -114,8 +120,14 @@ export default function AirportTransferCard({ isModal = true }: AirportTransferC
 
       {/* Header */}
       <div className="self-stretch flex flex-col justify-start items-start pr-8 sm:pr-0">
-        <div className="self-stretch text-[#C6A45A] text-xs font-semibold font-manrope leading-4 uppercase tracking-wider">
-          ARRIVAL / DEPARTURE
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#C6A45A] font-manrope">
+            Step 1 of 4
+          </span>
+          <span className="text-slate-300">•</span>
+          <span className="text-xs font-medium text-[#667085] font-manrope">
+            Airport Transfer
+          </span>
         </div>
         <div className="self-stretch pt-1 flex flex-col justify-start items-start">
           <div className="text-left text-[#071E3B] text-base sm:text-lg font-bold font-manrope uppercase leading-6 tracking-wide">
@@ -125,7 +137,7 @@ export default function AirportTransferCard({ isModal = true }: AirportTransferC
       </div>
 
       <form onSubmit={handleContinue} className="self-stretch flex flex-col justify-start items-start gap-4">
-        {/* Airport Meet & Greet Toggle (+$25) */}
+        {/* Airport Meet & Greet Toggle (+$20) */}
         <div
           onClick={() => updateBookingData({ meetAndGreet: !bookingData.meetAndGreet })}
           className="self-stretch p-3 sm:px-4 sm:py-3 bg-[#F8F7F4] rounded-xl border border-slate-200/80 flex justify-between items-center cursor-pointer hover:border-[#C6A45A] active:scale-[0.99] transition-all select-none"
@@ -165,7 +177,7 @@ export default function AirportTransferCard({ isModal = true }: AirportTransferC
             </div>
           </div>
           <div className="px-2 py-0.5 rounded bg-[#FEF3C7] text-[#92400E] text-sm sm:text-base font-bold font-manrope leading-6">
-            +$25
+            +${meetGreetPrice}
           </div>
         </div>
 

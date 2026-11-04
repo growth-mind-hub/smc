@@ -122,8 +122,14 @@ export default function CityTransferCard({ isModal = true }: CityTransferCardPro
 
       {/* Header */}
       <div className="self-stretch flex flex-col justify-start items-start pr-8 sm:pr-0">
-        <div className="self-stretch text-[#C6A45A] text-xs font-semibold font-manrope leading-4 uppercase tracking-wider">
-          CITY TRANSFER
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#C6A45A] font-manrope">
+            Step 1 of 4
+          </span>
+          <span className="text-slate-300">•</span>
+          <span className="text-xs font-medium text-[#667085] font-manrope">
+            City Transfer
+          </span>
         </div>
         <div className="self-stretch pt-1 flex flex-col justify-start items-start">
           <div className="text-left text-[#071E3B] text-base sm:text-lg font-bold font-manrope uppercase leading-6 tracking-wide">
