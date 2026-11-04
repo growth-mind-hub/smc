@@ -356,28 +356,28 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
         </div>
 
         {/* Action Buttons: Back & Continue */}
-        <div className="self-stretch flex justify-start items-center gap-3">
+        <div className="self-stretch flex items-center gap-2.5 sm:gap-3 w-full">
           <button
             type="button"
             onClick={() => setStep(2)}
-            className="px-5 sm:px-8 py-3.5 bg-[#E9ECEF] hover:bg-slate-200 active:scale-95 rounded-xl flex justify-center items-center gap-2 transition-colors cursor-pointer text-[#5F6B7A] text-sm sm:text-base font-bold font-manrope"
+            className="px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#E9ECEF] hover:bg-slate-200 active:scale-95 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 transition-colors cursor-pointer text-[#5F6B7A] text-xs sm:text-base font-bold font-manrope shrink-0"
           >
             <ArrowLeft className="w-4 h-4 text-[#5F6B7A]" />
             <span>Back</span>
           </button>
           <button
             type="submit"
-            className="flex-1 py-3.5 bg-[#071E3B] hover:bg-[#0B2A4A] active:scale-98 text-white rounded-xl flex justify-center items-center gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer group"
+            className="flex-1 min-w-0 py-3 sm:py-3.5 px-3 sm:px-6 bg-[#071E3B] hover:bg-[#0B2A4A] active:scale-98 text-white rounded-xl flex items-center justify-center gap-2 sm:gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer group text-xs sm:text-base font-bold font-manrope whitespace-nowrap"
           >
-            <span className="text-white text-sm sm:text-base font-bold font-manrope">
+            <span className="text-white">
               Review Itinerary
             </span>
-            <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform shrink-0" />
           </button>
         </div>
 
         {/* Sub Links */}
-        <div className="self-stretch inline-flex justify-between items-center pt-1">
+        <div className="self-stretch flex flex-wrap justify-between items-center gap-2 pt-1">
           <Link
             href="/pricing"
             onClick={closeModal}

@@ -266,11 +266,11 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
       </div>
 
       {/* Actions Footer */}
-      <div className="self-stretch flex items-center justify-between gap-3 pt-2 border-t border-slate-100">
+      <div className="self-stretch flex items-center justify-between gap-2.5 sm:gap-3 pt-2 border-t border-slate-100">
         <button
           type="button"
           onClick={() => setStep(1)}
-          className="px-4 sm:px-6 py-3 rounded-lg border border-slate-200 hover:bg-slate-50 active:scale-98 text-xs sm:text-sm font-bold text-[#5F6B7A] font-manrope transition-all flex items-center gap-2 cursor-pointer"
+          className="px-3.5 sm:px-6 py-3 rounded-lg border border-slate-200 hover:bg-slate-50 active:scale-98 text-xs sm:text-sm font-bold text-[#5F6B7A] font-manrope transition-all flex items-center gap-1.5 sm:gap-2 shrink-0 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -279,10 +279,13 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
         <button
           type="button"
           onClick={handleContinue}
-          className="flex-1 px-6 py-3 rounded-lg bg-[#071E3B] hover:bg-[#0B2A4A] active:scale-98 text-white text-xs sm:text-sm font-bold font-manrope transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+          className="flex-1 min-w-0 px-3 sm:px-6 py-3 rounded-lg bg-[#071E3B] hover:bg-[#0B2A4A] active:scale-98 text-white text-xs sm:text-sm font-bold font-manrope transition-all shadow-md flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer whitespace-nowrap"
         >
-          <span>Continue to Passenger Details</span>
-          <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+          <span>
+            <span className="inline sm:hidden">Passenger Details</span>
+            <span className="hidden sm:inline">Continue to Passenger Details</span>
+          </span>
+          <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
         </button>
       </div>
     </div>

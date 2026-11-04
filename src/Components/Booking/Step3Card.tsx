@@ -323,7 +323,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
   }
 
   return (
-    <div className="w-full max-w-[562px] mx-auto p-5 bg-white rounded-2xl border border-slate-200 flex flex-col justify-start items-start gap-5 shadow-2xl relative max-h-[92vh] overflow-y-auto selection:bg-[#C6A45A] selection:text-[#071E3B]">
+    <div className="w-full max-w-[562px] mx-auto p-3.5 sm:p-6 md:p-7 bg-white rounded-2xl border border-slate-200 flex flex-col justify-start items-start gap-4 sm:gap-5 shadow-2xl relative max-h-[92vh] overflow-y-auto overflow-x-hidden selection:bg-[#C6A45A] selection:text-[#071E3B]">
       {/* Close button if in modal */}
       {isModal && closeModal && (
         <button
@@ -347,7 +347,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       </div>
 
       {/* Confirmed Vehicle Class Hero Card */}
-      <div className="w-full h-[288px] min-h-[288px] shrink-0 relative rounded-2xl flex flex-col justify-between p-4 sm:p-5 overflow-hidden bg-slate-900 shadow-md">
+      <div className="w-full h-[240px] sm:h-[288px] min-h-[240px] sm:min-h-[288px] shrink-0 relative rounded-2xl flex flex-col justify-between p-3.5 sm:p-5 overflow-hidden bg-slate-900 shadow-md">
         <Image
           src="/images/bookinpage3.png"
           alt={bookingData.selectedFleet || "7 Seater Maxi Cab"}
@@ -359,33 +359,33 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/40 via-55% to-transparent pointer-events-none" />
 
         {/* Top Badges */}
-        <div className="relative z-10 flex items-center gap-3 flex-wrap">
+        <div className="relative z-10 flex items-center gap-2 sm:gap-3 flex-wrap">
           <div className="px-2.5 py-1 bg-[#071E3B]/80 rounded-md border border-white/20 backdrop-blur-md flex items-center gap-1.5 shadow-sm">
             <div className="w-3.5 h-3.5 rounded-full bg-[#C6A45A] flex items-center justify-center shrink-0">
               <Star className="w-2 h-2 text-[#071E3B] fill-[#071E3B]" />
             </div>
-            <span className="text-white text-[11px] sm:text-xs font-bold font-manrope tracking-wider leading-none uppercase">
+            <span className="text-white text-[10px] sm:text-xs font-bold font-manrope tracking-wider leading-none uppercase">
               VIP CHANGI CONCIERGE
             </span>
           </div>
           <div className="px-2.5 py-1 bg-[#071E3B]/80 rounded-md border border-white/20 backdrop-blur-md flex items-center shadow-sm">
-            <span className="text-white text-[11px] sm:text-xs font-bold font-manrope tracking-wider leading-none uppercase">
+            <span className="text-white text-[10px] sm:text-xs font-bold font-manrope tracking-wider leading-none uppercase">
               {bookingData.selectedFleet ? bookingData.selectedFleet.toUpperCase() : "7 SEATER MAXI CAB"}
             </span>
           </div>
         </div>
 
         {/* Bottom Vehicle Info */}
-        <div className="relative z-10 flex flex-col justify-start items-start gap-1.5">
+        <div className="relative z-10 flex flex-col justify-start items-start gap-1 sm:gap-1.5">
           <div className="self-stretch flex items-center justify-between gap-2 flex-wrap">
-            <span className="text-[#C6A45A] text-xs sm:text-sm font-bold font-manrope tracking-wider uppercase">
+            <span className="text-[#C6A45A] text-[11px] sm:text-sm font-bold font-manrope tracking-wider uppercase">
               CONFIRMED VEHICLE CLASS
             </span>
-            <div className="px-2.5 py-1 bg-[#071E3B]/80 rounded-md border border-white/20 backdrop-blur-md flex items-center gap-1.5 text-white text-[11px] sm:text-xs font-semibold font-manrope shadow-sm">
-              <Users className="w-3.5 h-3.5 text-[#C6A45A]" />
+            <div className="px-2 sm:px-2.5 py-1 bg-[#071E3B]/80 rounded-md border border-white/20 backdrop-blur-md flex items-center gap-1.5 text-white text-[10px] sm:text-xs font-semibold font-manrope shadow-sm">
+              <Users className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-[#C6A45A]" />
               <span>Max {bookingData.passengers || 7} Pax</span>
               <span className="text-white/60 font-normal">•</span>
-              <Briefcase className="w-3.5 h-3.5 text-[#C6A45A]" />
+              <Briefcase className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-[#C6A45A]" />
               <span>
                 {bookingData.luggage || 5}{" "}
                 <span className="hidden sm:inline">Luggage</span>
@@ -393,7 +393,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               </span>
             </div>
           </div>
-          <div className="text-white text-xl sm:text-2xl font-bold font-manrope leading-tight tracking-tight drop-shadow-sm">
+          <div className="text-white text-lg sm:text-2xl font-bold font-manrope leading-tight tracking-tight drop-shadow-sm">
             {bookingData.selectedFleet === "6 Seater Maxi Cab"
               ? "Toyota Vellfire / Toyota Alphard"
               : bookingData.selectedFleet === "9 Seater Maxi Cab"
@@ -410,12 +410,12 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       </div>
 
       {/* Journey & Booking Details Flow */}
-      <div className="self-stretch flex flex-col justify-start items-start gap-8">
+      <div className="self-stretch flex flex-col justify-start items-start gap-6 sm:gap-8">
         {/* Row 1: Pick Up & Destination */}
-        <div className="self-stretch grid grid-cols-1 sm:grid-cols-2 gap-8 items-start">
+        <div className="self-stretch grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 items-start">
           {/* Pick Up */}
-          <div className="flex flex-col justify-start items-start gap-2">
-            <div className="inline-flex items-center gap-1.5">
+          <div className="flex flex-col justify-start items-start gap-1 sm:gap-2">
+            <div className="inline-flex items-center gap-1.5 flex-wrap">
               <span className="text-[#8A5A00] text-sm font-medium font-inter leading-5">
                 Pick Up
               </span>
@@ -432,30 +432,30 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                     : "Terminal (TBA)")}
               </span>
             </div>
-            <div className="text-[#071E3B] text-base font-bold font-manrope leading-7">
+            <div className="text-[#071E3B] text-base font-bold font-manrope leading-snug sm:leading-7 break-words">
               {bookingData.pickup || "Singapore Changi Airport (SIN)"}
             </div>
-            <div className="text-[#667085] text-base font-normal font-manrope leading-6">
+            <div className="text-[#667085] text-xs sm:text-base font-normal font-manrope leading-5 sm:leading-6">
               Arrival Hall Belt 42 Meetpoint , Flight buffer active
             </div>
           </div>
 
           {/* Destination */}
-          <div className="flex flex-col justify-start items-start gap-2">
+          <div className="flex flex-col justify-start items-start gap-1 sm:gap-2">
             <span className="text-[#8A5A00] text-sm font-medium font-inter leading-5">
               Destination
             </span>
-            <div className="text-[#071E3B] text-base font-bold font-manrope leading-7">
+            <div className="text-[#071E3B] text-base font-bold font-manrope leading-snug sm:leading-7 break-words">
               {bookingData.dropoff || "Marina Bay Sands Hotel"}
             </div>
-            <div className="text-[#667085] text-base font-normal font-manrope leading-6">
+            <div className="text-[#667085] text-xs sm:text-base font-normal font-manrope leading-5 sm:leading-6">
               10 Bayfront Avenue, Singapore 018956 (Tower 1 VIP Foyer)
             </div>
           </div>
         </div>
 
         {/* Row 2: Date & Time and IPAD Signboard */}
-        <div className="self-stretch grid grid-cols-1 sm:grid-cols-2 gap-8 items-start">
+        <div className="self-stretch grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 items-start">
           <div className="flex flex-col justify-start items-start gap-1">
             <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase">
               DATE &amp; TIME
@@ -463,7 +463,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             <div className="text-[#071E3B] text-base font-bold font-manrope leading-6">
               {bookingData.pickupDate || "24 Oct 2024"}
             </div>
-            <div className="text-[#5F6B7A] text-sm font-medium font-manrope leading-5">
+            <div className="text-[#5F6B7A] text-xs sm:text-sm font-medium font-manrope leading-5">
               {bookingData.pickupTime || "17:15"} SGT (SQ 321 Buffer)
             </div>
           </div>
@@ -472,14 +472,14 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase">
               IPAD SIGNBOARD
             </span>
-            <div className="text-[#071E3B] text-base font-bold font-manrope leading-6">
+            <div className="text-[#071E3B] text-base font-bold font-manrope leading-6 break-words">
               {bookingData.signboardName
                 ? bookingData.signboardName.toUpperCase()
                 : bookingData.name
                 ? `MR. ${bookingData.name.toUpperCase()}`
                 : "MR. ALEXANDER WRIGHT"}
             </div>
-            <div className="text-[#5F6B7A] text-sm font-medium font-manrope leading-5">
+            <div className="text-[#5F6B7A] text-xs sm:text-sm font-medium font-manrope leading-5">
               Driver will hold in Arrival Hall
             </div>
           </div>
@@ -493,7 +493,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           <div className="text-[#071E3B] text-base font-bold font-manrope leading-6">
             {bookingData.name || "Alexander Wright"}
           </div>
-          <div className="text-[#5F6B7A] text-sm font-medium font-manrope leading-5">
+          <div className="text-[#5F6B7A] text-xs sm:text-sm font-medium font-manrope leading-5">
             {bookingData.countryCode} {bookingData.phone || "9123 4567"}
           </div>
         </div>
@@ -586,36 +586,36 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         {/* Tariff Breakdown Section */}
         <div className="self-stretch bg-white rounded-2xl flex flex-col justify-start items-start gap-4">
           {/* Header */}
-          <div className="self-stretch inline-flex justify-between items-center">
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-5 h-5 text-[#8A5A00]" />
-              <span className="text-[#071E3B] text-lg font-bold font-manrope leading-7">
+          <div className="self-stretch flex justify-between items-center gap-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <ShieldCheck className="w-5 h-5 text-[#8A5A00] shrink-0" />
+              <span className="text-[#071E3B] text-base sm:text-lg font-bold font-manrope leading-tight">
                 Tariff Breakdown
               </span>
             </div>
-            <span className="px-2 py-1 bg-[#FFF8E7] rounded-xl text-[#8A5A00] text-xs font-semibold font-manrope leading-4">
+            <span className="px-2 py-0.5 sm:py-1 bg-[#FFF8E7] rounded-xl text-[#8A5A00] text-[11px] sm:text-xs font-semibold font-manrope leading-4 shrink-0">
               Zero Hidden Charges
             </span>
           </div>
 
-          <div className="self-stretch flex flex-col justify-start items-start gap-4">
+          <div className="self-stretch flex flex-col justify-start items-start gap-3 sm:gap-4">
             {/* Transfer / Charter Line Item */}
-            <div className="self-stretch py-2 inline-flex justify-between items-center border-b border-slate-100">
-              <div className="flex flex-col justify-start items-start">
+            <div className="self-stretch py-2 flex justify-between items-start gap-3 border-b border-slate-100">
+              <div className="flex flex-col justify-start items-start min-w-0 flex-1">
                 <span className="text-slate-900 text-sm font-medium font-inter leading-5">
                   {bookingData.selectedFleet || "7-Seater Maxi Cab"} {isHourly ? `(${duration} Hours Charter)` : "Transfer"}
                 </span>
-                <span className="text-zinc-700 text-xs font-normal font-manrope leading-4">
+                <span className="text-zinc-600 text-xs font-normal font-manrope leading-4 mt-0.5">
                   {isHourly
                     ? `${duration} hours dedicated chauffeur @ $${hourlyRate}/hr`
                     : "Includes terminal meet & greet, toll systems, and driver dispatch"}
                 </span>
               </div>
               <div className="text-right shrink-0 flex flex-col items-end">
-                <span className="text-slate-900 text-xl font-semibold font-manrope leading-7">
+                <span className="text-slate-900 text-lg sm:text-xl font-semibold font-manrope leading-tight">
                   ${isHourly ? hourlyRate * duration : (bookingData.baseFare || 70)}.00
                 </span>
-                <span className="text-slate-900 text-xs font-normal font-manrope leading-4">
+                <span className="text-slate-500 text-[11px] sm:text-xs font-normal font-manrope">
                   SGD
                 </span>
               </div>
@@ -625,23 +625,23 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             {selectedAddOnsList.map((addon) => (
               <div
                 key={addon.id}
-                className="self-stretch py-2 inline-flex justify-between items-center border-b border-slate-100"
+                className="self-stretch py-2 flex justify-between items-start gap-3 border-b border-slate-100"
               >
-                <div className="flex flex-col justify-start items-start">
+                <div className="flex flex-col justify-start items-start min-w-0 flex-1">
                   <span className="text-slate-900 text-sm font-medium font-inter leading-5">
                     {addon.title}
                   </span>
                   {addon.subtitle && (
-                    <span className="text-zinc-700 text-xs font-normal font-manrope leading-4">
+                    <span className="text-zinc-600 text-xs font-normal font-manrope leading-4 mt-0.5">
                       {addon.subtitle}
                     </span>
                   )}
                 </div>
                 <div className="text-right shrink-0 flex flex-col items-end">
-                  <span className="text-slate-900 text-base font-semibold font-manrope">
+                  <span className="text-slate-900 text-sm sm:text-base font-semibold font-manrope leading-tight">
                     {addon.amountText}
                   </span>
-                  <span className="text-slate-900 text-[10px] font-normal font-manrope">
+                  <span className="text-slate-500 text-[10px] font-normal font-manrope">
                     {addon.amount > 0 ? "SGD" : "Included"}
                   </span>
                 </div>
@@ -650,71 +650,71 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
             {/* Distance Charge if present from live quote */}
             {quote && quote.quote_status === "AVAILABLE" && quote.quote.distance_amount > 0 && (
-              <div className="self-stretch py-1.5 inline-flex justify-between items-center border-b border-slate-100 text-xs">
-                <div className="flex flex-col">
+              <div className="self-stretch py-1.5 flex justify-between items-start gap-3 border-b border-slate-100 text-xs">
+                <div className="flex flex-col min-w-0 flex-1">
                   <span className="text-slate-900 font-semibold font-manrope">
                     Distance Surcharge ({quote.quote.distance_charge?.rule || `${quote.quote.route.distance_km} km`})
                   </span>
                   <span className="text-[#667085]">Verified Google Distance Matrix Route</span>
                 </div>
-                <span className="text-slate-900 font-bold font-manrope text-sm">
+                <span className="text-slate-900 font-bold font-manrope text-sm shrink-0">
                   +${quote.quote.distance_amount}.00 SGD
                 </span>
               </div>
             )}
 
             {/* Inclusions */}
-            <div className="self-stretch flex flex-col justify-start items-start gap-1">
-              <div className="self-stretch inline-flex justify-start items-center gap-1.5">
-                <Star className="w-3.5 h-3.5 text-[#8A5A00] fill-[#8A5A00]" />
-                <span className="text-[#5F6B7A] text-sm font-medium font-manrope leading-5 uppercase">
+            <div className="self-stretch flex flex-col justify-start items-start gap-2 pt-1">
+              <div className="self-stretch flex items-center gap-1.5">
+                <Star className="w-3.5 h-3.5 text-[#8A5A00] fill-[#8A5A00] shrink-0" />
+                <span className="text-[#5F6B7A] text-[11px] sm:text-xs font-bold font-manrope leading-tight uppercase tracking-wider">
                   ALL-INCLUSIVE BENEFITS ($0 EXTRA CHARGES)
                 </span>
               </div>
-              <div className="w-full flex items-stretch justify-start gap-3 overflow-x-auto pb-1">
-                <div className="flex-1 min-w-[165px] shrink-0 p-2.5 bg-white rounded-lg border border-[#E9ECEF] flex flex-col justify-start items-start gap-1">
-                  <div className="text-[#5F6B7A] text-xs font-normal font-manrope leading-4 whitespace-nowrap">
+              <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div className="p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-row sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-1">
+                  <span className="text-[#5F6B7A] text-xs font-medium font-manrope">
                     ERP &amp; Tolls
-                  </div>
-                  <div className="text-[#8A5A00] text-xs font-bold font-manrope leading-4 whitespace-nowrap">
+                  </span>
+                  <span className="text-[#8A5A00] text-xs font-bold font-manrope">
                     INCLUDED ($0)
-                  </div>
+                  </span>
                 </div>
-                <div className="flex-1 min-w-[165px] shrink-0 p-2.5 bg-white rounded-lg border border-[#E9ECEF] flex flex-col justify-start items-start gap-1">
-                  <div className="text-[#5F6B7A] text-xs font-normal font-manrope leading-4 whitespace-nowrap">
+                <div className="p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-row sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-1">
+                  <span className="text-[#5F6B7A] text-xs font-medium font-manrope">
                     Meet &amp; Greet + 60m Wait
-                  </div>
-                  <div className="text-[#8A5A00] text-xs font-bold font-manrope leading-4 whitespace-nowrap">
+                  </span>
+                  <span className="text-[#8A5A00] text-xs font-bold font-manrope">
                     INCLUDED ($0)
-                  </div>
+                  </span>
                 </div>
-                <div className="flex-1 min-w-[165px] shrink-0 p-2.5 bg-white rounded-lg border border-[#E9ECEF] flex flex-col justify-start items-start gap-1">
-                  <div className="text-[#5F6B7A] text-xs font-normal font-manrope leading-4 whitespace-nowrap">
+                <div className="p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-row sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-1">
+                  <span className="text-[#5F6B7A] text-xs font-medium font-manrope">
                     Midnight / Peak Surcharge
-                  </div>
-                  <div className="text-[#8A5A00] text-xs font-bold font-manrope leading-4 whitespace-nowrap">
+                  </span>
+                  <span className="text-[#8A5A00] text-xs font-bold font-manrope">
                     WAIVED ($0)
-                  </div>
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Final Tariff */}
             <div className="self-stretch flex flex-col justify-start items-start pt-2">
-              <div className="self-stretch rounded-lg inline-flex justify-between items-center">
-                <div className="flex flex-col justify-start items-start">
-                  <span className="text-[#8A5A00] text-base font-bold font-manrope leading-6">
+              <div className="self-stretch rounded-xl p-3 sm:p-4 bg-[#FBF7EC]/80 border border-[#F4EAD1] flex justify-between items-center gap-3">
+                <div className="flex flex-col justify-start items-start min-w-0">
+                  <span className="text-[#8A5A00] text-sm sm:text-base font-bold font-manrope leading-tight">
                     Final Tariff
                   </span>
-                  <span className="text-zinc-700 text-xs font-normal font-manrope leading-4">
+                  <span className="text-[#5F6B7A] text-xs font-medium font-manrope leading-tight mt-0.5">
                     Guaranteed fixed rate · Zero surge or hidden fees
                   </span>
                 </div>
-                <div className="flex flex-col justify-between items-end">
-                  <div className="text-slate-900 text-3xl font-semibold font-manrope leading-10">
+                <div className="flex flex-col justify-between items-end shrink-0">
+                  <div className="text-slate-900 text-2xl sm:text-3xl font-extrabold font-manrope leading-none">
                     ${totalFare}.00
                   </div>
-                  <div className="text-zinc-700 text-xs font-normal font-manrope leading-4">
+                  <div className="text-[#8A5A00] text-[10px] sm:text-xs font-bold font-manrope mt-1 tracking-wider uppercase">
                     SGD NETT
                   </div>
                 </div>
@@ -724,15 +724,15 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         </div>
 
         {/* Disclaimer & Buttons */}
-        <div className="self-stretch flex flex-col justify-start items-start gap-2">
-          <div className="self-stretch text-center text-[#5F6B7A] text-xs font-normal font-manrope leading-4">
+        <div className="self-stretch flex flex-col justify-start items-start gap-2 pt-1">
+          <div className="self-stretch text-center text-[#5F6B7A] text-[11px] sm:text-xs font-normal font-manrope leading-4">
             Singapore trips only — cross-border rides to Malaysia not available.
           </div>
-          <div className="self-stretch inline-flex justify-start items-start gap-4">
+          <div className="self-stretch flex items-center gap-2.5 sm:gap-4 w-full">
             <button
               type="button"
               onClick={() => setStep(3)}
-              className="px-8 py-3 bg-[#E9ECEF] hover:bg-slate-200 active:scale-95 rounded-lg flex justify-center items-center gap-4 transition-colors cursor-pointer text-[#5F6B7A] text-base font-semibold font-manrope leading-6"
+              className="px-3.5 sm:px-6 py-3 sm:py-3.5 bg-[#E9ECEF] hover:bg-slate-200 active:scale-95 rounded-xl flex items-center justify-center gap-1.5 sm:gap-2 transition-colors cursor-pointer text-[#5F6B7A] text-xs sm:text-base font-bold font-manrope shrink-0"
             >
               <ArrowLeft className="w-4 h-4 text-[#5F6B7A]" />
               <span>Back</span>
@@ -741,27 +741,27 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               type="button"
               onClick={handleProceed}
               disabled={isCheckingOut || isRedirecting}
-              className="flex-1 px-8 py-3 bg-[#071E3B] hover:bg-[#0B2A4A] active:scale-[0.98] text-white rounded-lg flex justify-center items-center gap-4 transition-all shadow-md hover:shadow-lg cursor-pointer text-base font-semibold font-manrope leading-6 disabled:opacity-75"
+              className="flex-1 min-w-0 px-3 sm:px-6 py-3 sm:py-3.5 bg-[#071E3B] hover:bg-[#0B2A4A] active:scale-[0.98] text-white rounded-xl flex items-center justify-center gap-2 sm:gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer text-xs sm:text-base font-bold font-manrope whitespace-nowrap disabled:opacity-75"
             >
               {isCheckingOut ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-[#C6A45A]" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[#C6A45A] shrink-0" />
                   <span>Connecting to Stripe...</span>
                 </>
               ) : isRedirecting ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-[#C6A45A]" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[#C6A45A] shrink-0" />
                   <span>Redirecting to Stripe...</span>
                 </>
               ) : isContactSupport ? (
                 <>
                   <span>Chat on WhatsApp</span>
-                  <WhatsAppIcon className="w-4 h-4" />
+                  <WhatsAppIcon className="w-4 h-4 shrink-0" />
                 </>
               ) : (
                 <>
                   <span>Proceed to Payment</span>
-                  <CreditCard className="w-4 h-4 text-[#C6A45A]" />
+                  <CreditCard className="w-4 h-4 text-[#C6A45A] shrink-0" />
                 </>
               )}
             </button>
@@ -769,27 +769,27 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         </div>
 
         {/* Sub Links */}
-        <div className="self-stretch inline-flex justify-between items-center">
+        <div className="self-stretch flex flex-wrap justify-between items-center gap-2 pt-1">
           <Link
             href="/pricing"
             onClick={closeModal}
             className="flex justify-start items-center gap-1 group transition-colors"
           >
-            <span className="text-[#667085] group-hover:text-[#071E3B] text-sm font-normal font-manrope leading-5">
+            <span className="text-[#667085] group-hover:text-[#071E3B] text-xs sm:text-sm font-normal font-manrope leading-5">
               View all prices
             </span>
-            <ChevronRight className="w-4 h-4 text-[#667085] group-hover:text-[#071E3B]" />
+            <ChevronRight className="w-3.5 h-3.5 text-[#667085] group-hover:text-[#071E3B]" />
           </Link>
           <a
             href="https://wa.me/6588006006"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex justify-start items-center gap-2 group transition-colors"
+            className="flex justify-start items-center gap-1.5 group transition-colors"
           >
-            <span className="text-[#16803C] group-hover:text-emerald-700 text-sm font-normal font-manrope leading-5">
+            <span className="text-[#16803C] group-hover:text-emerald-700 text-xs sm:text-sm font-semibold font-manrope leading-5">
               Book via whatsapp us
             </span>
-            <ChevronRight className="w-4 h-4 text-[#16803C]" />
+            <ChevronRight className="w-3.5 h-3.5 text-[#16803C]" />
           </a>
         </div>
       </div>
