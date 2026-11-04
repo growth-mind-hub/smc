@@ -4,8 +4,8 @@ import React, { useMemo } from "react";
 import { useBookingModal } from "@/context/BookingContext";
 import { ArrowLeft, ArrowRight, Check, Users, Luggage, X, Sparkles } from "lucide-react";
 import fleetData from "@/data/fleet.json";
-import pricingData from "@/data/pricing.json";
 import { getRecommendedFleet } from "@/utils/recommendation";
+import { resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
 
 interface VehicleSelectionCardProps {
   isModal?: boolean;
@@ -24,7 +24,7 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
     );
   }, [bookingData.passengers, bookingData.luggage, bookingData.serviceType, liveVehicles]);
 
-  // Build the list of selectable vehicles, combining pricingData/fleetData with live rates
+  // Build the list of selectable vehicles strictly from live API
   const vehicleList = useMemo(() => {
     const isAirport =
       bookingData.serviceType?.toLowerCase().includes("airport") ||
@@ -33,90 +33,71 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
       bookingData.serviceType?.toLowerCase().includes("hourly") ||
       bookingData.serviceType?.toLowerCase().includes("charter");
 
-    return pricingData.matrix.map((matrixItem) => {
-      // Find matching live vehicle from API if present
-      const liveMatch = liveVehicles?.find(
-        (v) =>
-          v.id === matrixItem.apiId ||
-          v.name.toLowerCase().trim() === matrixItem.name.toLowerCase().trim() ||
-          (matrixItem.id === "mercedes-e-class" && v.name.toLowerCase().includes("e class")) ||
-          (matrixItem.id === "mercedes-s-class" && v.name.toLowerCase().includes("s class")) ||
-          (matrixItem.id === "6-seater" && (v.passengerCapacity === 6 || v.name.toLowerCase().includes("alphard"))) ||
-          (matrixItem.id === "7-seater" && (v.name.toLowerCase().includes("vito") || v.name.toLowerCase().includes("viano"))) ||
-          (matrixItem.id === "mercedes-v-class" && v.name.toLowerCase().includes("v-class")) ||
-          (matrixItem.id === "9-seater" && v.passengerCapacity === 9) ||
-          (matrixItem.id === "13-seater" && v.name.toLowerCase().includes("13") && !v.name.toLowerCase().includes("vip")) ||
-          (matrixItem.id === "vip-lounge" && (v.name.toLowerCase().includes("vip") || v.name.toLowerCase().includes("executive"))) ||
-          (matrixItem.id === "wheelchair-cab" && v.name.toLowerCase().includes("wheelchair")) ||
-          (matrixItem.id === "23-seater" && v.passengerCapacity === 23)
-      );
+    if (!liveVehicles || liveVehicles.length === 0) {
+      return [];
+    }
 
-      // Also check fleet.json for clean title and short subtitle
-      const fleetMatch = fleetData.vehicles.find(
-        (fv) => fv.slug === matrixItem.slug || fv.id === matrixItem.id
-      );
+    return liveVehicles
+      .filter((v) => v.status !== "inactive" && v.isActive !== false)
+      .map((v) => {
+        const slug = resolveSlugFromApiVehicle(v);
+        const fleetMatch = fleetData.vehicles.find((fv) => fv.slug === slug || fv.id === slug);
 
-      // Determine appropriate fare based on service type
-      let fare = 70;
-      if (isAirport) {
-        fare =
-          liveMatch?.prices?.arrival?.amount ||
-          parseInt((fleetMatch?.meetAndGreet || matrixItem.meetAndGreet).replace(/[^0-9]/g, "")) ||
-          80;
-      } else if (isHourly) {
-        const hourlyRate =
-          liveMatch?.prices?.hourly?.amount ||
-          parseInt((fleetMatch?.price || matrixItem.pointToPoint).replace(/[^0-9]/g, "")) ||
-          65;
-        fare = hourlyRate * (bookingData.durationHours || 3);
-      } else {
-        fare =
-          liveMatch?.prices?.departure_transfer?.amount ||
-          liveMatch?.prices?.arrival?.amount ||
-          parseInt((fleetMatch?.price || matrixItem.pointToPoint).replace(/[^0-9]/g, "")) ||
-          70;
-      }
+        // Determine appropriate fare based on service type
+        let fare = 70;
+        if (isAirport) {
+          fare =
+            v.prices?.arrival?.amount ||
+            (fleetMatch?.meetAndGreet ? parseInt(fleetMatch.meetAndGreet.replace(/[^0-9]/g, "")) : 80);
+        } else if (isHourly) {
+          const hourlyRate =
+            v.prices?.hourly?.amount ||
+            (fleetMatch?.price ? parseInt(fleetMatch.price.replace(/[^0-9]/g, "")) : 65);
+          fare = hourlyRate * (bookingData.durationHours || 3);
+        } else {
+          fare =
+            v.prices?.departure_transfer?.amount ||
+            v.prices?.arrival?.amount ||
+            (fleetMatch?.price ? parseInt(fleetMatch.price.replace(/[^0-9]/g, "")) : 70);
+        }
 
-      const paxCount = liveMatch?.passengerCapacity ?? matrixItem.paxCount ?? 7;
-      const luggageCount = liveMatch?.luggageCapacity ?? matrixItem.luggageCount ?? 5;
+        const paxCount = v.passengerCapacity ?? 7;
+        const luggageCount = v.luggageCapacity ?? 4;
 
-      const isRecommended =
-        recommendedInfo.selectedFleetSlug === matrixItem.slug ||
-        (liveMatch && recommendedInfo.vehicleId === liveMatch.id);
+        const isRecommended =
+          recommendedInfo.selectedFleetSlug === slug ||
+          recommendedInfo.vehicleId === v.id;
 
-      const fitsPassengers = paxCount >= bookingData.passengers;
-      const fitsLuggage = luggageCount >= bookingData.luggage;
-      const fitsGroup = fitsPassengers && fitsLuggage;
+        const fitsPassengers = paxCount >= bookingData.passengers;
+        const fitsLuggage = luggageCount >= bookingData.luggage;
+        const fitsGroup = fitsPassengers && fitsLuggage;
 
-      // Clean short model name (never long paragraph)
-      const shortModel =
-        fleetMatch?.model ||
-        matrixItem.model ||
-        "Executive Maxi Cab";
+        const shortModel = v.vehicleType || fleetMatch?.model || v.name;
 
-      return {
-        id: String(liveMatch?.id ?? matrixItem.id),
-        numericId: liveMatch?.id ?? matrixItem.apiId,
-        slug: matrixItem.slug,
-        name: matrixItem.name,
-        model: shortModel,
-        paxCount,
-        luggageCount,
-        fare,
-        isRecommended,
-        fitsGroup,
-        fitsPassengers,
-      };
-    }).sort((a, b) => {
-      // Prioritize recommended vehicle first
-      if (a.isRecommended && !b.isRecommended) return -1;
-      if (!a.isRecommended && b.isRecommended) return 1;
-      // Then prioritize vehicles that fit group
-      if (a.fitsGroup && !b.fitsGroup) return -1;
-      if (!a.fitsGroup && b.fitsGroup) return 1;
-      // Then sort by passenger capacity
-      return a.paxCount - b.paxCount;
-    });
+        return {
+          id: String(v.id),
+          numericId: v.id,
+          slug,
+          name: v.name,
+          model: shortModel,
+          paxCount,
+          luggageCount,
+          fare,
+          isRecommended,
+          fitsGroup,
+          fitsPassengers,
+        };
+      })
+      .sort((a, b) => {
+        // Prioritize recommended vehicle first
+        if (a.isRecommended && !b.isRecommended) return -1;
+        if (!a.isRecommended && b.isRecommended) return 1;
+        // Then prioritize vehicles that fit group
+        if (a.fitsGroup && !b.fitsGroup) return -1;
+        if (!a.fitsGroup && b.fitsGroup) return 1;
+        // Then sort by passenger capacity
+        return a.paxCount - b.paxCount;
+      });
   }, [liveVehicles, bookingData.serviceType, bookingData.durationHours, bookingData.passengers, bookingData.luggage, recommendedInfo]);
 
   // Check if a vehicle is currently selected
@@ -190,7 +171,14 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
 
       {/* Vehicle Options List (Scrollable) */}
       <div className="self-stretch flex flex-col gap-2.5 overflow-y-auto max-h-[46vh] sm:max-h-[50vh] pr-1 py-1">
-        {vehicleList.map((v) => {
+        {vehicleList.length === 0 ? (
+          <div className="flex flex-col gap-2.5 py-1">
+            <div className="h-16 bg-slate-100 rounded-xl animate-pulse" />
+            <div className="h-16 bg-slate-100 rounded-xl animate-pulse" />
+            <div className="h-16 bg-slate-100 rounded-xl animate-pulse" />
+          </div>
+        ) : (
+          vehicleList.map((v) => {
           const isSelected = selectedSlug === v.slug;
 
           return (
@@ -273,7 +261,8 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
               </div>
             </div>
           );
-        })}
+        })
+      )}
       </div>
 
       {/* Actions Footer */}

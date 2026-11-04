@@ -19,11 +19,11 @@ export default function FleetSection() {
 
   const showSkeleton = !mounted || isLoadingVehicles;
 
-  // Transform live API vehicles or fallback to static fleetData
+  // Transform live API vehicles strictly
   const vehiclesToDisplay: Vehicle[] =
     liveVehicles && liveVehicles.length > 0
       ? liveVehicles.map((v) => transformApiVehicleToCard(v))
-      : fleetData.vehicles;
+      : [];
 
   // Show only 3 fleets (1 row of 3 cards on desktop), route to /fleets for the rest
   const displayedVehicles = vehiclesToDisplay.slice(0, 3);

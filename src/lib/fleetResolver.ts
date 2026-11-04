@@ -189,13 +189,10 @@ export function transformApiVehicleToCard(v: VehicleCard, defaultFallback?: Vehi
 }
 
 /**
- * Build section-wise fleet groups dynamically from API vehicles
+ * Build section-wise fleet groups dynamically from API vehicles only
  */
 export function buildSectionVehicles(
-  apiVehicles: VehicleCard[],
-  fallbackExecutive: Vehicle[],
-  fallbackMaxi: Vehicle[],
-  fallbackMinibus: Vehicle[]
+  apiVehicles: VehicleCard[]
 ): {
   executive: Vehicle[];
   maxiCabs: Vehicle[];
@@ -203,39 +200,19 @@ export function buildSectionVehicles(
 } {
   if (!apiVehicles || apiVehicles.length === 0) {
     return {
-      executive: fallbackExecutive,
-      maxiCabs: fallbackMaxi,
-      minibuses: fallbackMinibus,
+      executive: [],
+      maxiCabs: [],
+      minibuses: [],
     };
   }
 
-  const usedApiIds = new Set<number>();
+  const executive: Vehicle[] = [];
+  const maxiCabs: Vehicle[] = [];
+  const minibuses: Vehicle[] = [];
   const seenVehicleIds = new Set<string>();
 
-  const matchSlot = (slotSlug: string, fallback: Vehicle): Vehicle => {
-    const matched = apiVehicles.find(
-      (v) => !usedApiIds.has(v.id) && resolveSlugFromApiVehicle(v) === slotSlug
-    );
-    if (matched) {
-      usedApiIds.add(matched.id);
-      const card = transformApiVehicleToCard(matched, fallback);
-      seenVehicleIds.add(card.id);
-      return card;
-    }
-    seenVehicleIds.add(fallback.id);
-    return fallback;
-  };
-
-  const executive = fallbackExecutive.map((v) => matchSlot(v.slug || v.id, v));
-  const maxiCabs = fallbackMaxi.map((v) => matchSlot(v.slug || v.id, v));
-  const minibuses = fallbackMinibus.map((v) => matchSlot(v.slug || v.id, v));
-
-  // Any remaining active vehicles from API that were not mapped to the standard slots
-  const remainingApi = apiVehicles.filter(
-    (v) => !usedApiIds.has(v.id) && v.status !== "inactive" && v.isActive !== false
-  );
-
-  for (const v of remainingApi) {
+  for (const v of apiVehicles) {
+    if (v.status === "inactive" || v.isActive === false) continue;
     const card = transformApiVehicleToCard(v);
     if (seenVehicleIds.has(card.id)) continue;
     seenVehicleIds.add(card.id);
@@ -247,15 +224,15 @@ export function buildSectionVehicles(
       vName.includes("vip") ||
       vName.includes("executive") ||
       vName.includes("sedan") ||
-      vName.includes("mercedes") ||
+      vName.includes("e-class") ||
+      vName.includes("s-class") ||
       pax <= 4
     ) {
       executive.push(card);
     } else if (
       pax >= 10 ||
       vName.includes("minibus") ||
-      vName.includes("coach") ||
-      vName.includes("wheelchair")
+      vName.includes("coach")
     ) {
       minibuses.push(card);
     } else {
@@ -267,36 +244,27 @@ export function buildSectionVehicles(
 }
 
 /**
- * Resolve a vehicle by slug, ID, or name, merging live API data with static fallbacks
+ * Resolve a vehicle by slug, ID, or name, strictly from live API data
  */
 export async function resolveVehicle(rawSlug: string): Promise<VehicleDetail | null> {
   const slug = decodeURIComponent(rawSlug).toLowerCase().trim();
   const apiVehicles = await fetchLiveVehicles();
 
-  // 1. Match API vehicle
+  // 1. Match API vehicle only
   const apiMatch = findMatchingApiVehicle(slug, apiVehicles);
 
-  // 2. Match static vehicle from fleetData.vehicles
+  if (!apiMatch) {
+    return null;
+  }
+
+  // Optional styling/content embellishments from fleetData if matched
   const staticMatch = fleetData.vehicles.find((v) => {
     const sId = v.id.toLowerCase();
     const sSlug = (v.slug || v.id).toLowerCase();
     if (sId === slug || sSlug === slug) return true;
-    if (apiMatch) {
-      if (v.id === `vehicle-${apiMatch.id}`) return true;
-      if (apiMatch.passengerCapacity && v.paxCount === apiMatch.passengerCapacity) {
-        // Prevent wheelchair vs regular mismatch
-        const isApiWheelchair = apiMatch.name.toLowerCase().includes("wheelchair");
-        const isStaticWheelchair = v.id.includes("wheelchair");
-        if (isApiWheelchair === isStaticWheelchair) return true;
-      }
-    }
+    if (v.id === `vehicle-${apiMatch.id}`) return true;
     return false;
   });
-
-  // If neither API nor static match exists, vehicle is not found
-  if (!apiMatch && !staticMatch) {
-    return null;
-  }
 
   // 3. Extract pricing from API or fallback to static
   const departureAmount = apiMatch?.prices?.departure_transfer?.amount;
