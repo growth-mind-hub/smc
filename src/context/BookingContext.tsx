@@ -150,6 +150,28 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
+  // Reset checking-out state when returning from Stripe (browser Back, BFCache, or tab focus)
+  useEffect(() => {
+    const handleReset = () => {
+      setIsCheckingOut(false);
+    };
+
+    window.addEventListener("pageshow", handleReset);
+    window.addEventListener("focus", handleReset);
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        setIsCheckingOut(false);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.removeEventListener("pageshow", handleReset);
+      window.removeEventListener("focus", handleReset);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
+
   // Fetch initial catalog data
   useEffect(() => {
     let isMounted = true;

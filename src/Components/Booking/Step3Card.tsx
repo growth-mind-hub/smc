@@ -44,6 +44,38 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
 
+  // Reset redirecting state when returning from Stripe (browser Back, BFCache, or tab focus)
+  useEffect(() => {
+    const handleReset = () => {
+      setIsRedirecting(false);
+    };
+
+    window.addEventListener("pageshow", handleReset);
+    window.addEventListener("focus", handleReset);
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        setIsRedirecting(false);
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    return () => {
+      window.removeEventListener("pageshow", handleReset);
+      window.removeEventListener("focus", handleReset);
+      document.removeEventListener("visibilitychange", handleVisibility);
+    };
+  }, []);
+
+  // Safety timer: auto-revert redirecting state after 6 seconds if navigation didn't unload page
+  useEffect(() => {
+    if (isRedirecting) {
+      const timer = setTimeout(() => {
+        setIsRedirecting(false);
+      }, 6000);
+      return () => clearTimeout(timer);
+    }
+  }, [isRedirecting]);
+
   // Fetch live backend quotation when Step 3 mounts
   useEffect(() => {
     fetchLiveQuote();
@@ -173,8 +205,10 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         setIsRedirecting(true);
         return;
       }
+      setIsRedirecting(false);
     } catch (e) {
       console.error("Stripe checkout error:", e);
+      setIsRedirecting(false);
     }
     // Fallback if backend checkout is not running or returns error: WhatsApp confirmation
     const text =
