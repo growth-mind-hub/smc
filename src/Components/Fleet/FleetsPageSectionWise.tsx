@@ -166,9 +166,9 @@ export default function FleetsPageSectionWise({ initialVehicles = [] }: FleetsPa
             href="https://wa.me/6588006006"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full sm:w-60 sm:min-w-[240px] px-6 sm:px-8 py-3.5 bg-[#16803C] hover:bg-[#126b32] active:scale-95 text-white font-semibold font-manrope rounded-xl shadow-md flex items-center justify-center gap-2.5 transition-all cursor-pointer"
+            className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 bg-[#16803C] hover:bg-[#126b32] active:scale-95 text-white font-semibold font-manrope rounded-xl shadow-md flex items-center justify-center gap-2.5 transition-all cursor-pointer whitespace-nowrap"
           >
-            <WhatsAppIcon className="w-4 h-4 text-white" />
+            <WhatsAppIcon className="w-4 h-4 text-white shrink-0" />
             <span>WhatsApp Us</span>
           </a>
 
@@ -176,10 +176,10 @@ export default function FleetsPageSectionWise({ initialVehicles = [] }: FleetsPa
           <button
             type="button"
             onClick={() => openModal({ initialStep: 0 })}
-            className="w-full sm:w-60 sm:min-w-[240px] px-6 sm:px-8 py-3.5 bg-[#071E3B] hover:bg-[#0B2A4A] active:scale-95 text-white font-semibold font-manrope rounded-xl shadow-md flex items-center justify-center gap-2.5 transition-all cursor-pointer"
+            className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 bg-[#071E3B] hover:bg-[#0B2A4A] active:scale-95 text-white font-semibold font-manrope rounded-xl shadow-md flex items-center justify-center gap-2.5 transition-all cursor-pointer whitespace-nowrap"
           >
             <span>Book Now</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 shrink-0" />
           </button>
         </div>
       </section>

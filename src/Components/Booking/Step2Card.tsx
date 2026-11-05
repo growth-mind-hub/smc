@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useBookingModal } from "@/context/BookingContext";
-import { ArrowRight, ArrowLeft, ChevronDown, X } from "lucide-react";
+import { ArrowRight, ArrowLeft, ChevronDown, X, Moon, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
 import AddOnDropdown from "./AddOns/AddOnDropdown";
@@ -10,6 +10,7 @@ import MeetAndGreetField from "./AddOns/MeetAndGreetField";
 import ChildSeatField from "./AddOns/ChildSeatField";
 import AdditionalStopField from "./AddOns/AdditionalStopField";
 import WheelchairField from "./AddOns/WheelchairField";
+import { isNightOrEarlyMorningTime, validateBookingDetails } from "@/utils/timeValidation";
 
 interface Step2CardProps {
   isModal?: boolean;
@@ -18,6 +19,10 @@ interface Step2CardProps {
 export default function Step2Card({ isModal = true }: Step2CardProps) {
   const { bookingData, updateBookingData, setStep, closeModal } = useBookingModal();
   const [isAddOnDropdownOpen, setIsAddOnDropdownOpen] = useState(false);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+
+  const isNightPickup = isNightOrEarlyMorningTime(bookingData.pickupTime);
   const [selectedAddOnIds, setSelectedAddOnIds] = useState<string[]>(() => {
     if (bookingData.selectedAddOnIds && bookingData.selectedAddOnIds.length > 0) {
       return bookingData.selectedAddOnIds;
@@ -81,19 +86,41 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
 
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault();
+    setHasAttemptedSubmit(true);
+
+    const validation = validateBookingDetails({
+      name: bookingData.name,
+      phone: bookingData.phone,
+      email: bookingData.email,
+      pickupDate: bookingData.pickupDate,
+      pickupTime: bookingData.pickupTime,
+    });
+
+    if (!validation.isValid) {
+      setFormErrors(validation.errors);
+      return;
+    }
+
+    setFormErrors({});
     setStep(4);
   };
 
   const countryCodes = [
-    { code: "+65", country: "SG" },
-    { code: "+60", country: "MY" },
-    { code: "+91", country: "IN" },
-    { code: "+1", country: "US" },
-    { code: "+44", country: "UK" },
-    { code: "+61", country: "AU" },
-    { code: "+81", country: "JP" },
-    { code: "+86", country: "CN" },
-    { code: "+62", country: "ID" },
+    { code: "+65", label: "+65 (SG)" },
+    { code: "+971", label: "+971 (UAE)" },
+    { code: "+966", label: "+966 (SA)" },
+    { code: "+974", label: "+974 (QA)" },
+    { code: "+965", label: "+965 (KW)" },
+    { code: "+968", label: "+968 (OM)" },
+    { code: "+973", label: "+973 (BH)" },
+    { code: "+44", label: "+44 (UK)" },
+    { code: "+1", label: "+1 (US)" },
+    { code: "+60", label: "+60 (MY)" },
+    { code: "+91", label: "+91 (IN)" },
+    { code: "+61", label: "+61 (AU)" },
+    { code: "+81", label: "+81 (JP)" },
+    { code: "+86", label: "+86 (CN)" },
+    { code: "+62", label: "+62 (ID)" },
   ];
 
   return (
@@ -132,13 +159,22 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
           {/* Pickup Date */}
           <div className="flex flex-col justify-start items-start gap-1">
             <label className="text-[#071E3B] text-xs sm:text-sm font-medium font-inter leading-5">
-              Pickup Date
+              Pickup Date <span className="text-rose-500">*</span>
             </label>
-            <div className="self-stretch relative p-3 sm:p-3.5 bg-white rounded-xl border border-[#7A8593] flex justify-between items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all">
+            <div
+              className={`self-stretch relative p-3 sm:p-3.5 bg-white rounded-xl border ${
+                hasAttemptedSubmit && formErrors.pickupDate ? "border-rose-500 ring-1 ring-rose-500" : "border-[#7A8593]"
+              } flex justify-between items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all`}
+            >
               <input
                 type="date"
                 value={bookingData.pickupDate}
-                onChange={(e) => updateBookingData({ pickupDate: e.target.value })}
+                onChange={(e) => {
+                  updateBookingData({ pickupDate: e.target.value });
+                  if (formErrors.pickupDate) {
+                    setFormErrors((prev) => ({ ...prev, pickupDate: "" }));
+                  }
+                }}
                 required
                 className="w-full text-sm sm:text-xs font-normal font-manrope text-[#071E3B] outline-none bg-transparent cursor-pointer"
               />
@@ -154,18 +190,40 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
                 <path d="M9.5 1V3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
               </svg>
             </div>
+            {hasAttemptedSubmit && formErrors.pickupDate && (
+              <span className="text-rose-600 text-[11px] font-medium font-manrope">
+                {formErrors.pickupDate}
+              </span>
+            )}
           </div>
 
           {/* Pickup Time */}
           <div className="flex flex-col justify-start items-start gap-1">
-            <label className="text-[#071E3B] text-xs sm:text-sm font-medium font-inter leading-5">
-              Pickup Time
-            </label>
-            <div className="self-stretch relative p-3 sm:p-3.5 bg-white rounded-xl border border-[#7A8593] flex justify-between items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all">
+            <div className="flex items-center justify-between w-full">
+              <label className="text-[#071E3B] text-xs sm:text-sm font-medium font-inter leading-5">
+                Pickup Time <span className="text-rose-500">*</span>
+              </label>
+              {isNightPickup && (
+                <span className="text-[10px] font-bold text-[#8A5A00] bg-[#FFF8E7] px-2 py-0.5 rounded-md flex items-center gap-1 font-manrope">
+                  <Moon className="w-3 h-3 text-[#8A5A00]" />
+                  Night Dispatch
+                </span>
+              )}
+            </div>
+            <div
+              className={`self-stretch relative p-3 sm:p-3.5 bg-white rounded-xl border ${
+                hasAttemptedSubmit && formErrors.pickupTime ? "border-rose-500 ring-1 ring-rose-500" : "border-[#7A8593]"
+              } flex justify-between items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all`}
+            >
               <input
                 type="time"
                 value={bookingData.pickupTime}
-                onChange={(e) => updateBookingData({ pickupTime: e.target.value })}
+                onChange={(e) => {
+                  updateBookingData({ pickupTime: e.target.value });
+                  if (formErrors.pickupTime) {
+                    setFormErrors((prev) => ({ ...prev, pickupTime: "" }));
+                  }
+                }}
                 required
                 className="w-full text-sm sm:text-xs font-normal font-manrope text-[#071E3B] outline-none bg-transparent cursor-pointer"
               />
@@ -179,7 +237,27 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
                 <path d="M7 4V7L9 8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
               </svg>
             </div>
+            {hasAttemptedSubmit && formErrors.pickupTime && (
+              <span className="text-rose-600 text-[11px] font-medium font-manrope">
+                {formErrors.pickupTime}
+              </span>
+            )}
           </div>
+
+          {/* Night pickup alert callout */}
+          {isNightPickup && (
+            <div className="self-stretch sm:col-span-2 p-3 bg-[#FAF7F0] rounded-xl border border-[#C6A45A]/40 flex items-start gap-2.5 text-xs text-[#8A5A00] font-manrope animate-in fade-in">
+              <Moon className="w-4 h-4 shrink-0 text-[#8A5A00] mt-0.5" />
+              <div className="flex flex-col gap-0.5 leading-relaxed">
+                <span className="font-bold text-[#071E3B]">
+                  Late-Night / Early-Morning Dispatch (10:00 PM – 7:00 AM SGT)
+                </span>
+                <span>
+                  You selected <strong>{bookingData.pickupTime}</strong>. To ensure direct chauffeur tracking and priority assignment during off-peak hours, this ride will be finalized directly with our 24/7 Operations Desk via WhatsApp.
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Add Ons Dropdown & Dynamic Input Fields */}
@@ -291,69 +369,105 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
           {/* Name */}
           <div className="flex flex-col justify-start items-start gap-1">
             <label className="text-[#071E3B] text-xs sm:text-sm font-medium font-inter leading-5">
-              Passenger Name
+              Passenger Name <span className="text-rose-500">*</span>
             </label>
-            <div className="self-stretch p-3 sm:p-3.5 bg-white rounded-xl border border-[#7A8593] flex justify-start items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all">
+            <div
+              className={`self-stretch p-3 sm:p-3.5 bg-white rounded-xl border ${
+                hasAttemptedSubmit && formErrors.name ? "border-rose-500 ring-1 ring-rose-500" : "border-[#7A8593]"
+              } flex justify-start items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all`}
+            >
               <input
                 type="text"
                 placeholder="John Smith"
                 value={bookingData.name}
-                onChange={(e) => updateBookingData({ name: e.target.value })}
+                onChange={(e) => {
+                  updateBookingData({ name: e.target.value });
+                  if (formErrors.name) setFormErrors((prev) => ({ ...prev, name: "" }));
+                }}
                 required
                 className="w-full text-sm sm:text-xs font-normal font-manrope text-[#071E3B] placeholder:text-[#667085] outline-none bg-transparent"
               />
             </div>
+            {hasAttemptedSubmit && formErrors.name && (
+              <span className="text-rose-600 text-[11px] font-medium font-manrope">
+                {formErrors.name}
+              </span>
+            )}
           </div>
 
           {/* WhatsApp Number */}
           <div className="flex flex-col justify-start items-start gap-1">
             <label className="text-[#071E3B] text-xs sm:text-sm font-medium font-inter leading-5">
-              WhatsApp Contact
+              WhatsApp Contact <span className="text-rose-500">*</span>
             </label>
             <div className="self-stretch flex justify-start items-center gap-1.5">
-              <div className="relative shrink-0">
+              <div className="relative shrink-0 w-[96px] sm:w-[104px]">
                 <select
                   value={bookingData.countryCode}
                   onChange={(e) => updateBookingData({ countryCode: e.target.value })}
-                  className="appearance-none px-2.5 py-3 sm:py-3.5 bg-white rounded-xl border border-[#7A8593] text-xs sm:text-sm font-bold font-manrope text-[#071E3B] pr-6 outline-none focus:border-[#C6A45A] cursor-pointer"
+                  className="w-full appearance-none pl-2.5 pr-6 py-3 sm:py-3.5 bg-white rounded-xl border border-[#7A8593] text-xs sm:text-sm font-bold font-manrope text-[#071E3B] outline-none focus:border-[#C6A45A] cursor-pointer"
                 >
                   {countryCodes.map((c) => (
                     <option key={c.code} value={c.code}>
-                      {c.code}
+                      {c.label}
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="w-3.5 h-3.5 text-[#667085] absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ChevronDown className="w-3.5 h-3.5 text-[#667085] absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
-              <div className="flex-1 p-3 sm:p-3.5 bg-white rounded-xl border border-[#7A8593] flex justify-start items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all">
+              <div
+                className={`flex-1 min-w-0 p-3 sm:p-3.5 bg-white rounded-xl border ${
+                  hasAttemptedSubmit && formErrors.phone ? "border-rose-500 ring-1 ring-rose-500" : "border-[#7A8593]"
+                } flex justify-start items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all`}
+              >
                 <input
                   type="tel"
                   placeholder="8800 6006"
                   value={bookingData.phone}
-                  onChange={(e) => updateBookingData({ phone: e.target.value })}
+                  onChange={(e) => {
+                    updateBookingData({ phone: e.target.value });
+                    if (formErrors.phone) setFormErrors((prev) => ({ ...prev, phone: "" }));
+                  }}
                   required
-                  className="w-full text-sm sm:text-xs font-normal font-manrope text-[#071E3B] placeholder:text-[#667085] outline-none bg-transparent"
+                  className="w-full min-w-0 text-sm sm:text-xs font-normal font-manrope text-[#071E3B] placeholder:text-[#667085] outline-none bg-transparent"
                 />
               </div>
             </div>
+            {hasAttemptedSubmit && formErrors.phone && (
+              <span className="text-rose-600 text-[11px] font-medium font-manrope">
+                {formErrors.phone}
+              </span>
+            )}
           </div>
         </div>
 
         {/* Email ID */}
         <div className="self-stretch flex flex-col justify-start items-start gap-1">
           <label className="text-[#071E3B] text-xs sm:text-sm font-medium font-inter leading-5">
-            Email ID (For Confirmation Invoice)
+            Email ID (For Confirmation Invoice) <span className="text-rose-500">*</span>
           </label>
-          <div className="self-stretch p-3 sm:p-3.5 bg-white rounded-xl border border-[#7A8593] flex justify-start items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all">
+          <div
+            className={`self-stretch p-3 sm:p-3.5 bg-white rounded-xl border ${
+              hasAttemptedSubmit && formErrors.email ? "border-rose-500 ring-1 ring-rose-500" : "border-[#7A8593]"
+            } flex justify-start items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all`}
+          >
             <input
               type="email"
               placeholder="Sample@example.com"
               value={bookingData.email}
-              onChange={(e) => updateBookingData({ email: e.target.value })}
+              onChange={(e) => {
+                updateBookingData({ email: e.target.value });
+                if (formErrors.email) setFormErrors((prev) => ({ ...prev, email: "" }));
+              }}
               required
               className="w-full text-sm sm:text-xs font-normal font-manrope text-[#071E3B] placeholder:text-[#667085] outline-none bg-transparent"
             />
           </div>
+          {hasAttemptedSubmit && formErrors.email && (
+            <span className="text-rose-600 text-[11px] font-medium font-manrope">
+              {formErrors.email}
+            </span>
+          )}
         </div>
 
         {/* Disclaimer */}

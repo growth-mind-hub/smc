@@ -47,11 +47,11 @@ export default function HeroSection() {
           </p>
 
           {/* 4 Feature Badges */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 max-w-full">
             {heroData.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-white/20 backdrop-blur-[6px] text-white text-[11px] sm:text-xs font-semibold tracking-wide uppercase border border-white/10"
+                className="px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-white/20 backdrop-blur-[6px] text-white text-[11px] sm:text-xs font-semibold tracking-wide uppercase border border-white/10 whitespace-nowrap shrink-0"
               >
                 {tag}
               </span>
@@ -59,14 +59,14 @@ export default function HeroSection() {
           </div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-5 pt-1 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-1 w-full sm:w-auto">
             {/* Primary Gold CTA */}
             <Link
               href="/fleets"
-              className="w-full sm:w-60 sm:min-w-[240px] px-6 sm:px-8 py-3.5 rounded-xl bg-[#C6A45A] hover:bg-[#B58E45] text-white text-sm sm:text-base font-bold flex items-center justify-center gap-3 transition-all shadow-md hover:shadow-lg active:scale-98"
+              className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 rounded-xl bg-[#C6A45A] hover:bg-[#B58E45] text-white text-sm sm:text-base font-bold flex items-center justify-center gap-2.5 transition-all shadow-md hover:shadow-lg active:scale-98 whitespace-nowrap"
             >
               <span>Explore our Fleet</span>
-              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+              <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
             </Link>
 
             {/* Secondary WhatsApp CTA */}
@@ -74,11 +74,11 @@ export default function HeroSection() {
               href="https://wa.me/6588006006"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-60 sm:min-w-[240px] px-6 sm:px-8 py-3.5 rounded-xl border border-[#C6A45A] hover:bg-[#C6A45A]/10 text-[#C6A45A] text-sm sm:text-base font-bold flex items-center justify-center gap-3 transition-all active:scale-98 bg-black/20 backdrop-blur-xs"
+              className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 rounded-xl border border-[#C6A45A] hover:bg-[#C6A45A]/10 text-[#C6A45A] text-sm sm:text-base font-bold flex items-center justify-center gap-2.5 transition-all active:scale-98 bg-black/20 backdrop-blur-xs whitespace-nowrap"
             >
-              <WhatsAppIcon className="w-4 h-4" />
+              <WhatsAppIcon className="w-4 h-4 shrink-0" />
               <span>Book via WhatsApp</span>
-              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+              <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
             </a>
           </div>
         </div>

@@ -80,18 +80,18 @@ export default function ServiceDetailTemplate({ service }: { service: ServiceDet
               <button
                 type="button"
                 onClick={handleBookNow}
-                className="w-full sm:w-60 sm:min-w-[240px] px-6 sm:px-8 py-3.5 rounded-lg bg-[#C6A45A] hover:bg-[#B58E45] active:scale-[0.98] text-white text-sm sm:text-base font-semibold flex items-center justify-center gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer min-h-[48px]"
+                className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 rounded-lg bg-[#C6A45A] hover:bg-[#B58E45] active:scale-[0.98] text-white text-sm sm:text-base font-semibold flex items-center justify-center gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer whitespace-nowrap"
               >
                 <span>Book Now</span>
-                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
               </button>
 
               <Link
                 href="/fleets"
-                className="w-full sm:w-60 sm:min-w-[240px] px-6 sm:px-8 py-3.5 rounded-lg border border-[#C6A45A] hover:bg-[#C6A45A]/10 active:scale-[0.98] text-[#C6A45A] text-sm sm:text-base font-semibold flex items-center justify-center gap-3 transition-all min-h-[48px]"
+                className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 rounded-lg border border-[#C6A45A] hover:bg-[#C6A45A]/10 active:scale-[0.98] text-[#C6A45A] text-sm sm:text-base font-semibold flex items-center justify-center gap-3 transition-all whitespace-nowrap"
               >
                 <span>Explore our Fleet</span>
-                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
               </Link>
             </div>
           </div>
@@ -198,19 +198,19 @@ export default function ServiceDetailTemplate({ service }: { service: ServiceDet
               <button
                 type="button"
                 onClick={handleBookNow}
-                className="w-full sm:w-60 sm:min-w-[240px] px-6 sm:px-8 py-3.5 rounded-lg bg-[#C6A45A] hover:bg-[#B58E45] active:scale-[0.98] text-white text-sm sm:text-base font-semibold flex items-center justify-center gap-3 transition-all shadow-lg cursor-pointer min-h-[48px]"
+                className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 rounded-lg bg-[#C6A45A] hover:bg-[#B58E45] active:scale-[0.98] text-white text-sm sm:text-base font-semibold flex items-center justify-center gap-3 transition-all shadow-lg cursor-pointer whitespace-nowrap"
               >
                 <span>Book Now</span>
-                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
               </button>
 
               <a
                 href="https://wa.me/6588006006"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-60 sm:min-w-[240px] px-6 sm:px-8 py-3.5 rounded-lg border border-[#C6A45A] hover:bg-[#C6A45A]/10 active:scale-[0.98] text-[#C6A45A] text-sm sm:text-base font-semibold flex items-center justify-center gap-3 transition-all min-h-[48px]"
+                className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 rounded-lg border border-[#C6A45A] hover:bg-[#C6A45A]/10 active:scale-[0.98] text-[#C6A45A] text-sm sm:text-base font-semibold flex items-center justify-center gap-2.5 transition-all whitespace-nowrap"
               >
-                <WhatsAppIcon className="w-4 h-4" />
+                <WhatsAppIcon className="w-4 h-4 shrink-0" />
                 <span>WhatsApp Us</span>
               </a>
             </div>

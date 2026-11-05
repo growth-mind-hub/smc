@@ -32,7 +32,7 @@ export default function CTASection() {
         <button
           type="button"
           onClick={() => openModal({ initialStep: 0 })}
-          className="w-full sm:w-60 sm:min-w-[240px] px-6 sm:px-8 py-3.5 bg-[#C6A45A] hover:bg-[#B58E45] active:scale-98 text-white text-base font-bold font-manrope rounded-xl transition-all shadow-md cursor-pointer flex items-center justify-center"
+          className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 bg-[#C6A45A] hover:bg-[#B58E45] active:scale-98 text-white text-base font-bold font-manrope rounded-xl transition-all shadow-md cursor-pointer flex items-center justify-center whitespace-nowrap"
         >
           Book Now
         </button>
@@ -40,10 +40,10 @@ export default function CTASection() {
         {/* Explore our Fleet Button */}
         <Link
           href="/fleets"
-          className="w-full sm:w-60 sm:min-w-[240px] px-6 sm:px-8 py-3.5 rounded-xl border border-[#C6A45A] hover:bg-[#C6A45A]/10 active:scale-98 text-[#C6A45A] text-base font-bold font-manrope flex items-center justify-center gap-3 transition-all"
+          className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 rounded-xl border border-[#C6A45A] hover:bg-[#C6A45A]/10 active:scale-98 text-[#C6A45A] text-base font-bold font-manrope flex items-center justify-center gap-2.5 transition-all whitespace-nowrap"
         >
           <span>Explore our Fleet</span>
-          <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+          <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
         </Link>
       </div>
 

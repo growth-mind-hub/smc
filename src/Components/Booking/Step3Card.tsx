@@ -17,9 +17,11 @@ import {
   Loader2,
   CreditCard,
   AlertCircle,
+  Moon,
 } from "lucide-react";
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
 import Link from "next/link";
+import { isNightOrEarlyMorningTime, validateBookingDetails } from "@/utils/timeValidation";
 
 interface Step3CardProps {
   isModal?: boolean;
@@ -43,6 +45,9 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+
+  const isNightTrip = isNightOrEarlyMorningTime(bookingData.pickupTime);
   const router = useRouter();
 
   // Reset redirecting state when returning from Stripe (browser Back, BFCache, or tab focus)
@@ -91,6 +96,13 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       ? bookingData.baseFare
       : 65;
   const duration = bookingData.durationHours || 3;
+
+  const baseVehicleFare =
+    quote && quote.quote_status === "AVAILABLE" && quote.quote?.vehicle_amount != null
+      ? quote.quote.vehicle_amount
+      : isHourly
+        ? hourlyRate * duration
+        : (bookingData.baseFare || 70);
 
   const isContactSupport = quote?.quote_status === "CONTACT_SUPPORT";
 
@@ -195,7 +207,51 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
   }
 
   const handleProceed = async () => {
-    // Direct checkout whether in modal or full page
+    // 1. Validate passenger contact and itinerary details before proceeding
+    const validation = validateBookingDetails({
+      name: bookingData.name,
+      phone: bookingData.phone,
+      email: bookingData.email,
+      pickupDate: bookingData.pickupDate,
+      pickupTime: bookingData.pickupTime,
+    });
+
+    if (!validation.isValid) {
+      const firstError = Object.values(validation.errors)[0];
+      setValidationError(firstError || "Please complete all required passenger information.");
+      return;
+    }
+    setValidationError(null);
+
+    const forwardToWhatsApp = () => {
+      const text =
+        `*New Singapore Maxi Cab Booking Request*%0A` +
+        `--------------------------------%0A` +
+        `*Service:* ${bookingData.serviceType}%0A` +
+        (isHourly ? `*Duration:* ${duration} Hours%0A` : "") +
+        `*Vehicle:* ${bookingData.selectedFleet || "7-Seater Maxi Cab"}%0A` +
+        `*Pickup:* ${bookingData.pickup || "Singapore Changi Airport (SIN)"}%0A` +
+        (!isHourly
+          ? `*Dropoff:* ${bookingData.dropoff || "Marina Bay Sands Hotel"}%0A`
+          : `*Dropoff / Scope:* ${bookingData.dropoff || "As-Directed City Tour"}%0A`) +
+        `*Date & Time:* ${bookingData.pickupDate || "24 Oct 2024"} at ${bookingData.pickupTime || "17:15"} SGT%0A` +
+        `*Pax:* ${bookingData.passengers || 7} | *Luggage:* ${bookingData.luggage || 5} Bags%0A` +
+        `*Passenger Name:* ${bookingData.name || "Customer"}%0A` +
+        `*Phone/WhatsApp:* ${bookingData.phone ? `${bookingData.countryCode} ${bookingData.phone}` : "Via WhatsApp"}%0A` +
+        `*Email:* ${bookingData.email || "booking@singaporemaxicabs.com.sg"}%0A` +
+        (bookingData.flightNumber ? `*Flight Number:* ${bookingData.flightNumber}%0A` : "") +
+        (bookingData.signboardName ? `*Signboard Name:* ${bookingData.signboardName}%0A` : "") +
+        `*Final Tariff:* $${totalFare}.00 SGD NETT%0A` +
+        `--------------------------------%0A` +
+        `Please confirm driver dispatch availability. Thank you!`;
+
+      const waUrl = `https://wa.me/6588006006?text=${text}`;
+      const opened = window.open(waUrl, "_blank");
+      if (!opened) {
+        window.location.href = waUrl;
+      }
+      setIsSuccess(true);
+    };
 
     if (isContactSupport) {
       // Direct to WhatsApp for customized quotation
@@ -210,10 +266,22 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         `*Contact:* ${bookingData.name} (${bookingData.countryCode} ${bookingData.phone})%0A` +
         `--------------------------------%0A` +
         `Please provide a custom quotation for this route.`;
-      window.open(`https://wa.me/6588006006?text=${text}`, "_blank");
+      const waUrl = `https://wa.me/6588006006?text=${text}`;
+      const opened = window.open(waUrl, "_blank");
+      if (!opened) {
+        window.location.href = waUrl;
+      }
       return;
     }
 
+    // 2. Late-Night / Early-Morning Dispatch Window (10:00 PM to 7:00 AM)
+    // Forward directly to WhatsApp Operations Concierge
+    if (isNightTrip) {
+      forwardToWhatsApp();
+      return;
+    }
+
+    // 3. Daytime Payment: Stripe Card / Digital Wallets Option
     try {
       // Initiate live Stripe checkout and redirect to Stripe Checkout URL
       const checkoutRes = await submitLiveCheckout();
@@ -221,35 +289,14 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         setIsRedirecting(true);
         return;
       }
+      // If Stripe checkout cannot be created, forward directly to WhatsApp
       setIsRedirecting(false);
+      forwardToWhatsApp();
     } catch (e) {
-      console.error("Stripe checkout error:", e);
+      console.warn("Stripe checkout error, forwarding to WhatsApp:", e);
       setIsRedirecting(false);
+      forwardToWhatsApp();
     }
-    // Fallback if backend checkout is not running or returns error: WhatsApp confirmation
-    const text =
-      `*New Singapore Maxi Cab Booking Request*%0A` +
-      `--------------------------------%0A` +
-      `*Service:* ${bookingData.serviceType}%0A` +
-      (isHourly ? `*Duration:* ${duration} Hours%0A` : "") +
-      `*Vehicle:* ${bookingData.selectedFleet || "7-Seater Maxi Cab"}%0A` +
-      `*Pickup:* ${bookingData.pickup || "Singapore Changi Airport (SIN)"}%0A` +
-      (!isHourly
-        ? `*Dropoff:* ${bookingData.dropoff || "Marina Bay Sands Hotel"}%0A`
-        : `*Dropoff / Scope:* ${bookingData.dropoff || "As-Directed City Tour"}%0A`) +
-      `*Date & Time:* ${bookingData.pickupDate || "24 Oct 2024"} at ${bookingData.pickupTime || "17:15"} SGT%0A` +
-      `*Pax:* ${bookingData.passengers || 7} | *Luggage:* ${bookingData.luggage || 5} Bags%0A` +
-      `*Passenger Name:* ${bookingData.name || "Customer"}%0A` +
-      `*Phone/WhatsApp:* ${bookingData.phone ? `${bookingData.countryCode} ${bookingData.phone}` : "Via WhatsApp"}%0A` +
-      `*Email:* ${bookingData.email || "booking@singaporemaxicabs.com.sg"}%0A` +
-      (bookingData.flightNumber ? `*Flight Number:* ${bookingData.flightNumber}%0A` : "") +
-      (bookingData.signboardName ? `*Signboard Name:* ${bookingData.signboardName}%0A` : "") +
-      `*Final Tariff:* $${totalFare}.00 SGD NETT%0A` +
-      `--------------------------------%0A` +
-      `Please confirm driver dispatch availability. Thank you!`;
-
-    window.open(`https://wa.me/6588006006?text=${text}`, "_blank");
-    setIsSuccess(true);
   };
 
   if (isSuccess) {
@@ -367,6 +414,23 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           Review Your Journey
         </div>
       </div>
+
+      {/* Validation Alert if passenger details are missing */}
+      {validationError && (
+        <div className="self-stretch p-3.5 bg-rose-50 rounded-xl border border-rose-200 flex items-center justify-between gap-3 text-rose-800 text-xs font-manrope animate-in fade-in">
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span className="font-semibold text-rose-900 truncate">{validationError}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStep(3)}
+            className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold transition-all text-[11px] shrink-0 cursor-pointer"
+          >
+            Edit Passenger Details
+          </button>
+        </div>
+      )}
 
       {/* Confirmed Vehicle Class Hero Card */}
       <div className="w-full h-[240px] sm:h-[288px] min-h-[240px] sm:min-h-[288px] shrink-0 relative rounded-2xl flex flex-col justify-between p-3.5 sm:p-5 overflow-hidden bg-slate-900 shadow-md">
@@ -635,7 +699,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               </div>
               <div className="text-right shrink-0 flex flex-col items-end">
                 <span className="text-slate-900 text-lg sm:text-xl font-semibold font-manrope leading-tight">
-                  ${isHourly ? hourlyRate * duration : (bookingData.baseFare || 70)}.00
+                  ${baseVehicleFare}.00
                 </span>
                 <span className="text-slate-500 text-[11px] sm:text-xs font-normal font-manrope">
                   SGD
@@ -745,6 +809,30 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           </div>
         </div>
 
+        {/* Night Dispatch Protocol Notice */}
+        {isNightTrip && (
+          /* Late-Night / Early-Morning Dispatch (10:00 PM – 7:00 AM SGT) */
+          <div className="self-stretch p-4 bg-[#071E3B] text-white rounded-2xl border border-[#C6A45A]/40 shadow-sm flex flex-col gap-2.5 animate-in fade-in">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[#C6A45A] font-bold text-sm font-manrope">
+                <Moon className="w-4 h-4 shrink-0 text-[#C6A45A]" />
+                <span>Late-Night / Early-Morning Dispatch Protocol</span>
+              </div>
+              <span className="px-2 py-0.5 bg-[#C6A45A]/20 text-[#C6A45A] text-[10px] font-bold rounded-md uppercase tracking-wider font-manrope">
+                10 PM – 7 AM SGT
+              </span>
+            </div>
+            <p className="text-xs text-slate-200 font-manrope leading-relaxed">
+              You selected a pickup time of <strong className="text-white">{bookingData.pickupTime || "10:00 PM"} SGT</strong>. To ensure direct chauffeur tracking, flight buffer monitoring, and dedicated terminal meet &amp; greet during late-night and early-morning hours, this booking is confirmed directly with our 24/7 Operations Desk via WhatsApp.
+            </p>
+            <div className="pt-1.5 border-t border-slate-700/60 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-[#C6A45A] font-semibold font-manrope">
+              <span>✓ Guaranteed Priority Chauffeur</span>
+              <span>✓ Live Flight Radar Tracking</span>
+              <span>✓ Midnight Surcharge Waived ($0)</span>
+            </div>
+          </div>
+)}
+
         {/* Disclaimer & Buttons */}
         <div className="self-stretch flex flex-col justify-start items-start gap-2 pt-1">
           <div className="self-stretch text-center text-[#5F6B7A] text-[11px] sm:text-xs font-normal font-manrope leading-4">
@@ -763,7 +851,11 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               type="button"
               onClick={handleProceed}
               disabled={isCheckingOut || isRedirecting}
-              className="flex-1 min-w-0 px-3 sm:px-6 py-3 sm:py-3.5 bg-[#071E3B] hover:bg-[#0B2A4A] active:scale-[0.98] text-white rounded-xl flex items-center justify-center gap-2 sm:gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer text-xs sm:text-base font-bold font-manrope whitespace-nowrap disabled:opacity-75"
+              className={`flex-1 min-w-0 px-3 sm:px-6 py-3 sm:py-3.5 active:scale-[0.98] text-white rounded-xl flex items-center justify-center gap-2 sm:gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer text-xs sm:text-base font-bold font-manrope whitespace-nowrap disabled:opacity-75 ${
+                isNightTrip
+                  ? "bg-[#16803C] hover:bg-[#126831]"
+                  : "bg-[#071E3B] hover:bg-[#0B2A4A]"
+              }`}
             >
               {isCheckingOut ? (
                 <>
@@ -780,9 +872,14 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                   <span>Chat on WhatsApp</span>
                   <WhatsAppIcon className="w-4 h-4 shrink-0" />
                 </>
+              ) : isNightTrip ? (
+                <>
+                  <span>Confirm via WhatsApp (10 PM – 7 AM Dispatch)</span>
+                  <WhatsAppIcon className="w-4 h-4 shrink-0" />
+                </>
               ) : (
                 <>
-                  <span>Proceed to Payment</span>
+                  <span>Proceed to Payment (${totalFare}.00 SGD)</span>
                   <CreditCard className="w-4 h-4 text-[#C6A45A] shrink-0" />
                 </>
               )}
@@ -790,7 +887,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           </div>
         </div>
 
-        {/* Sub Links */}
+                {/* Sub Links */}
         <div className="self-stretch flex flex-wrap justify-between items-center gap-2 pt-1">
           <Link
             href="/pricing"

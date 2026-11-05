@@ -37,7 +37,7 @@ export const ENDPOINTS = {
   // 8. Calculate a quotation
   BOOKING_QUOTE: "/api/booking/quote",
   // 9. Create booking and Stripe checkout
-  BOOKINGS_CHECKOUT: "/api/v1/bookings/checkout",
+  BOOKINGS_CHECKOUT: "/api/bookings/checkout",
   // 22. Process health
   HEALTH: "/health",
   // 23. Database readiness
