@@ -17,11 +17,15 @@ import {
   Loader2,
   CreditCard,
   AlertCircle,
+  // QrCode, // QR Flow (commented out)
   Moon,
+  // Sparkles, // QR Flow (commented out)
 } from "lucide-react";
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
 import Link from "next/link";
-import { isNightOrEarlyMorningTime, validateBookingDetails } from "@/utils/timeValidation";
+// QR Payment Flow (Temporarily commented out - uncomment when ready to re-enable)
+// import PayNowQRModal from "./PayNowQRModal";
+import { isNightOrEarlyMorningTime, validateBookingDetails, getUAETime } from "@/utils/timeValidation";
 
 interface Step3CardProps {
   isModal?: boolean;
@@ -45,9 +49,14 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  // QR Payment Flow (Temporarily commented out - uncomment when ready to re-enable)
+  // const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"paynow" | "stripe">("paynow");
+  // const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const isNightTrip = isNightOrEarlyMorningTime(bookingData.pickupTime);
+  const uaeTime = getUAETime();
+  const isBookingCreationNight = uaeTime.isLateNight; // Booking created during UAE night (10 PM - 6 AM UAE)
+  const isNightPickup = isNightOrEarlyMorningTime(bookingData.pickupTime); // Fleet needed at night (10 PM - 6 AM)
   const router = useRouter();
 
   // Reset redirecting state when returning from Stripe (browser Back, BFCache, or tab focus)
@@ -106,6 +115,11 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
   const isContactSupport = quote?.quote_status === "CONTACT_SUPPORT";
 
+  const nightTravelItem = addOns?.find(
+    (a) => a.code === "NIGHT_TRAVEL" || a.name.toLowerCase().includes("night") || a.name.toLowerCase().includes("midnight")
+  );
+  const nightSurchargePrice = nightTravelItem?.price ?? 10;
+
   // Selected add-ons for Review and Fare Breakdown
   const selectedAddOnsList: {
     id: string;
@@ -122,6 +136,8 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         details = `${item.quantity} ${bookingData.babySeatType || "Toddler"} seat${item.quantity > 1 ? "s" : ""}${bookingData.babySeatAge ? ` (${bookingData.babySeatAge})` : ""}`;
       } else if (item.code === "MEET_GREET") {
         details = `${bookingData.meetGreetPax || item.quantity} Pax Arrival Meet & Greet with signage`;
+      } else if (item.code === "NIGHT_TRAVEL" || item.code.includes("NIGHT")) {
+        details = "Late-Night Transfer Surcharge (10:00 PM – 6:00 AM)";
       } else if (item.code.includes("STOP")) {
         details = `${item.quantity} stop${item.quantity > 1 ? "s" : ""}${bookingData.additionalStopAddress ? ` (${bookingData.additionalStopAddress})` : ""}`;
       } else {
@@ -136,6 +152,19 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         amountText: `+$${item.amount}.00`,
       });
     });
+
+    const hasNightInQuote = quote.quote.add_ons.some(
+      (a) => a.code === "NIGHT_TRAVEL" || a.name.toLowerCase().includes("night")
+    );
+    if ((bookingData.nightTravel || isNightPickup) && !hasNightInQuote) {
+      selectedAddOnsList.push({
+        id: "night-surcharge",
+        title: "Late-Night Transfer Surcharge",
+        subtitle: "Night chauffeur dispatch & flight radar buffer (10:00 PM – 6:00 AM)",
+        amount: nightSurchargePrice,
+        amountText: `+$${nightSurchargePrice}.00`,
+      });
+    }
   } else {
     const meetGreetItem = addOns?.find(
       (a) => a.code === "MEET_GREET" || a.name.toLowerCase().includes("meet")
@@ -204,6 +233,16 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         amountText: "Included ($0)",
       });
     }
+
+    if (bookingData.nightTravel || isNightPickup) {
+      selectedAddOnsList.push({
+        id: "night-surcharge",
+        title: "Late-Night Transfer Surcharge",
+        subtitle: "Night chauffeur dispatch & flight radar buffer (10:00 PM – 6:00 AM)",
+        amount: nightSurchargePrice,
+        amountText: `+$${nightSurchargePrice}.00`,
+      });
+    }
   }
 
   const handleProceed = async () => {
@@ -241,6 +280,8 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         `*Email:* ${bookingData.email || "booking@singaporemaxicabs.com.sg"}%0A` +
         (bookingData.flightNumber ? `*Flight Number:* ${bookingData.flightNumber}%0A` : "") +
         (bookingData.signboardName ? `*Signboard Name:* ${bookingData.signboardName}%0A` : "") +
+        (isNightPickup ? `*Late-Night Surcharge (10 PM–6 AM):* +$${nightSurchargePrice}.00 SGD Included%0A` : "") +
+        `*Booking Created At:* ${uaeTime.timeString}%0A` +
         `*Final Tariff:* $${totalFare}.00 SGD NETT%0A` +
         `--------------------------------%0A` +
         `Please confirm driver dispatch availability. Thank you!`;
@@ -274,14 +315,22 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       return;
     }
 
-    // 2. Late-Night / Early-Morning Dispatch Window (10:00 PM to 7:00 AM)
-    // Forward directly to WhatsApp Operations Concierge
-    if (isNightTrip) {
+    // 2. Late-Night Booking Creation (10:00 PM to 6:00 AM UAE Time)
+    // When created during late night in UAE, forward directly to WhatsApp Operations
+    if (isBookingCreationNight) {
       forwardToWhatsApp();
       return;
     }
 
-    // 3. Daytime Payment: Stripe Card / Digital Wallets Option
+    // 3. Daytime Payment: PayNow / Instant QR Code Option (Temporarily commented out - uncomment when ready to re-enable)
+    /*
+    if (selectedPaymentMethod === "paynow") {
+      setIsQrModalOpen(true);
+      return;
+    }
+    */
+
+    // 4. Daytime Payment: Stripe Card / Digital Wallets Option
     try {
       // Initiate live Stripe checkout and redirect to Stripe Checkout URL
       const checkoutRes = await submitLiveCheckout();
@@ -776,7 +825,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                 </div>
                 <div className="p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-row sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-1">
                   <span className="text-[#5F6B7A] text-xs font-medium font-manrope">
-                    Midnight / Peak Surcharge
+                    Peak &amp; Surge Multiplier
                   </span>
                   <span className="text-[#8A5A00] text-xs font-bold font-manrope">
                     WAIVED ($0)
@@ -809,29 +858,140 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           </div>
         </div>
 
-        {/* Night Dispatch Protocol Notice */}
-        {isNightTrip && (
-          /* Late-Night / Early-Morning Dispatch (10:00 PM – 7:00 AM SGT) */
+        {/* Night Dispatch Protocol Notice OR Payment Method Selection */}
+        {isBookingCreationNight ? (
+          /* Late-Night Booking Creation (10:00 PM – 6:00 AM UAE Time) */
           <div className="self-stretch p-4 bg-[#071E3B] text-white rounded-2xl border border-[#C6A45A]/40 shadow-sm flex flex-col gap-2.5 animate-in fade-in">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-[#C6A45A] font-bold text-sm font-manrope">
                 <Moon className="w-4 h-4 shrink-0 text-[#C6A45A]" />
-                <span>Late-Night / Early-Morning Dispatch Protocol</span>
+                <span>Late-Night Operations Window (10 PM – 6 AM UAE)</span>
               </div>
               <span className="px-2 py-0.5 bg-[#C6A45A]/20 text-[#C6A45A] text-[10px] font-bold rounded-md uppercase tracking-wider font-manrope">
-                10 PM – 7 AM SGT
+                {uaeTime.timeString}
               </span>
             </div>
             <p className="text-xs text-slate-200 font-manrope leading-relaxed">
-              You selected a pickup time of <strong className="text-white">{bookingData.pickupTime || "10:00 PM"} SGT</strong>. To ensure direct chauffeur tracking, flight buffer monitoring, and dedicated terminal meet &amp; greet during late-night and early-morning hours, this booking is confirmed directly with our 24/7 Operations Desk via WhatsApp.
+              Your booking is being created during our late-night UAE operations window (current UAE time: <strong className="text-white">{uaeTime.timeString}</strong>). To guarantee direct chauffeur tracking, terminal meet &amp; greet buffer, and priority assignment, this ride is confirmed directly with our 24/7 Operations Concierge via WhatsApp.
             </p>
             <div className="pt-1.5 border-t border-slate-700/60 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-[#C6A45A] font-semibold font-manrope">
               <span>✓ Guaranteed Priority Chauffeur</span>
-              <span>✓ Live Flight Radar Tracking</span>
-              <span>✓ Midnight Surcharge Waived ($0)</span>
+              <span>✓ 24/7 Live Operations Desk</span>
+              <span>✓ {isNightPickup ? `+$${nightSurchargePrice}.00 SGD Night Transfer Surcharge Included` : "No Extra Night Surcharge"}</span>
             </div>
           </div>
-)}
+        ) : (
+          /* Daytime Booking Creation in UAE */
+          <div className="self-stretch flex flex-col gap-2.5 pt-1">
+            {/* If fleet is needed at night, inform user about the late-night surcharge */}
+            {isNightPickup && (
+              <div className="p-3.5 bg-[#FAF7F0] border border-[#EADBBD] rounded-xl flex items-start gap-2.5 text-xs text-[#071E3B] font-manrope animate-in fade-in">
+                <Moon className="w-4 h-4 text-[#8A5A00] shrink-0 mt-0.5" />
+                <div className="flex-1 leading-snug">
+                  <span className="font-bold text-[#8A5A00]">
+                    Late-Night Transfer Schedule (10:00 PM – 6:00 AM):
+                  </span>{" "}
+                  Pickup scheduled for <strong>{bookingData.pickupTime}</strong>. A +${nightSurchargePrice}.00 SGD late-night surcharge has been added to your tariff. You can complete checkout directly below.
+                </div>
+              </div>
+            )}
+            {/* QR Payment Flow Selector (Temporarily commented out - uncomment when ready to re-enable)
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <CreditCard className="w-4 h-4 text-[#8A5A00]" />
+                <span className="text-[#071E3B] text-sm sm:text-base font-bold font-manrope">
+                  Select Payment Method
+                </span>
+              </div>
+              <span className="text-[11px] text-[#8A5A00] font-semibold font-manrope">
+                Zero Hidden Charges
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              
+              <div
+                onClick={() => setSelectedPaymentMethod("paynow")}
+                className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-2 text-left relative ${
+                  selectedPaymentMethod === "paynow"
+                    ? "border-[#7B187B] bg-[#FAF5FA] shadow-sm"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-[#7B187B] text-white flex items-center justify-center shrink-0">
+                      <QrCode className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm font-bold text-[#071E3B] font-manrope">
+                        PayNow / Instant QR
+                      </div>
+                      <span className="text-[10px] text-[#7B187B] font-bold uppercase tracking-wider font-manrope">
+                        SGQR · Direct Bank Lock
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${
+                      selectedPaymentMethod === "paynow" ? "border-[#7B187B] bg-[#7B187B]" : "border-slate-300"
+                    }`}
+                  >
+                    {selectedPaymentMethod === "paynow" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
+                </div>
+                <p className="text-[11px] text-[#5F6B7A] font-manrope leading-snug">
+                  Scan &amp; pay via any Singapore banking app (DBS, OCBC, UOB, GrabPay) or mobile scanner.
+                </p>
+                <div className="text-[10px] text-[#8A5A00] font-semibold font-manrope flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-[#C6A45A]" />
+                  <span>≈ AED {(totalFare * 2.72).toFixed(2)} (Standard bank rate)</span>
+                </div>
+              </div>
+
+              
+              <div
+                onClick={() => setSelectedPaymentMethod("stripe")}
+                className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-2 text-left relative ${
+                  selectedPaymentMethod === "stripe"
+                    ? "border-[#071E3B] bg-[#F4F7FB] shadow-sm"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-[#071E3B] text-white flex items-center justify-center shrink-0">
+                      <CreditCard className="w-4 h-4 text-[#C6A45A]" />
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm font-bold text-[#071E3B] font-manrope">
+                        Credit / Debit Card
+                      </div>
+                      <span className="text-[10px] text-[#071E3B] font-bold uppercase tracking-wider font-manrope">
+                        Stripe Global Checkout
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${
+                      selectedPaymentMethod === "stripe" ? "border-[#071E3B] bg-[#071E3B]" : "border-slate-300"
+                    }`}
+                  >
+                    {selectedPaymentMethod === "stripe" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                  </div>
+                </div>
+                <p className="text-[11px] text-[#5F6B7A] font-manrope leading-snug">
+                  Visa, Mastercard, AMEX, Apple Pay &amp; Google Pay. Instant confirmation invoice emailed.
+                </p>
+                <div className="text-[10px] text-emerald-700 font-semibold font-manrope flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                  <span>256-Bit SSL Encrypted</span>
+                </div>
+              </div>
+            </div>
+            */}
+          </div>
+        )}
 
         {/* Disclaimer & Buttons */}
         <div className="self-stretch flex flex-col justify-start items-start gap-2 pt-1">
@@ -852,7 +1012,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               onClick={handleProceed}
               disabled={isCheckingOut || isRedirecting}
               className={`flex-1 min-w-0 px-3 sm:px-6 py-3 sm:py-3.5 active:scale-[0.98] text-white rounded-xl flex items-center justify-center gap-2 sm:gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer text-xs sm:text-base font-bold font-manrope whitespace-nowrap disabled:opacity-75 ${
-                isNightTrip
+                isBookingCreationNight
                   ? "bg-[#16803C] hover:bg-[#126831]"
                   : "bg-[#071E3B] hover:bg-[#0B2A4A]"
               }`}
@@ -872,12 +1032,20 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                   <span>Chat on WhatsApp</span>
                   <WhatsAppIcon className="w-4 h-4 shrink-0" />
                 </>
-              ) : isNightTrip ? (
+              ) : isBookingCreationNight ? (
                 <>
-                  <span>Confirm via WhatsApp (10 PM – 7 AM Dispatch)</span>
+                  <span>Confirm via WhatsApp (UAE Night Dispatch)</span>
                   <WhatsAppIcon className="w-4 h-4 shrink-0" />
                 </>
               ) : (
+                /* QR Payment Flow Button (Temporarily commented out - uncomment when ready to re-enable)
+                selectedPaymentMethod === "paynow" ? (
+                  <>
+                    <span>Pay with PayNow QR (${totalFare}.00 SGD)</span>
+                    <QrCode className="w-4 h-4 text-white shrink-0" />
+                  </>
+                ) :
+                */
                 <>
                   <span>Proceed to Payment (${totalFare}.00 SGD)</span>
                   <CreditCard className="w-4 h-4 text-[#C6A45A] shrink-0" />
@@ -887,7 +1055,21 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           </div>
         </div>
 
-                {/* Sub Links */}
+        {/* PayNow QR Code Interactive Modal (Temporarily commented out - uncomment when ready to re-enable) */}
+        {/*
+        <PayNowQRModal
+          isOpen={isQrModalOpen}
+          onClose={() => setIsQrModalOpen(false)}
+          totalAmount={totalFare}
+          bookingData={bookingData}
+          onSuccess={() => {
+            setIsQrModalOpen(false);
+            setIsSuccess(true);
+          }}
+        />
+        */}
+
+        {/* Sub Links */}
         <div className="self-stretch flex flex-wrap justify-between items-center gap-2 pt-1">
           <Link
             href="/pricing"

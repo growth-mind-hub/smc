@@ -159,7 +159,7 @@ export default function TestimonialsSection() {
                 <div className="flex flex-col gap-2 sm:gap-3">
                   <div className="flex items-center justify-between">
                     <span className="px-2 py-0.5 bg-[#EEF5FB] rounded-sm text-[#5F6B7A] text-[10px] sm:text-xs font-bold font-manrope uppercase">
-                      NO EXTRA MIDNIGHT CHARGES
+                      FIXED MIDNIGHT RATE
                     </span>
                     <span className="text-amber-500 text-xs tracking-wider">★★★★★</span>
                   </div>

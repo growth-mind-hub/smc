@@ -1,14 +1,70 @@
 /**
  * Time and Form Validation Utilities for Singapore Maxi Cabs
+ *
+ * Late-night operations window: 10:00 PM (22:00) to 6:00 AM (06:00) UAE timezone (Asia/Dubai).
  */
 
+export interface UAETimeInfo {
+  hours: number;
+  minutes: number;
+  timeString: string;
+  isLateNight: boolean;
+}
+
 /**
- * Checks if a selected pickup time falls within the late-night / early-morning
- * window of 10:00 PM (22:00) to 7:00 AM (07:00).
+ * Returns the current time converted to UAE timezone (Asia/Dubai, UTC+4).
+ * Asia/Dubai does not observe Daylight Saving Time.
+ * Late-night window: 10:00 PM (22:00) to 6:00 AM (06:00) UAE time.
+ */
+export function getUAETime(date: Date = new Date()): UAETimeInfo {
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Dubai",
+    hour: "numeric",
+    minute: "numeric",
+    hourCycle: "h23",
+  });
+
+  const parts = formatter.formatToParts(date);
+  const hourPart = parts.find((p) => p.type === "hour");
+  const minutePart = parts.find((p) => p.type === "minute");
+
+  const hours = hourPart ? parseInt(hourPart.value, 10) % 24 : 0;
+  const minutes = minutePart ? parseInt(minutePart.value, 10) : 0;
+
+  // Window: 10:00 PM (22:00) to 6:00 AM (06:00) UAE
+  // 22:00 - 23:59: hours >= 22
+  // 00:00 - 05:59: hours < 6
+  const isLateNight = hours >= 22 || hours < 6;
+
+  const displayTime = date.toLocaleTimeString("en-US", {
+    timeZone: "Asia/Dubai",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return {
+    hours,
+    minutes,
+    timeString: `${displayTime} (UAE)`,
+    isLateNight,
+  };
+}
+
+/**
+ * Helper to check if current moment in UAE timezone is late night (10 PM to 6 AM).
+ */
+export function isCurrentTimeUAENight(date: Date = new Date()): boolean {
+  return getUAETime(date).isLateNight;
+}
+
+/**
+ * Checks if a selected pickup time falls within the late-night window
+ * of 10:00 PM (22:00) to 6:00 AM (06:00).
  *
  * Supported formats:
- * - HTML5 time input: "22:00", "06:45", "17:15"
- * - 12-hour strings: "10:00 PM", "11:30 PM", "6:15 AM", "7:00 AM"
+ * - HTML5 time input: "22:00", "05:45", "17:15"
+ * - 12-hour strings: "10:00 PM", "11:30 PM", "5:15 AM", "6:00 AM"
  */
 export function isNightOrEarlyMorningTime(timeStr?: string): boolean {
   if (!timeStr) return false;
@@ -26,11 +82,13 @@ export function isNightOrEarlyMorningTime(timeStr?: string): boolean {
   if (isPM && hours < 12) hours += 12;
   if (isAM && hours === 12) hours = 0;
 
-  // Window: 10:00 PM (22:00) up to 7:00 AM (07:00)
+  // Window: 10:00 PM (22:00) up to 6:00 AM (06:00)
   // 22:00 - 23:59: hours >= 22
-  // 00:00 - 06:59: hours < 7
-  return hours >= 22 || hours < 7;
+  // 00:00 - 05:59: hours < 6
+  return hours >= 22 || hours < 6;
 }
+
+export const isLateNightPickupTime = isNightOrEarlyMorningTime;
 
 /**
  * Validates passenger contact and journey details
@@ -81,4 +139,3 @@ export function validateBookingDetails(data: {
     errors,
   };
 }
-

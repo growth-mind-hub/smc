@@ -6,7 +6,7 @@ import Footer from "@/Components/Footer/Footer";
 export const metadata: Metadata = {
   title: "Pricing Matrix | Singapore Maxicabs - Fixed Flat Rates & No Hidden Fees",
   description:
-    "Transparent Singapore Maxi Cab rates. Flat fees for 6, 7, 9, 13 Seater and Mercedes Limousines. Fixed $10 midnight surcharge and complimentary flight delay waiting buffer.",
+    "Transparent Singapore Maxi Cab rates. Flat fees for 6, 7, 9, 13 Seater and Mercedes Limousines. Fixed $10 late-night surcharge (10 PM – 6 AM) and complimentary flight delay waiting buffer.",
 };
 
 export default function PricingPage() {

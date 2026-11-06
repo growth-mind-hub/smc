@@ -19,6 +19,7 @@ import {
   QuoteRequest,
   CheckoutRequest,
 } from "@/types/api";
+import { isNightOrEarlyMorningTime } from "@/utils/timeValidation";
 
 export interface BookingData {
   vehicleId?: number;
@@ -351,7 +352,9 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
     // Find add_on IDs dynamically or use standard defaults from handoff
     const meetGreetAddOn = addOns.find((a) => a.code === "MEET_GREET");
     const babySeatAddOn = addOns.find((a) => a.code === "BABY_SEAT");
-    const nightTravelAddOn = addOns.find((a) => a.code === "NIGHT_TRAVEL");
+    const nightTravelAddOn = addOns.find(
+      (a) => a.code === "NIGHT_TRAVEL" || a.name.toLowerCase().includes("night") || a.name.toLowerCase().includes("midnight")
+    );
     const stopWithin2km = addOns.find((a) => a.code === "STOP_WITHIN_2KM");
     const stopOver2km = addOns.find((a) => a.code === "STOP_OVER_2KM");
 
@@ -361,7 +364,8 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
     if (bookingData.babySeat) {
       list.push({ add_on_id: babySeatAddOn?.id || 3, quantity: bookingData.babySeatsCount || 1 });
     }
-    if (bookingData.nightTravel) {
+    const isNightPickup = isNightOrEarlyMorningTime(bookingData.pickupTime);
+    if (bookingData.nightTravel || isNightPickup) {
       list.push({ add_on_id: nightTravelAddOn?.id || 1, quantity: 1 });
     }
     const stopsCount = bookingData.additionalStopsCount || bookingData.extraStopsWithin2km || 0;
@@ -511,9 +515,22 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
   };
 
   const calculateTotal = () => {
+    const nightTravelItem = addOns.find(
+      (a) => a.code === "NIGHT_TRAVEL" || a.name.toLowerCase().includes("night") || a.name.toLowerCase().includes("midnight")
+    );
+    const nightTravelPrice = nightTravelItem ? nightTravelItem.price : 10;
+    const isNightPickup = isNightOrEarlyMorningTime(bookingData.pickupTime);
+
     // If we have a live quote from the backend API, return authoritative total amount
     if (quote && quote.quote_status === "AVAILABLE" && quote.quote) {
-      return quote.quote.total_amount;
+      let quoteTotal = quote.quote.total_amount;
+      const hasNightInQuote = quote.quote.add_ons?.some(
+        (a) => a.code === "NIGHT_TRAVEL" || a.name?.toLowerCase().includes("night")
+      );
+      if ((bookingData.nightTravel || isNightPickup) && !hasNightInQuote) {
+        quoteTotal += nightTravelPrice;
+      }
+      return quoteTotal;
     }
 
     let total = bookingData.baseFare;
@@ -563,6 +580,9 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
     }
     if (bookingData.extraStopsOver2km && bookingData.extraStopsOver2km > 0) {
       total += stopOver2kmPrice * bookingData.extraStopsOver2km;
+    }
+    if (bookingData.nightTravel || isNightPickup) {
+      total += nightTravelPrice;
     }
     return total;
   };

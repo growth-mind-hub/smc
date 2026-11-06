@@ -321,7 +321,7 @@
         { "vehicle": "13-Seater Minibus Crew Change (Bulk Luggage)", "rate": "$85 SGD" },
         { "vehicle": "3-Hour Port Standby / Medical Escort", "rate": "$210 SGD" },
         { "vehicle": "8-Hour Full Day Maritime Agent Charter", "rate": "$520 SGD" },
-        { "vehicle": "Late Night / Round-The-Clock Dispatch", "rate": "Zero Surcharge" }
+        { "vehicle": "Late Night / Round-The-Clock Dispatch", "rate": "Fixed Rate + $10" }
       ],
       "faqs": [
         {
@@ -447,7 +447,7 @@
         { "vehicle": "13-Seater Full Cabin Crew Shuttle", "rate": "$85 SGD" },
         { "vehicle": "Split Shift / Standby Reserve Transport", "rate": "$65/hr SGD" },
         { "vehicle": "Monthly Scheduled Airline Roster Contract", "rate": "Corporate Rates" },
-        { "vehicle": "Midnight / Early Dawn Transfers (01:00–05:00)", "rate": "Zero Surcharge" }
+        { "vehicle": "Midnight / Early Dawn Transfers (22:00–06:00)", "rate": "Fixed Rate + $10" }
       ],
       "faqs": [
         {

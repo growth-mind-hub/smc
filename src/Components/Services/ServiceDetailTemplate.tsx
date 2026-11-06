@@ -151,7 +151,7 @@ export default function ServiceDetailTemplate({ service }: { service: ServiceDet
                 </h4>
               </div>
               <p className="text-xs sm:text-sm text-[#667085] leading-relaxed">
-                All prices are final. No hidden charges, no midnight surcharges, no surge pricing.
+                All prices are final. No hidden fees, no surge multipliers, transparent fixed rates.
               </p>
             </div>
           </div>

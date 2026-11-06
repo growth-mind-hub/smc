@@ -1,7 +1,7 @@
 {
   "badge": "TRANSPARENT PRICING",
   "title": "Fixed Fares, No Surprises.",
-  "subtitle": "All our prices are flat rates with transparent terms. $10 midnight surcharge applies between 23:30–06:30, with complimentary waiting buffers and zero hidden fees.",
+  "subtitle": "All our prices are flat rates with transparent terms. $10 late-night surcharge applies between 22:00–06:00 (10:00 PM – 6:00 AM), with complimentary waiting buffers and zero hidden fees.",
   "guarantees": [
     {
       "icon": "ban",
@@ -10,8 +10,8 @@
     },
     {
       "icon": "clock",
-      "title": "$10 Midnight Surcharge",
-      "description": "Applies for late-night rides between 23:30 – 06:30."
+      "title": "$10 Late-Night Surcharge",
+      "description": "Applies for late-night rides between 22:00 – 06:00 (10:00 PM – 6:00 AM)."
     },
     {
       "icon": "hourglass",
@@ -175,7 +175,7 @@
     "All prices are in Singapore Dollars (SGD) and inclusive of GST.",
     "Point-to-Point fares apply for trips within Singapore only. Cross-border trips to Malaysia are not available.",
     "Waiting Time Policy: Complimentary 15 minutes grace waiting time for single trip / point-to-point bookings, and up to 60 minutes for Changi Airport arrivals. Prevailing waiting fees apply thereafter.",
-    "Midnight Surcharge: A flat $10 SGD surcharge is applicable for bookings between 23:30 and 06:30.",
+    "Late-Night Surcharge: A flat $10 SGD surcharge is applicable for pickups between 22:00 and 06:00 (10:00 PM – 6:00 AM).",
     "Changi Airport Meet & Greet is available as an optional add-on during booking and includes flight tracking with 60 minutes of complimentary waiting buffer.",
     "Charter prices are per vehicle and cover unlimited stops within Singapore.",
     "Wheelchair cab prices start from listed rates and vary by distance and configuration.",
