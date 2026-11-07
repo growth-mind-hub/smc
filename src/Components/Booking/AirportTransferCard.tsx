@@ -6,13 +6,15 @@ import { ArrowRight, ChevronDown, Info, X } from "lucide-react";
 import fleetData from "@/data/fleet.json";
 import LocationAutocompleteInput from "./LocationAutocompleteInput";
 import { getRecommendedFleet } from "@/utils/recommendation";
+import { getVehicleFareForBooking } from "@/utils/serviceResolver";
+import { resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
 
 interface AirportTransferCardProps {
   isModal?: boolean;
 }
 
 export default function AirportTransferCard({ isModal = true }: AirportTransferCardProps) {
-  const { bookingData, updateBookingData, setStep, closeModal, vehicles, addOns } = useBookingModal();
+  const { bookingData, updateBookingData, setStep, closeModal, vehicles, services, addOns } = useBookingModal();
   const [showTooltip, setShowTooltip] = useState(false);
 
   // Dynamic meet & greet add-on rate from live API
@@ -25,20 +27,8 @@ export default function AirportTransferCard({ isModal = true }: AirportTransferC
   const fleetOptions =
     vehicles && vehicles.length > 0
       ? vehicles.map((v) => {
-          const slug =
-            v.passengerCapacity === 6
-              ? "6-seater"
-              : v.passengerCapacity === 7
-              ? "7-seater"
-              : v.passengerCapacity === 9
-              ? "9-seater"
-              : v.passengerCapacity === 13
-              ? "13-seater"
-              : `vehicle-${v.id}`;
-          const fare =
-            v.prices?.arrival?.amount ||
-            v.prices?.departure_transfer?.amount ||
-            70;
+          const slug = resolveSlugFromApiVehicle(v);
+          const fare = getVehicleFareForBooking(v, bookingData, services);
           return {
             id: String(v.id),
             numericId: v.id,
@@ -56,17 +46,17 @@ export default function AirportTransferCard({ isModal = true }: AirportTransferC
               : v.id === "7-seater"
               ? 3
               : v.id === "9-seater"
-              ? 4
-              : 5,
+              ? 12
+              : 6,
           slug: v.slug || v.id,
           name: v.name,
           model: v.model,
-          fare: parseInt(v.price.replace(/[^0-9]/g, "")) || 70,
+          fare: getVehicleFareForBooking({ slug: v.slug, passengerCapacity: v.paxCount }, bookingData, services),
         }));
 
   const handlePaxChange = (newPax: number) => {
     const val = Math.max(1, Math.min(13, newPax));
-    const rec = getRecommendedFleet(val, bookingData.luggage, "Airport Transfer", vehicles);
+    const rec = getRecommendedFleet(val, bookingData.luggage, bookingData, vehicles);
     updateBookingData({
       passengers: val,
       ...rec,
@@ -75,7 +65,7 @@ export default function AirportTransferCard({ isModal = true }: AirportTransferC
 
   const handleLuggageChange = (newLug: number) => {
     const val = Math.max(0, Math.min(15, newLug));
-    const rec = getRecommendedFleet(bookingData.passengers, val, "Airport Transfer", vehicles);
+    const rec = getRecommendedFleet(bookingData.passengers, val, bookingData, vehicles);
     updateBookingData({
       luggage: val,
       ...rec,

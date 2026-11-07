@@ -20,6 +20,9 @@ import {
   CheckoutRequest,
 } from "@/types/api";
 import { isNightOrEarlyMorningTime } from "@/utils/timeValidation";
+import { resolveServiceForBooking, getVehicleFareForBooking } from "@/utils/serviceResolver";
+import { getRecommendedFleet } from "@/utils/recommendation";
+import { resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
 
 export interface BookingData {
   vehicleId?: number;
@@ -112,7 +115,7 @@ const defaultBookingData: BookingData = {
   durationHours: 3,
   selectedFleet: "7 Seater Maxi Cab",
   selectedFleetSlug: "7-seater",
-  baseFare: 70,
+  baseFare: 80,
   pickupDate: "",
   pickupTime: "",
   flightNo: "",
@@ -240,10 +243,7 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
                   : recommendedVehicle.passengerCapacity === 13
                   ? "13-seater"
                   : `vehicle-${recommendedVehicle.id}`;
-              const fare =
-                recommendedVehicle.prices?.arrival?.amount ||
-                recommendedVehicle.prices?.departure_transfer?.amount ||
-                70;
+              const fare = getVehicleFareForBooking(recommendedVehicle, bookingData, services);
               setBookingData((prev) => ({
                 ...prev,
                 vehicleId: recommendedVehicle.id,
@@ -256,42 +256,17 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch {
-      // Local capacity-based recommendation fallback
-      const p = bookingData.passengers || 7;
-      const l = bookingData.luggage || 5;
-      let recommendedSlug = "7-seater";
-      let recommendedName = "7 Seater Maxi Cab";
-      let defaultFare = 75;
-      let vId = 3;
-
-      if (p <= 6 && l <= 4) {
-        recommendedSlug = "6-seater";
-        recommendedName = "6 Seater Maxi Cab";
-        defaultFare = 70;
-        vId = 1;
-      } else if (p <= 7 && l <= 5) {
-        recommendedSlug = "7-seater";
-        recommendedName = "7 Seater Maxi Cab";
-        defaultFare = 75;
-        vId = 3;
-      } else if (p <= 9 && l <= 8) {
-        recommendedSlug = "9-seater";
-        recommendedName = "9 Seater Maxi Cab";
-        defaultFare = 80;
-        vId = 4;
-      } else {
-        recommendedSlug = "13-seater";
-        recommendedName = "13 Seater Minibus";
-        defaultFare = 85;
-        vId = 5;
-      }
+      // Local capacity-based recommendation fallback strictly matching backend API pricing
+      const rec = getRecommendedFleet(
+        bookingData.passengers || 7,
+        bookingData.luggage || 5,
+        bookingData,
+        vehicles
+      );
 
       setBookingData((prev) => ({
         ...prev,
-        vehicleId: vId,
-        selectedFleet: recommendedName,
-        selectedFleetSlug: recommendedSlug,
-        baseFare: defaultFare,
+        ...rec,
       }));
     }
   };
@@ -407,20 +382,8 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
 
     const isHourly = bookingData.serviceType.toLowerCase().includes("hourly");
 
-    // Dynamic resolution of service ID
-    let resolvedServiceId = bookingData.serviceId || 1;
-    if (services.length > 0) {
-      if (isHourly) {
-        const found = services.find((s) => s.code === "hourly" || s.unit === "hour");
-        if (found) resolvedServiceId = found.id;
-      } else if (bookingData.serviceType.toLowerCase().includes("departure")) {
-        const found = services.find((s) => s.code === "departure_transfer");
-        if (found) resolvedServiceId = found.id;
-      } else {
-        const found = services.find((s) => s.code === "arrival" || s.name.toLowerCase().includes("arrival"));
-        if (found) resolvedServiceId = found.id;
-      }
-    }
+    // Dynamic resolution of service ID matching itinerary
+    const { id: resolvedServiceId } = resolveServiceForBooking(bookingData, services);
 
     const payload: QuoteRequest = {
       vehicle_id: resolveVehicleId(),
@@ -452,19 +415,8 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
 
     const isHourly = bookingData.serviceType.toLowerCase().includes("hourly");
 
-    let resolvedServiceId = bookingData.serviceId || 1;
-    if (services.length > 0) {
-      if (isHourly) {
-        const found = services.find((s) => s.code === "hourly" || s.unit === "hour");
-        if (found) resolvedServiceId = found.id;
-      } else if (bookingData.serviceType.toLowerCase().includes("departure")) {
-        const found = services.find((s) => s.code === "departure_transfer");
-        if (found) resolvedServiceId = found.id;
-      } else {
-        const found = services.find((s) => s.code === "arrival");
-        if (found) resolvedServiceId = found.id;
-      }
-    }
+    // Dynamic resolution of service ID matching itinerary
+    const { id: resolvedServiceId } = resolveServiceForBooking(bookingData, services);
 
     // Format phone to E.164 (+ followed by 7-15 digits)
     const cleanCountry = (bookingData.countryCode || "+65").replace(/[^\d+]/g, "");
@@ -521,47 +473,19 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
     const nightTravelPrice = nightTravelItem ? nightTravelItem.price : 10;
     const isNightPickup = isNightOrEarlyMorningTime(bookingData.pickupTime);
 
-    // If we have a live quote from the backend API, return authoritative total amount
-    if (quote && quote.quote_status === "AVAILABLE" && quote.quote) {
-      const vehicleAmt = quote.quote.vehicle_amount ?? 0;
-      const distanceAmt = quote.quote.distance_amount ?? 0;
-      let addOnsAmt = 0;
-      if (quote.quote.add_ons && quote.quote.add_ons.length > 0) {
-        addOnsAmt = quote.quote.add_ons.reduce((sum, item) => sum + (item.amount || 0), 0);
-      }
-      const hasNightInQuote = quote.quote.add_ons?.some(
-        (a) => a.code === "NIGHT_TRAVEL" || a.name?.toLowerCase().includes("night")
-      );
-      let nightExtra = 0;
-      if ((bookingData.nightTravel || isNightPickup) && !hasNightInQuote) {
-        nightExtra = nightTravelPrice;
-      }
-      return vehicleAmt + distanceAmt + addOnsAmt + nightExtra;
-    }
+    const selectedVehicleObj = vehicles.find(
+      (v) => v.id === bookingData.vehicleId || resolveSlugFromApiVehicle(v) === bookingData.selectedFleetSlug
+    );
+    const vehicleFare = selectedVehicleObj
+      ? getVehicleFareForBooking(selectedVehicleObj, bookingData, services)
+      : (bookingData.baseFare || 80);
 
-    let total = bookingData.baseFare;
-    const isHourly = bookingData.serviceType.toLowerCase().includes("hourly");
-    const isAirport =
-      bookingData.serviceType.toLowerCase().includes("airport") ||
-      bookingData.serviceType.toLowerCase().includes("arrival");
+    const distanceAmt =
+      quote && quote.quote_status === "AVAILABLE" && quote.quote?.distance_amount
+        ? quote.quote.distance_amount
+        : 0;
 
-    if (isHourly) {
-      const hours = bookingData.durationHours || 3;
-      const ratePerHour =
-        bookingData.baseFare >= 50 && bookingData.baseFare <= 120
-          ? bookingData.baseFare
-          : 65;
-
-      const selectedVehicleObj = vehicles.find((v) => v.id === bookingData.vehicleId);
-      if (hours === 8 && selectedVehicleObj?.prices?.hourly?.eightHourAmount) {
-        total = selectedVehicleObj.prices.hourly.eightHourAmount;
-      } else if (hours === 3 && selectedVehicleObj?.prices?.hourly?.threeHourAmount) {
-        total = selectedVehicleObj.prices.hourly.threeHourAmount;
-      } else {
-        total = ratePerHour * hours;
-      }
-    }
-
+    let addOnsAmt = 0;
     const meetGreetItem = addOns.find((a) => a.code === "MEET_GREET" || a.name.toLowerCase().includes("meet"));
     const meetGreetPrice = meetGreetItem ? meetGreetItem.price : 20;
 
@@ -575,22 +499,22 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
     const stopOver2kmPrice = stopOver2kmItem ? stopOver2kmItem.price : 20;
 
     if (bookingData.meetAndGreet) {
-      total += meetGreetPrice * (bookingData.meetGreetPax || 1);
+      addOnsAmt += meetGreetPrice * (bookingData.meetGreetPax || 1);
     }
     if (bookingData.babySeat) {
-      total += babySeatPrice * (bookingData.babySeatsCount || 1);
+      addOnsAmt += babySeatPrice * (bookingData.babySeatsCount || 1);
     }
     const stops = bookingData.additionalStopsCount || bookingData.extraStopsWithin2km || 0;
     if (stops > 0) {
-      total += stopWithin2kmPrice * stops;
+      addOnsAmt += stopWithin2kmPrice * stops;
     }
     if (bookingData.extraStopsOver2km && bookingData.extraStopsOver2km > 0) {
-      total += stopOver2kmPrice * bookingData.extraStopsOver2km;
+      addOnsAmt += stopOver2kmPrice * bookingData.extraStopsOver2km;
     }
     if (bookingData.nightTravel || isNightPickup) {
-      total += nightTravelPrice;
+      addOnsAmt += nightTravelPrice;
     }
-    return total;
+    return vehicleFare + distanceAmt + addOnsAmt;
   };
 
   return (

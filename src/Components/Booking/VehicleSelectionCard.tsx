@@ -1,68 +1,62 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useBookingModal } from "@/context/BookingContext";
 import { ArrowLeft, ArrowRight, Check, Users, Luggage, X, Sparkles } from "lucide-react";
 import fleetData from "@/data/fleet.json";
 import { getRecommendedFleet } from "@/utils/recommendation";
 import { resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
+import { getVehicleFareForBooking } from "@/utils/serviceResolver";
 
 interface VehicleSelectionCardProps {
   isModal?: boolean;
 }
 
 export default function VehicleSelectionCard({ isModal = true }: VehicleSelectionCardProps) {
-  const { bookingData, updateBookingData, setStep, closeModal, vehicles: liveVehicles } = useBookingModal();
+  const { bookingData, updateBookingData, setStep, closeModal, vehicles: liveVehicles, services } = useBookingModal();
 
   // Find the algorithmic recommendation for this group size
   const recommendedInfo = useMemo(() => {
     return getRecommendedFleet(
       bookingData.passengers,
       bookingData.luggage,
-      bookingData.serviceType,
+      bookingData,
       liveVehicles
     );
-  }, [bookingData.passengers, bookingData.luggage, bookingData.serviceType, liveVehicles]);
+  }, [bookingData.passengers, bookingData.luggage, bookingData, liveVehicles]);
 
-  // Build the list of selectable vehicles strictly from live API
+  // Build the list of selectable vehicles strictly matching backend API catalog pricing
   const vehicleList = useMemo(() => {
-    const isAirport =
-      bookingData.serviceType?.toLowerCase().includes("airport") ||
-      bookingData.serviceType?.toLowerCase().includes("arrival");
-    const isHourly =
-      bookingData.serviceType?.toLowerCase().includes("hourly") ||
-      bookingData.serviceType?.toLowerCase().includes("charter");
+    const sourceVehicles =
+      liveVehicles && liveVehicles.length > 0
+        ? liveVehicles.filter((v) => v.status !== "inactive" && v.isActive !== false)
+        : fleetData.vehicles.map((fv) => ({
+            id: fv.id === "6-seater" ? 1 : fv.id === "7-seater" ? 3 : fv.id === "9-seater" ? 12 : 6,
+            name: fv.name,
+            vehicleType: fv.model,
+            passengerCapacity: fv.paxCount,
+            luggageCapacity: fv.luggageCount,
+            status: "active" as const,
+            isActive: true,
+            prices: {
+              departure_transfer: { amount: parseInt(fv.pointToPoint.replace(/[^0-9]/g, "")) || 70 },
+              arrival: { amount: parseInt(fv.meetAndGreet.replace(/[^0-9]/g, "")) || 80 },
+              hourly: { amount: 60, threeHourAmount: 180, eightHourAmount: 480 },
+            },
+          }));
 
-    if (!liveVehicles || liveVehicles.length === 0) {
-      return [];
-    }
-
-    return liveVehicles
-      .filter((v) => v.status !== "inactive" && v.isActive !== false)
+    return sourceVehicles
       .map((v) => {
-        const slug = resolveSlugFromApiVehicle(v);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const slug = resolveSlugFromApiVehicle(v as any);
         const fleetMatch = fleetData.vehicles.find((fv) => fv.slug === slug || fv.id === slug);
 
-        // Determine appropriate fare based on service type
-        let fare = 70;
-        if (isAirport) {
-          fare =
-            v.prices?.arrival?.amount ||
-            (fleetMatch?.meetAndGreet ? parseInt(fleetMatch.meetAndGreet.replace(/[^0-9]/g, "")) : 80);
-        } else if (isHourly) {
-          const hourlyRate =
-            v.prices?.hourly?.amount ||
-            (fleetMatch?.price ? parseInt(fleetMatch.price.replace(/[^0-9]/g, "")) : 65);
-          fare = hourlyRate * (bookingData.durationHours || 3);
-        } else {
-          fare =
-            v.prices?.departure_transfer?.amount ||
-            v.prices?.arrival?.amount ||
-            (fleetMatch?.price ? parseInt(fleetMatch.price.replace(/[^0-9]/g, "")) : 70);
-        }
+        // Determine appropriate fare based on service type and route
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const fare = getVehicleFareForBooking(v as any, bookingData, services);
 
-        const paxCount = v.passengerCapacity ?? 7;
-        const luggageCount = v.luggageCapacity ?? 4;
+        const paxCount = v.passengerCapacity ?? fleetMatch?.paxCount ?? 7;
+        const luggageCount = v.luggageCapacity ?? fleetMatch?.luggageCount ?? 4;
 
         const isRecommended =
           recommendedInfo.selectedFleetSlug === slug ||
@@ -98,7 +92,27 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
         // Then sort by passenger capacity
         return a.paxCount - b.paxCount;
       });
-  }, [liveVehicles, bookingData.serviceType, bookingData.durationHours, bookingData.passengers, bookingData.luggage, recommendedInfo]);
+  }, [liveVehicles, bookingData, services, recommendedInfo]);
+
+  // Ensure bookingData.baseFare stays strictly synchronized with the selected vehicle fare
+  useEffect(() => {
+    if (vehicleList.length > 0) {
+      const current =
+        vehicleList.find((v) => v.numericId === bookingData.vehicleId) ||
+        vehicleList.find((v) => v.slug === bookingData.selectedFleetSlug) ||
+        vehicleList.find((v) => v.isRecommended) ||
+        vehicleList[0];
+
+      if (current && bookingData.baseFare !== current.fare) {
+        updateBookingData({
+          vehicleId: current.numericId,
+          selectedFleet: current.name,
+          selectedFleetSlug: current.slug,
+          baseFare: current.fare,
+        });
+      }
+    }
+  }, [vehicleList, bookingData.vehicleId, bookingData.selectedFleetSlug, bookingData.baseFare, updateBookingData]);
 
   // Check if a vehicle is currently selected
   const selectedSlug = bookingData.selectedFleetSlug || "7-seater";

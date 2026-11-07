@@ -85,7 +85,7 @@
       "bags": "4–5 Bags",
       "luggageCount": 4,
       "pointToPoint": "$65 SGD",
-      "meetAndGreet": "$75 SGD",
+      "meetAndGreet": "$80 SGD",
       "charter3h": "$180 SGD",
       "charter8h": "$480 SGD",
       "vehicleType": "Toyota Vellfire / Alphard",
@@ -98,7 +98,7 @@
         "WhatsApp driver contact"
       ],
       "extras": [
-        { "label": "Changi Meet & Greet", "price": "$75" },
+        { "label": "Changi Meet & Greet", "price": "$80" },
         { "label": "3-Hour Charter", "price": "$180" }
       ],
       "buttonText": "Reserve 6-Seater",
@@ -118,7 +118,7 @@
       "bags": "5–6 Bags",
       "luggageCount": 5,
       "pointToPoint": "$70 SGD",
-      "meetAndGreet": "$75 SGD",
+      "meetAndGreet": "$80 SGD",
       "charter3h": "$180 SGD",
       "charter8h": "$480 SGD",
       "vehicleType": "Toyota Vellfire / Alphard",
@@ -131,7 +131,7 @@
         "WhatsApp driver contact"
       ],
       "extras": [
-        { "label": "Changi Meet & Greet", "price": "$75" },
+        { "label": "Changi Meet & Greet", "price": "$80" },
         { "label": "3-Hour Charter", "price": "$180" }
       ],
       "buttonText": "Reserve 7-Seater",

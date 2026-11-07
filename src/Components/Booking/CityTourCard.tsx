@@ -5,13 +5,16 @@ import { useBookingModal } from "@/context/BookingContext";
 import LocationAutocompleteInput from "./LocationAutocompleteInput";
 import fleetData from "@/data/fleet.json";
 import { ChevronDown, ArrowRight, X } from "lucide-react";
+import { getRecommendedFleet } from "@/utils/recommendation";
+import { getVehicleFareForBooking } from "@/utils/serviceResolver";
+import { resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
 
 interface CityTourCardProps {
   isModal?: boolean;
 }
 
 export default function CityTourCard({ isModal = true }: CityTourCardProps) {
-  const { bookingData, updateBookingData, setStep, closeModal, vehicles } = useBookingModal();
+  const { bookingData, updateBookingData, setStep, closeModal, vehicles, services } = useBookingModal();
 
   const [tourDays, setTourDays] = useState(2);
   const dayPills = [2, 3, 5, 7, 10];
@@ -20,20 +23,8 @@ export default function CityTourCard({ isModal = true }: CityTourCardProps) {
   const fleetOptions =
     vehicles && vehicles.length > 0
       ? vehicles.map((v) => {
-          const slug =
-            v.passengerCapacity === 6
-              ? "6-seater"
-              : v.passengerCapacity === 7
-              ? "7-seater"
-              : v.passengerCapacity === 9
-              ? "9-seater"
-              : v.passengerCapacity === 13
-              ? "13-seater"
-              : `vehicle-${v.id}`;
-          const fare =
-            v.prices?.arrival?.amount ||
-            v.prices?.departure_transfer?.amount ||
-            70;
+          const slug = resolveSlugFromApiVehicle(v);
+          const fare = getVehicleFareForBooking(v, bookingData, services);
           return {
             id: String(v.id),
             numericId: v.id,
@@ -51,51 +42,23 @@ export default function CityTourCard({ isModal = true }: CityTourCardProps) {
               : v.id === "7-seater"
               ? 3
               : v.id === "9-seater"
-              ? 4
-              : 5,
+              ? 12
+              : 6,
           slug: v.slug || v.id,
           name: v.name,
           model: v.model,
-          fare: parseInt(v.price.replace(/[^0-9]/g, "")) || 70,
+          fare: getVehicleFareForBooking({ slug: v.slug, passengerCapacity: v.paxCount }, bookingData, services),
         }));
 
   // Automatic recommendation based on pax and bags
   const calculateRecommendation = (p: number, l: number) => {
-    let slug = "7-seater";
-    let name = "7 Seater Maxi Cab";
-    let vId = 3;
-    let fare = 70;
-
-    if (p <= 6 && l <= 4) {
-      slug = "6-seater";
-      name = "6 Seater Maxi Cab";
-      vId = 1;
-      fare = 65;
-    } else if (p <= 7 && l <= 5) {
-      slug = "7-seater";
-      name = "7 Seater Maxi Cab";
-      vId = 3;
-      fare = 70;
-    } else if (p <= 9 && l <= 8) {
-      slug = "9-seater";
-      name = "9 Seater Maxi Cab";
-      vId = 4;
-      fare = 75;
-    } else {
-      slug = "13-seater";
-      name = "13 Seater Minibus";
-      vId = 5;
-      fare = 80;
-    }
-
-    const matched = fleetOptions.find((f) => f.slug === slug);
-    if (matched) {
-      name = matched.name;
-      fare = matched.fare;
-      vId = matched.numericId;
-    }
-
-    return { slug, name, fare, vId };
+    const rec = getRecommendedFleet(p, l, bookingData, vehicles);
+    return {
+      slug: rec.selectedFleetSlug,
+      name: rec.selectedFleet,
+      fare: rec.baseFare,
+      vId: rec.vehicleId,
+    };
   };
 
   const handlePaxChange = (delta: number) => {

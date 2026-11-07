@@ -24,6 +24,8 @@ import {
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
 import Link from "next/link";
 import { isNightOrEarlyMorningTime, validateBookingDetails, getUAETime } from "@/utils/timeValidation";
+import { getVehicleFareForBooking } from "@/utils/serviceResolver";
+import { resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
 
 interface Step3CardProps {
   isModal?: boolean;
@@ -43,6 +45,8 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
     isCheckingOut,
     checkoutError,
     addOns,
+    vehicles,
+    services,
   } = useBookingModal();
 
   const [isSuccess, setIsSuccess] = useState(false);
@@ -94,18 +98,21 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
   }, []);
 
   const isHourly = bookingData.serviceType.toLowerCase().includes("hourly");
-  const hourlyRate =
-    bookingData.baseFare >= 50 && bookingData.baseFare <= 120
-      ? bookingData.baseFare
-      : 65;
   const duration = bookingData.durationHours || 3;
 
-  const baseVehicleFare =
-    quote && quote.quote_status === "AVAILABLE" && quote.quote?.vehicle_amount != null
-      ? quote.quote.vehicle_amount
-      : isHourly
-        ? hourlyRate * duration
-        : (bookingData.baseFare || 70);
+  // Selected vehicle object from API catalog to guarantee exact fare consistency with Step 2 listing
+  const selectedVehicleObj = vehicles?.find(
+    (v) => v.id === bookingData.vehicleId || resolveSlugFromApiVehicle(v) === bookingData.selectedFleetSlug
+  );
+
+  const resolvedListingFare = selectedVehicleObj
+    ? getVehicleFareForBooking(selectedVehicleObj, bookingData, services)
+    : (bookingData.baseFare || 80);
+
+  const baseVehicleFare = resolvedListingFare;
+  const hourlyRate =
+    selectedVehicleObj?.prices?.hourly?.amount ||
+    (isHourly && duration > 0 ? Math.round(baseVehicleFare / duration) : 60);
 
   const isContactSupport = quote?.quote_status === "CONTACT_SUPPORT";
 

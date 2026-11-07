@@ -52,7 +52,7 @@ export default function FleetCard({ vehicle }: { vehicle: Vehicle }) {
 
   // Row 2: Changi Meet & Greet
   const row2Label = vehicle.specsRow2Label || "Changi Meet & Greet";
-  const row2Value = vehicle.specsRow2Value || vehicle.meetAndGreet || "$75 SGD";
+  const row2Value = vehicle.specsRow2Value || vehicle.meetAndGreet || "$80 SGD";
 
   // Row 3: 3-Hour Charter or LTA
   const row3Label = vehicle.specsRow3Label || (vehicle.id === "wheelchair-cab" ? "LTA Certified" : "3-Hour Charter");

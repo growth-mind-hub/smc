@@ -1,4 +1,5 @@
 import { VehicleCard } from "@/types/api";
+import { resolveServiceForBooking, getVehicleFareForBooking, BookingServiceContext } from "./serviceResolver";
 
 export interface RecommendedFleetResult {
   vehicleId: number;
@@ -10,11 +11,14 @@ export interface RecommendedFleetResult {
 export function getRecommendedFleet(
   passengers: number,
   luggage: number,
-  serviceType: string = "Airport Transfer",
+  serviceContext: string | BookingServiceContext = "Airport Transfer",
   liveVehicles?: VehicleCard[]
 ): RecommendedFleetResult {
-  const isAirport = serviceType.toLowerCase().includes("airport");
-  const isHourly = serviceType.toLowerCase().includes("hourly");
+  const bookingCtx: BookingServiceContext =
+    typeof serviceContext === "string" ? { serviceType: serviceContext } : serviceContext;
+  const { code } = resolveServiceForBooking(bookingCtx);
+  const isAirport = code === "arrival";
+  const isHourly = code === "hourly";
 
   // If live backend catalog is available
   if (liveVehicles && liveVehicles.length > 0) {
@@ -39,14 +43,7 @@ export function getRecommendedFleet(
           ? "13-seater"
           : `vehicle-${chosen.id}`;
 
-      let fare = 70;
-      if (isAirport) {
-        fare = chosen.prices?.arrival?.amount || chosen.prices?.departure_transfer?.amount || 75;
-      } else if (isHourly) {
-        fare = chosen.prices?.hourly?.amount || 65;
-      } else {
-        fare = chosen.prices?.departure_transfer?.amount || 65;
-      }
+      const fare = getVehicleFareForBooking(chosen, bookingCtx);
 
       return {
         vehicleId: chosen.id,
@@ -57,31 +54,31 @@ export function getRecommendedFleet(
     }
   }
 
-  // Local rule-based recommendation fallback matching fleet.json
+  // Local rule-based recommendation fallback strictly matching backend API prices
   if (passengers <= 6 && luggage <= 4) {
     return {
       vehicleId: 1,
       selectedFleet: "6 Seater Maxi Cab",
       selectedFleetSlug: "6-seater",
-      baseFare: isAirport ? 70 : isHourly ? 60 : 65,
+      baseFare: isAirport ? 80 : isHourly ? 60 : 70,
     };
   } else if (passengers <= 7 && luggage <= 5) {
     return {
       vehicleId: 3,
       selectedFleet: "7 Seater Maxi Cab",
       selectedFleetSlug: "7-seater",
-      baseFare: isAirport ? 75 : isHourly ? 65 : 70,
+      baseFare: isAirport ? 80 : isHourly ? 60 : 70,
     };
   } else if (passengers <= 9 && luggage <= 6) {
     return {
-      vehicleId: 4,
+      vehicleId: 12,
       selectedFleet: "9 Seater Maxi Cab",
       selectedFleetSlug: "9-seater",
-      baseFare: isAirport ? 80 : isHourly ? 70 : 75,
+      baseFare: isAirport ? 75 : isHourly ? 60 : 65,
     };
   } else {
     return {
-      vehicleId: 5,
+      vehicleId: 6,
       selectedFleet: "13 Seater Minibus",
       selectedFleetSlug: "13-seater",
       baseFare: isAirport ? 85 : isHourly ? 75 : 80,

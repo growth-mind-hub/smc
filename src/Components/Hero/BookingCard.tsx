@@ -8,28 +8,18 @@ import Link from "next/link";
 import { useBookingModal } from "@/context/BookingContext";
 import LocationAutocompleteInput from "@/Components/Booking/LocationAutocompleteInput";
 import { getRecommendedFleet } from "@/utils/recommendation";
+import { getVehicleFareForBooking } from "@/utils/serviceResolver";
+import { resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
 
 export default function BookingCard() {
-  const { bookingData, updateBookingData, openModal, vehicles } = useBookingModal();
+  const { bookingData, updateBookingData, openModal, vehicles, services } = useBookingModal();
 
   // Derive fleet options from live API vehicles with fallback to fleet.json
   const fleetOptions =
     vehicles && vehicles.length > 0
       ? vehicles.map((v) => {
-          const slug =
-            v.passengerCapacity === 6
-              ? "6-seater"
-              : v.passengerCapacity === 7
-              ? "7-seater"
-              : v.passengerCapacity === 9
-              ? "9-seater"
-              : v.passengerCapacity === 13
-              ? "13-seater"
-              : `vehicle-${v.id}`;
-          const fare =
-            v.prices?.arrival?.amount ||
-            v.prices?.departure_transfer?.amount ||
-            70;
+          const slug = resolveSlugFromApiVehicle(v);
+          const fare = getVehicleFareForBooking(v, bookingData, services);
           return {
             id: String(v.id),
             numericId: v.id,
@@ -47,17 +37,17 @@ export default function BookingCard() {
               : v.id === "7-seater"
               ? 3
               : v.id === "9-seater"
-              ? 4
-              : 5,
+              ? 12
+              : 6,
           slug: v.slug || v.id,
           name: v.name,
           model: v.model,
-          fare: parseInt(v.price.replace(/[^0-9]/g, "")) || 70,
+          fare: getVehicleFareForBooking({ slug: v.slug, passengerCapacity: v.paxCount }, bookingData, services),
         }));
 
   const handlePaxChange = (newPax: number) => {
     const val = Math.max(1, Math.min(13, newPax));
-    const rec = getRecommendedFleet(val, bookingData.luggage, bookingData.serviceType, vehicles);
+    const rec = getRecommendedFleet(val, bookingData.luggage, bookingData, vehicles);
     updateBookingData({
       passengers: val,
       ...rec,
@@ -66,7 +56,7 @@ export default function BookingCard() {
 
   const handleLuggageChange = (newLug: number) => {
     const val = Math.max(0, Math.min(15, newLug));
-    const rec = getRecommendedFleet(bookingData.passengers, val, bookingData.serviceType, vehicles);
+    const rec = getRecommendedFleet(bookingData.passengers, val, bookingData, vehicles);
     updateBookingData({
       luggage: val,
       ...rec,
@@ -215,7 +205,7 @@ export default function BookingCard() {
             <span className="text-[#C6A45A] font-bold">Recommended:</span>
             <span className="text-white font-medium">{bookingData.selectedFleet || "7 Seater Maxi Cab"}</span>
           </div>
-          <span className="text-white font-bold text-sm">From ${bookingData.baseFare || 70}</span>
+          <span className="text-white font-bold text-sm">From ${bookingData.baseFare || 80}</span>
         </div>
 
         {/* Singapore Disclaimer */}

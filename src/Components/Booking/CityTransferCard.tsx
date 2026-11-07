@@ -6,32 +6,31 @@ import { ArrowRight, ChevronDown, X } from "lucide-react";
 import fleetData from "@/data/fleet.json";
 import LocationAutocompleteInput from "./LocationAutocompleteInput";
 import { getRecommendedFleet } from "@/utils/recommendation";
+import { getVehicleFareForBooking } from "@/utils/serviceResolver";
+import { resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
 
 interface CityTransferCardProps {
   isModal?: boolean;
 }
 
 export default function CityTransferCard({ isModal = true }: CityTransferCardProps) {
-  const { bookingData, updateBookingData, setStep, closeModal, vehicles, fetchRecommendation, fetchLiveQuote } = useBookingModal();
+  const {
+    bookingData,
+    updateBookingData,
+    setStep,
+    closeModal,
+    vehicles,
+    services,
+    fetchRecommendation,
+    fetchLiveQuote,
+  } = useBookingModal();
 
   // Derive fleet options from live API vehicles with fallback to fleet.json
   const fleetOptions =
     vehicles && vehicles.length > 0
       ? vehicles.map((v) => {
-          const slug =
-            v.passengerCapacity === 6
-              ? "6-seater"
-              : v.passengerCapacity === 7
-              ? "7-seater"
-              : v.passengerCapacity === 9
-              ? "9-seater"
-              : v.passengerCapacity === 13
-              ? "13-seater"
-              : `vehicle-${v.id}`;
-          const fare =
-            v.prices?.departure_transfer?.amount ||
-            v.prices?.arrival?.amount ||
-            65;
+          const slug = resolveSlugFromApiVehicle(v);
+          const fare = getVehicleFareForBooking(v, bookingData, services);
           return {
             id: String(v.id),
             numericId: v.id,
@@ -49,17 +48,17 @@ export default function CityTransferCard({ isModal = true }: CityTransferCardPro
               : v.id === "7-seater"
               ? 3
               : v.id === "9-seater"
-              ? 4
-              : 5,
+              ? 12
+              : 6,
           slug: v.slug || v.id,
           name: v.name,
           model: v.model,
-          fare: parseInt(v.price.replace(/[^0-9]/g, "")) || 65,
+          fare: getVehicleFareForBooking({ slug: v.slug, passengerCapacity: v.paxCount }, bookingData, services),
         }));
 
   const handlePaxChange = (newPax: number) => {
     const val = Math.max(1, Math.min(13, newPax));
-    const rec = getRecommendedFleet(val, bookingData.luggage, "City Transfer", vehicles);
+    const rec = getRecommendedFleet(val, bookingData.luggage, bookingData, vehicles);
     updateBookingData({
       passengers: val,
       ...rec,
@@ -68,7 +67,7 @@ export default function CityTransferCard({ isModal = true }: CityTransferCardPro
 
   const handleLuggageChange = (newLug: number) => {
     const val = Math.max(0, Math.min(15, newLug));
-    const rec = getRecommendedFleet(bookingData.passengers, val, "City Transfer", vehicles);
+    const rec = getRecommendedFleet(bookingData.passengers, val, bookingData, vehicles);
     updateBookingData({
       luggage: val,
       ...rec,
