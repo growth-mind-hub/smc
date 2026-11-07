@@ -25,6 +25,11 @@ export default function AdditionalStopField({ onRemove, onChange }: AdditionalSt
     onChange?.({ stops: newVal, address });
   };
 
+  const handleAddressChange = (newAddress: string) => {
+    setAddress(newAddress);
+    onChange?.({ stops, address: newAddress });
+  };
+
   return (
     <div className="w-full p-4 sm:p-5 bg-white rounded-xl border border-slate-200/90 shadow-sm flex flex-col gap-3.5 transition-all">
       {/* Top Header with Checkbox */}

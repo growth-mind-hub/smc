@@ -156,12 +156,12 @@ export default function BookingCard() {
           </div>
 
           {/* Luggage */}
-          <div className="px-3 py-2 sm:py-2.5 bg-white rounded-xl flex items-center justify-between shadow-sm">
-            <span className="text-[#5F6B7A] text-[11px] sm:text-xs font-bold font-manrope uppercase tracking-tight">
+          <div className="px-2.5 sm:px-3 py-2 sm:py-2.5 bg-white rounded-xl flex items-center justify-between gap-2 shadow-sm">
+            <span className="text-[#5F6B7A] text-[11px] sm:text-xs font-bold font-manrope uppercase tracking-tight shrink-0 pr-1">
               <span className="hidden sm:inline">Luggage</span>
               <span className="sm:hidden">Lug</span>
             </span>
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <button
                 type="button"
                 onClick={() => handleLuggageChange(bookingData.luggage - 1)}
@@ -250,6 +250,15 @@ export default function BookingCard() {
             <span>{heroData.bookingForm.whatsappLabel}</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </a>
+        </div>
+
+        {/* Footer Info Ribbon */}
+        <div className="pt-2 flex flex-wrap items-center justify-center gap-2 text-[11px] text-white/80 font-manrope text-center border-t border-white/10">
+          <span>All-inclusive transparent rates</span>
+          <span className="text-[#C6A45A]">·</span>
+          <span>Fixed Price Guarantee</span>
+          <span className="text-[#C6A45A]">·</span>
+          <span className="font-semibold text-[#C6A45A]">24/7 (+65) 8800 6006</span>
         </div>
       </form>
     </div>

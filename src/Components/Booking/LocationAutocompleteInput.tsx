@@ -244,6 +244,7 @@ export default function LocationAutocompleteInput({
           }`}
         >
           {label}
+          {required && <span className="text-rose-500 ml-1 font-semibold">*</span>}
         </label>
       )}
 

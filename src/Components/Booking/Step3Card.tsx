@@ -17,14 +17,12 @@ import {
   Loader2,
   CreditCard,
   AlertCircle,
-  // QrCode, // QR Flow (commented out)
+  QrCode,
   Moon,
-  // Sparkles, // QR Flow (commented out)
+  Sparkles,
 } from "lucide-react";
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
 import Link from "next/link";
-// QR Payment Flow (Temporarily commented out - uncomment when ready to re-enable)
-// import PayNowQRModal from "./PayNowQRModal";
 import { isNightOrEarlyMorningTime, validateBookingDetails, getUAETime } from "@/utils/timeValidation";
 
 interface Step3CardProps {
@@ -49,9 +47,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  // QR Payment Flow (Temporarily commented out - uncomment when ready to re-enable)
-  // const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"paynow" | "stripe">("paynow");
-  // const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"paynow" | "stripe">("paynow");
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const uaeTime = getUAETime();
@@ -96,8 +92,6 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
     fetchLiveQuote();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const totalFare = calculateTotal();
 
   const isHourly = bookingData.serviceType.toLowerCase().includes("hourly");
   const hourlyRate =
@@ -245,6 +239,17 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
     }
   }
 
+  const distanceChargeAmount =
+    quote && quote.quote_status === "AVAILABLE" && quote.quote?.distance_amount
+      ? quote.quote.distance_amount
+      : 0;
+
+  const addOnsTotalAmount = selectedAddOnsList.reduce((sum, item) => sum + (item.amount || 0), 0);
+
+  // Authoritative total fare displayed to the customer:
+  // Strictly guarantees that the total exactly equals the sum of line items displayed on screen
+  const totalFare = baseVehicleFare + distanceChargeAmount + addOnsTotalAmount;
+
   const handleProceed = async () => {
     // 1. Validate passenger contact and itinerary details before proceeding
     const validation = validateBookingDetails({
@@ -294,6 +299,41 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       setIsSuccess(true);
     };
 
+    const forwardToWhatsAppWithPayNow = () => {
+      const text =
+        `*Singapore Maxi Cab Booking — PayNow Transfer Requested*%0A` +
+        `--------------------------------%0A` +
+        `*Service:* ${bookingData.serviceType}%0A` +
+        (isHourly ? `*Duration:* ${duration} Hours%0A` : "") +
+        `*Vehicle:* ${bookingData.selectedFleet || "7-Seater Maxi Cab"}%0A` +
+        `*Pickup Location:* ${bookingData.pickup || "Singapore Changi Airport (SIN)"}%0A` +
+        (!isHourly
+          ? `*Dropoff Location:* ${bookingData.dropoff || "Marina Bay Sands Hotel"}%0A`
+          : `*Dropoff / Charter Scope:* ${bookingData.dropoff || "As-Directed City Tour"}%0A`) +
+        `*Date & Time:* ${bookingData.pickupDate || "24 Oct 2024"} at ${bookingData.pickupTime || "17:15"} SGT%0A` +
+        `*Passengers:* ${bookingData.passengers || 7} Pax | *Luggage:* ${bookingData.luggage || 5} Bags%0A` +
+        `*Passenger Name:* ${bookingData.name || "Customer"}%0A` +
+        `*Contact Number:* ${bookingData.phone ? `${bookingData.countryCode} ${bookingData.phone}` : "Via WhatsApp"}%0A` +
+        `*Email:* ${bookingData.email || "booking@singaporemaxicabs.com.sg"}%0A` +
+        (bookingData.flightNumber ? `*Flight Number:* ${bookingData.flightNumber}%0A` : "") +
+        (bookingData.signboardName ? `*Signboard Name:* ${bookingData.signboardName}%0A` : "") +
+        (isNightPickup ? `*Late-Night Surcharge (10 PM–6 AM):* +$${nightSurchargePrice}.00 SGD Included%0A` : "") +
+        `--------------------------------%0A` +
+        `*PAYMENT DETAILS*%0A` +
+        `*Payment Method:* PayNow (Instant QR Code Transfer)%0A` +
+        `*Total Tariff:* $${totalFare}.00 SGD NETT%0A` +
+        `*Payment Status:* Pending Official PayNow QR from Dispatch Desk%0A` +
+        `--------------------------------%0A` +
+        `Hello Operations Desk, please send me the official PayNow QR code for $${totalFare}.00 SGD to confirm and track my booking. Thank you!`;
+
+      const waUrl = `https://wa.me/6588006006?text=${text}`;
+      const opened = window.open(waUrl, "_blank");
+      if (!opened) {
+        window.location.href = waUrl;
+      }
+      setIsSuccess(true);
+    };
+
     if (isContactSupport) {
       // Direct to WhatsApp for customized quotation
       const text =
@@ -322,13 +362,11 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       return;
     }
 
-    // 3. Daytime Payment: PayNow / Instant QR Code Option (Temporarily commented out - uncomment when ready to re-enable)
-    /*
+    // 3. Daytime Payment: PayNow / Instant QR Option -> Send itinerary to WhatsApp requesting official QR
     if (selectedPaymentMethod === "paynow") {
-      setIsQrModalOpen(true);
+      forwardToWhatsAppWithPayNow();
       return;
     }
-    */
 
     // 4. Daytime Payment: Stripe Card / Digital Wallets Option
     try {
@@ -381,7 +419,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         <div className="w-full max-w-sm p-4 rounded-xl bg-[#FBF7EC] border border-[#F4EAD1] text-left text-xs space-y-1.5 text-[#071E3B] font-manrope">
           <div className="flex justify-between font-semibold">
             <span className="text-[#5F6B7A]">Passenger:</span>
-            <span>{bookingData.name || "Alexander Wright"}</span>
+            <span>{bookingData.name || "Customer"}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-[#5F6B7A]">Vehicle:</span>
@@ -410,7 +448,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         {/* Action Buttons: WhatsApp Chat & Make Another Booking */}
         <div className="flex flex-col gap-3 w-full max-w-sm">
           <a
-            href={`https://wa.me/6588006006?text=${encodeURIComponent(`Hi, I just placed a booking for ${bookingData.name || "Alexander Wright"} (${bookingData.selectedFleet || "7 Seater Maxi Cab"}) on ${bookingData.pickupDate || "24 Oct 2024"} at ${bookingData.pickupTime || "17:15"} SGT. Total: $${totalFare}.00 SGD.`)}`}
+            href={`https://wa.me/6588006006?text=${encodeURIComponent(`Hi, I just placed a booking for ${bookingData.name || "Customer"} (${bookingData.selectedFleet || "7 Seater Maxi Cab"}) on ${bookingData.pickupDate || "24 Oct 2024"} at ${bookingData.pickupTime || "17:15"} SGT. Total: $${totalFare}.00 SGD.`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full py-3.5 px-6 bg-[#E8F8EE] hover:bg-[#d5f4e0] border border-[#16803C] text-[#16803C] rounded-lg text-base font-semibold font-manrope transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
@@ -549,49 +587,46 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         {/* Row 1: Pick Up & Destination */}
         <div className="self-stretch grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 items-start">
           {/* Pick Up */}
-          <div className="flex flex-col justify-start items-start gap-1 sm:gap-2">
+          <div className="flex flex-col justify-start items-start gap-1 sm:gap-2 min-w-0">
             <div className="inline-flex items-center gap-1.5 flex-wrap">
               <span className="text-[#8A5A00] text-sm font-medium font-inter leading-5">
                 Pick Up
               </span>
-              <span className="px-2 py-0.5 bg-[#123F6B] rounded-sm text-white text-xs font-normal font-manrope leading-4">
-                {bookingData.terminal ||
-                  (bookingData.pickup?.toLowerCase().includes("terminal 1")
-                    ? "Terminal 1"
-                    : bookingData.pickup?.toLowerCase().includes("terminal 2")
-                    ? "Terminal 2"
-                    : bookingData.pickup?.toLowerCase().includes("terminal 3")
-                    ? "Terminal 3"
-                    : bookingData.pickup?.toLowerCase().includes("terminal 4")
-                    ? "Terminal 4"
-                    : "Terminal (TBA)")}
-              </span>
+              {bookingData.terminal && (
+                <span className="px-2 py-0.5 bg-[#123F6B] rounded-sm text-white text-xs font-normal font-manrope leading-4">
+                  {bookingData.terminal}
+                </span>
+              )}
             </div>
             <div className="text-[#071E3B] text-base font-bold font-manrope leading-snug sm:leading-7 break-words">
               {bookingData.pickup || "Singapore Changi Airport (SIN)"}
             </div>
-            <div className="text-[#667085] text-xs sm:text-base font-normal font-manrope leading-5 sm:leading-6">
-              Arrival Hall Belt 42 Meetpoint , Flight buffer active
-            </div>
+            {(bookingData.flightNumber || bookingData.flightNo) ? (
+              <div className="text-[#667085] text-xs sm:text-sm font-normal font-manrope leading-5">
+                Flight {bookingData.flightNumber || bookingData.flightNo} · Flight buffer active
+              </div>
+            ) : null}
           </div>
 
           {/* Destination */}
-          <div className="flex flex-col justify-start items-start gap-1 sm:gap-2">
+          <div className="flex flex-col justify-start items-start gap-1 sm:gap-2 min-w-0">
             <span className="text-[#8A5A00] text-sm font-medium font-inter leading-5">
               Destination
             </span>
             <div className="text-[#071E3B] text-base font-bold font-manrope leading-snug sm:leading-7 break-words">
-              {bookingData.dropoff || "Marina Bay Sands Hotel"}
+              {bookingData.dropoff || (isHourly ? "As-Directed City Tour" : "Central Singapore")}
             </div>
-            <div className="text-[#667085] text-xs sm:text-base font-normal font-manrope leading-5 sm:leading-6">
-              10 Bayfront Avenue, Singapore 018956 (Tower 1 VIP Foyer)
-            </div>
+            {isHourly && (
+              <div className="text-[#667085] text-xs sm:text-sm font-normal font-manrope leading-5">
+                {duration} Hours Dedicated Chauffeur Charter
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Row 2: Date & Time and IPAD Signboard */}
+        {/* Row 2: Date & Time and Meet & Greet Signboard OR Selected Fleet */}
         <div className="self-stretch grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 items-start">
-          <div className="flex flex-col justify-start items-start gap-1">
+          <div className="flex flex-col justify-start items-start gap-1 min-w-0">
             <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase">
               DATE &amp; TIME
             </span>
@@ -599,25 +634,35 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               {bookingData.pickupDate || "24 Oct 2024"}
             </div>
             <div className="text-[#5F6B7A] text-xs sm:text-sm font-medium font-manrope leading-5">
-              {bookingData.pickupTime || "17:15"} SGT (SQ 321 Buffer)
+              {bookingData.pickupTime || "17:15"} SGT {(bookingData.flightNumber || bookingData.flightNo) ? `(${bookingData.flightNumber || bookingData.flightNo} Buffer)` : ""}
             </div>
           </div>
 
-          <div className="flex flex-col justify-start items-start gap-1">
-            <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase">
-              IPAD SIGNBOARD
-            </span>
-            <div className="text-[#071E3B] text-base font-bold font-manrope leading-6 break-words">
-              {bookingData.signboardName
-                ? bookingData.signboardName.toUpperCase()
-                : bookingData.name
-                ? bookingData.name.toUpperCase()
-                : "PASSENGER SIGNBOARD"}
+          {bookingData.meetAndGreet ? (
+            <div className="flex flex-col justify-start items-start gap-1 min-w-0">
+              <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase">
+                ARRIVAL MEET &amp; GREET SIGNBOARD
+              </span>
+              <div className="text-[#071E3B] text-base font-bold font-manrope leading-6 break-words">
+                {(bookingData.signboardName || bookingData.name || "VALUED PASSENGER").toUpperCase()}
+              </div>
+              <div className="text-[#5F6B7A] text-xs sm:text-sm font-medium font-manrope leading-5">
+                Chauffeur will hold in terminal arrival hall
+              </div>
             </div>
-            <div className="text-[#5F6B7A] text-xs sm:text-sm font-medium font-manrope leading-5">
-              Driver will hold in Arrival Hall
+          ) : (
+            <div className="flex flex-col justify-start items-start gap-1 min-w-0">
+              <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase">
+                SELECTED FLEET
+              </span>
+              <div className="text-[#071E3B] text-base font-bold font-manrope leading-6 break-words">
+                {bookingData.selectedFleet || "7-Seater Maxi Cab"}
+              </div>
+              <div className="text-[#5F6B7A] text-xs sm:text-sm font-medium font-manrope leading-5">
+                Up to {bookingData.passengers || 7} Passengers · {bookingData.luggage || 5} Bags
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Row 3: Passenger */}
@@ -632,37 +677,6 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             {bookingData.phone ? `${bookingData.countryCode} ${bookingData.phone}` : "Contact on file"}
           </div>
         </div>
-
-        {/* Selected Add-Ons Review Section */}
-        {selectedAddOnsList.length > 0 && (
-          <div className="self-stretch flex flex-col justify-start items-start gap-2 pt-1">
-            <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase">
-              SELECTED ADD-ONS &amp; EXTRAS ({selectedAddOnsList.length})
-            </span>
-            <div className="self-stretch flex flex-col gap-2">
-              {selectedAddOnsList.map((addon) => (
-                <div
-                  key={addon.id}
-                  className="self-stretch p-3 bg-[#F8F7F4] rounded-xl border border-slate-200/90 flex items-center justify-between gap-3"
-                >
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-[#071E3B] text-sm font-bold font-manrope">
-                      {addon.title}
-                    </span>
-                    {addon.subtitle && (
-                      <span className="text-[#5F6B7A] text-xs font-medium font-manrope truncate">
-                        {addon.subtitle}
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-xs font-bold text-[#8A5A00] font-manrope shrink-0">
-                    {addon.amountText}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Contact Support Alert if Route > 35km */}
         {isContactSupport && (
@@ -806,8 +820,8 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                   ALL-INCLUSIVE BENEFITS ($0 EXTRA CHARGES)
                 </span>
               </div>
-              <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <div className="p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-row sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-1">
+              <div className="w-full flex sm:grid sm:grid-cols-3 gap-2 overflow-x-auto no-scrollbar items-stretch pb-0.5">
+                <div className="flex-1 min-w-[130px] sm:min-w-0 p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-col justify-between items-start gap-1 h-full min-h-[64px] sm:min-h-[70px]">
                   <span className="text-[#5F6B7A] text-xs font-medium font-manrope">
                     ERP &amp; Tolls
                   </span>
@@ -815,7 +829,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                     INCLUDED ($0)
                   </span>
                 </div>
-                <div className="p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-row sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-1">
+                <div className="flex-1 min-w-[130px] sm:min-w-0 p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-col justify-between items-start gap-1 h-full min-h-[64px] sm:min-h-[70px]">
                   <span className="text-[#5F6B7A] text-xs font-medium font-manrope">
                     Meet &amp; Greet + 60m Wait
                   </span>
@@ -823,12 +837,12 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                     INCLUDED ($0)
                   </span>
                 </div>
-                <div className="p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-row sm:flex-col justify-between sm:justify-start items-center sm:items-start gap-1">
+                <div className="flex-1 min-w-[130px] sm:min-w-0 p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-col justify-between items-start gap-1 h-full min-h-[64px] sm:min-h-[70px]">
                   <span className="text-[#5F6B7A] text-xs font-medium font-manrope">
-                    Peak &amp; Surge Multiplier
+                    {isNightPickup ? "Late-Night Dispatch" : "Peak & Surge Multiplier"}
                   </span>
                   <span className="text-[#8A5A00] text-xs font-bold font-manrope">
-                    WAIVED ($0)
+                    {isNightPickup ? `+$${nightSurchargePrice}.00 SGD` : "WAIVED ($0)"}
                   </span>
                 </div>
               </div>
@@ -895,8 +909,8 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                 </div>
               </div>
             )}
-            {/* QR Payment Flow Selector (Temporarily commented out - uncomment when ready to re-enable)
-            <div className="flex items-center justify-between">
+            {/* Payment Method Selector */}
+            <div className="flex items-center justify-between pt-1">
               <div className="flex items-center gap-1.5">
                 <CreditCard className="w-4 h-4 text-[#8A5A00]" />
                 <span className="text-[#071E3B] text-sm sm:text-base font-bold font-manrope">
@@ -909,39 +923,39 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              
+              {/* Option 1: PayNow / Instant QR */}
               <div
                 onClick={() => setSelectedPaymentMethod("paynow")}
                 className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-2 text-left relative ${
                   selectedPaymentMethod === "paynow"
-                    ? "border-[#7B187B] bg-[#FAF5FA] shadow-sm"
+                    ? "border-[#071E3B] bg-[#F4F7FB] shadow-sm"
                     : "border-slate-200 bg-white hover:border-slate-300"
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-[#7B187B] text-white flex items-center justify-center shrink-0">
-                      <QrCode className="w-4 h-4 text-white" />
+                    <div className="w-8 h-8 rounded-lg bg-[#071E3B] text-[#C6A45A] flex items-center justify-center shrink-0">
+                      <QrCode className="w-4 h-4 text-[#C6A45A]" />
                     </div>
                     <div>
                       <div className="text-xs sm:text-sm font-bold text-[#071E3B] font-manrope">
                         PayNow / Instant QR
                       </div>
-                      <span className="text-[10px] text-[#7B187B] font-bold uppercase tracking-wider font-manrope">
-                        SGQR · Direct Bank Lock
+                      <span className="text-[10px] text-[#8A5A00] font-bold uppercase tracking-wider font-manrope">
+                        SGQR · WhatsApp Dispatch
                       </span>
                     </div>
                   </div>
                   <div
                     className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5 ${
-                      selectedPaymentMethod === "paynow" ? "border-[#7B187B] bg-[#7B187B]" : "border-slate-300"
+                      selectedPaymentMethod === "paynow" ? "border-[#071E3B] bg-[#071E3B]" : "border-slate-300"
                     }`}
                   >
                     {selectedPaymentMethod === "paynow" && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                   </div>
                 </div>
                 <p className="text-[11px] text-[#5F6B7A] font-manrope leading-snug">
-                  Scan &amp; pay via any Singapore banking app (DBS, OCBC, UOB, GrabPay) or mobile scanner.
+                  Official PayNow QR code sent directly to your WhatsApp by our 24/7 operations desk. Scan &amp; pay to track.
                 </p>
                 <div className="text-[10px] text-[#8A5A00] font-semibold font-manrope flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-[#C6A45A]" />
@@ -949,7 +963,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                 </div>
               </div>
 
-              
+              {/* Option 2: Credit / Debit Card (Stripe) */}
               <div
                 onClick={() => setSelectedPaymentMethod("stripe")}
                 className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-2 text-left relative ${
@@ -960,7 +974,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-[#071E3B] text-white flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-[#071E3B] text-[#C6A45A] flex items-center justify-center shrink-0">
                       <CreditCard className="w-4 h-4 text-[#C6A45A]" />
                     </div>
                     <div>
@@ -981,7 +995,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                   </div>
                 </div>
                 <p className="text-[11px] text-[#5F6B7A] font-manrope leading-snug">
-                  Visa, Mastercard, AMEX, Apple Pay &amp; Google Pay. Instant confirmation invoice emailed.
+                  Visa, Mastercard, AMEX, Apple Pay &amp; Google Pay. Instant digital confirmation invoice emailed.
                 </p>
                 <div className="text-[10px] text-emerald-700 font-semibold font-manrope flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3 text-emerald-600" />
@@ -989,7 +1003,6 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                 </div>
               </div>
             </div>
-            */}
           </div>
         )}
 
@@ -1012,7 +1025,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               onClick={handleProceed}
               disabled={isCheckingOut || isRedirecting}
               className={`flex-1 min-w-0 px-3 sm:px-6 py-3 sm:py-3.5 active:scale-[0.98] text-white rounded-xl flex items-center justify-center gap-2 sm:gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer text-xs sm:text-base font-bold font-manrope whitespace-nowrap disabled:opacity-75 ${
-                isBookingCreationNight
+                isBookingCreationNight || selectedPaymentMethod === "paynow"
                   ? "bg-[#16803C] hover:bg-[#126831]"
                   : "bg-[#071E3B] hover:bg-[#0B2A4A]"
               }`}
@@ -1037,37 +1050,20 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                   <span>Confirm via WhatsApp (UAE Night Dispatch)</span>
                   <WhatsAppIcon className="w-4 h-4 shrink-0" />
                 </>
-              ) : (
-                /* QR Payment Flow Button (Temporarily commented out - uncomment when ready to re-enable)
-                selectedPaymentMethod === "paynow" ? (
-                  <>
-                    <span>Pay with PayNow QR (${totalFare}.00 SGD)</span>
-                    <QrCode className="w-4 h-4 text-white shrink-0" />
-                  </>
-                ) :
-                */
+              ) : selectedPaymentMethod === "paynow" ? (
                 <>
-                  <span>Proceed to Payment (${totalFare}.00 SGD)</span>
+                  <span>Proceed via PayNow Transfer (${totalFare}.00 SGD)</span>
+                  <WhatsAppIcon className="w-4 h-4 shrink-0" />
+                </>
+              ) : (
+                <>
+                  <span>Proceed to Card Checkout (${totalFare}.00 SGD)</span>
                   <CreditCard className="w-4 h-4 text-[#C6A45A] shrink-0" />
                 </>
               )}
             </button>
           </div>
         </div>
-
-        {/* PayNow QR Code Interactive Modal (Temporarily commented out - uncomment when ready to re-enable) */}
-        {/*
-        <PayNowQRModal
-          isOpen={isQrModalOpen}
-          onClose={() => setIsQrModalOpen(false)}
-          totalAmount={totalFare}
-          bookingData={bookingData}
-          onSuccess={() => {
-            setIsQrModalOpen(false);
-            setIsSuccess(true);
-          }}
-        />
-        */}
 
         {/* Sub Links */}
         <div className="self-stretch flex flex-wrap justify-between items-center gap-2 pt-1">
@@ -1092,6 +1088,15 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             </span>
             <ChevronRight className="w-3.5 h-3.5 text-[#16803C]" />
           </a>
+        </div>
+
+        {/* Footer Info Ribbon */}
+        <div className="self-stretch pt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-[#071E3B] font-manrope text-center border-t border-slate-100 mt-1">
+          <span className="font-normal text-[#5F6B7A]">All-inclusive transparent rates</span>
+          <span className="text-[#C6A45A]">·</span>
+          <span className="font-normal text-[#5F6B7A]">Fixed Price Guarantee</span>
+          <span className="text-[#C6A45A]">·</span>
+          <span className="font-semibold text-[#C6A45A]">24/7 (+65) 8800 6006</span>
         </div>
       </div>
     </div>

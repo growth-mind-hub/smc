@@ -59,13 +59,13 @@ export default function HeroSection() {
           </div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-1 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-1 w-full sm:w-auto shrink-0">
             {/* Primary Gold CTA */}
             <Link
               href="/fleets"
-              className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 rounded-xl bg-[#C6A45A] hover:bg-[#B58E45] text-white text-sm sm:text-base font-bold flex items-center justify-center gap-2.5 transition-all shadow-md hover:shadow-lg active:scale-98 whitespace-nowrap"
+              className="w-full sm:w-auto h-[48px] sm:h-[52px] px-6 sm:px-8 rounded-xl bg-[#C6A45A] hover:bg-[#B58E45] text-white text-sm sm:text-base font-bold inline-flex items-center justify-center gap-2.5 transition-all shadow-md hover:shadow-lg active:scale-98 shrink-0 whitespace-nowrap"
             >
-              <span>Explore our Fleet</span>
+              <span className="whitespace-nowrap font-bold">Explore our Fleet</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
             </Link>
 
@@ -74,10 +74,10 @@ export default function HeroSection() {
               href="https://wa.me/6588006006"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto min-h-[48px] sm:min-h-[52px] px-6 sm:px-8 py-3.5 rounded-xl border border-[#C6A45A] hover:bg-[#C6A45A]/10 text-[#C6A45A] text-sm sm:text-base font-bold flex items-center justify-center gap-2.5 transition-all active:scale-98 bg-black/20 backdrop-blur-xs whitespace-nowrap"
+              className="w-full sm:w-auto h-[48px] sm:h-[52px] px-6 sm:px-8 rounded-xl border border-[#C6A45A] hover:bg-[#C6A45A]/10 text-[#C6A45A] text-sm sm:text-base font-bold inline-flex items-center justify-center gap-2.5 transition-all active:scale-98 bg-black/20 backdrop-blur-xs shrink-0 whitespace-nowrap"
             >
               <WhatsAppIcon className="w-4 h-4 shrink-0" />
-              <span>Book via WhatsApp</span>
+              <span className="whitespace-nowrap font-bold">Book via WhatsApp</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
             </a>
           </div>

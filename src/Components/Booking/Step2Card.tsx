@@ -534,6 +534,15 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
             <WhatsAppIcon className="w-3.5 h-3.5 text-[#16803C]" />
           </a>
         </div>
+
+        {/* Footer Info Ribbon */}
+        <div className="self-stretch pt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-[#071E3B] font-manrope text-center border-t border-slate-100">
+          <span className="font-normal text-[#5F6B7A]">All-inclusive transparent rates</span>
+          <span className="text-[#C6A45A]">·</span>
+          <span className="font-normal text-[#5F6B7A]">Fixed Price Guarantee</span>
+          <span className="text-[#C6A45A]">·</span>
+          <span className="font-semibold text-[#C6A45A]">24/7 (+65) 8800 6006</span>
+        </div>
       </form>
     </div>
   );

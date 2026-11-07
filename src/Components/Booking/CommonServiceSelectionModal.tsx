@@ -231,15 +231,12 @@ export default function CommonServiceSelectionModal() {
       </div>
 
       {/* Footer Ribbon */}
-      <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-[#667085] font-manrope">
-        <div className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-          <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
-          <span>All-inclusive rates</span>
-        </div>
-        <div className="text-[#071E3B] font-bold">24/7 Dispatch (+65) 8800 6006</div>
-        <div className="px-2.5 py-0.5 rounded-md bg-[#FBF7EC] border border-[#F4EAD1] text-[#A77E3C] font-bold">
-          Service Selection
-        </div>
+      <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-center gap-2 text-xs text-[#071E3B] font-manrope text-center">
+        <span className="font-normal text-[#5F6B7A]">All-inclusive transparent rates</span>
+        <span className="text-[#C6A45A]">·</span>
+        <span className="font-normal text-[#5F6B7A]">Fixed Price Guarantee</span>
+        <span className="text-[#C6A45A]">·</span>
+        <span className="font-semibold text-[#C6A45A]">24/7 (+65) 8800 6006</span>
       </div>
     </div>
   );

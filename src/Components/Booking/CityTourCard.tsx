@@ -192,17 +192,14 @@ export default function CityTourCard({ isModal = true }: CityTourCardProps) {
 
       <form onSubmit={handleContinue} className="self-stretch flex flex-col justify-start items-start gap-4">
         {/* Pickup Location */}
-        <div className="self-stretch flex flex-col justify-start items-start gap-1.5">
-          <label className="text-[#071E3B] text-xs sm:text-sm font-medium font-inter leading-5">
-            Pickup Location
-          </label>
-          <LocationAutocompleteInput
-            value={bookingData.pickup}
-            onChange={(val) => updateBookingData({ pickup: val })}
-            placeholder="e.g. Singapore Changi Airport (T1-T4) or Hotel"
-            className="w-full"
-          />
-        </div>
+        <LocationAutocompleteInput
+          label="Pickup Location"
+          value={bookingData.pickup}
+          onChange={(val) => updateBookingData({ pickup: val })}
+          placeholder="e.g. Singapore Changi Airport (T1-T4) or Hotel"
+          required
+          className="w-full"
+        />
 
         {/* Number of days */}
         <div className="self-stretch flex flex-col justify-start items-start gap-2">

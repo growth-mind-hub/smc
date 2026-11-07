@@ -104,21 +104,21 @@ const defaultBookingData: BookingData = {
   serviceId: 1,
   serviceCode: "arrival",
   serviceType: "Airport Transfer",
-  pickup: "Singapore Changi Airport (SIN)",
-  dropoff: "Marina Bay Sands Hotel",
+  pickup: "",
+  dropoff: "",
   passengers: 7,
   luggage: 5,
-  meetAndGreet: true,
+  meetAndGreet: false,
   durationHours: 3,
   selectedFleet: "7 Seater Maxi Cab",
   selectedFleetSlug: "7-seater",
   baseFare: 70,
-  pickupDate: new Date().toISOString().split("T")[0],
-  pickupTime: "17:15",
+  pickupDate: "",
+  pickupTime: "",
   flightNo: "",
   flightNumber: "",
   signboardName: "",
-  terminal: "Terminal (TBA)",
+  terminal: "",
   babySeat: false,
   nightTravel: false,
   extraStopsWithin2km: 0,
@@ -523,14 +523,20 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
 
     // If we have a live quote from the backend API, return authoritative total amount
     if (quote && quote.quote_status === "AVAILABLE" && quote.quote) {
-      let quoteTotal = quote.quote.total_amount;
+      const vehicleAmt = quote.quote.vehicle_amount ?? 0;
+      const distanceAmt = quote.quote.distance_amount ?? 0;
+      let addOnsAmt = 0;
+      if (quote.quote.add_ons && quote.quote.add_ons.length > 0) {
+        addOnsAmt = quote.quote.add_ons.reduce((sum, item) => sum + (item.amount || 0), 0);
+      }
       const hasNightInQuote = quote.quote.add_ons?.some(
         (a) => a.code === "NIGHT_TRAVEL" || a.name?.toLowerCase().includes("night")
       );
+      let nightExtra = 0;
       if ((bookingData.nightTravel || isNightPickup) && !hasNightInQuote) {
-        quoteTotal += nightTravelPrice;
+        nightExtra = nightTravelPrice;
       }
-      return quoteTotal;
+      return vehicleAmt + distanceAmt + addOnsAmt + nightExtra;
     }
 
     let total = bookingData.baseFare;
