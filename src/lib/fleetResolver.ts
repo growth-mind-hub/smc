@@ -64,8 +64,14 @@ export function findMatchingApiVehicle(
       return true;
     }
     if (
+      (slug === "vip-minibus" || slug === "vip-executive-minibus") &&
+      (v.id === 7 || (vName.includes("vip") && vName.includes("minibus")))
+    ) {
+      return true;
+    }
+    if (
       slug === "vip-lounge" &&
-      (vName.includes("vip") || vName.includes("v-class") || v.id === 5 || v.id === 7)
+      (vName.includes("v-class") || v.id === 5 || (vName.includes("vip") && !vName.includes("minibus")))
     ) {
       return true;
     }
@@ -100,7 +106,8 @@ export function resolveSlugFromApiVehicle(v: VehicleCard): string {
   if (vName.includes("e-class") || vName.includes("e class") || vId === 1) return "mercedes-e-class";
   if (vName.includes("s-class") || vName.includes("s class") || vId === 2) return "mercedes-s-class";
   if (vName.includes("wheelchair") || vId === 8 || vId === 11) return "wheelchair-cab";
-  if (vName.includes("vip") || vName.includes("lounge") || vId === 5 || vId === 7) return "vip-lounge";
+  if (vId === 7 || (vName.includes("vip") && vName.includes("minibus"))) return "vip-minibus";
+  if (vName.includes("vip") || vName.includes("lounge") || vName.includes("v-class") || vId === 5) return "vip-lounge";
   if (pax === 6 || vId === 3 || vName.includes("alphard") || vName.includes("6 seater")) return "6-seater";
   if (pax === 7 || vId === 4 || vName.includes("vito") || vName.includes("7 seater")) return "7-seater";
   if (pax === 9 || vId === 12 || vName.includes("9 seater")) return "9-seater";

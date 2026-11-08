@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useMemo, useEffect } from "react";
+import Image from "next/image";
 import { useBookingModal } from "@/context/BookingContext";
 import { ArrowLeft, ArrowRight, Check, Users, Luggage, X, Sparkles } from "lucide-react";
 import fleetData from "@/data/fleet.json";
 import { getRecommendedFleet } from "@/utils/recommendation";
-import { resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
+import { resolveSlugFromApiVehicle, getVehicleImage } from "@/lib/fleetResolver";
 import { getVehicleFareForBooking } from "@/utils/serviceResolver";
 
 interface VehicleSelectionCardProps {
@@ -77,6 +78,8 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
           paxCount,
           luggageCount,
           fare,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          image: getVehicleImage(v as any, fleetMatch?.image || "/images/Cab.png"),
           isRecommended,
           fitsGroup,
           fitsPassengers,
@@ -103,19 +106,24 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
         vehicleList.find((v) => v.isRecommended) ||
         vehicleList[0];
 
-      if (current && bookingData.baseFare !== current.fare) {
-        updateBookingData({
-          vehicleId: current.numericId,
-          selectedFleet: current.name,
-          selectedFleetSlug: current.slug,
-          baseFare: current.fare,
-        });
+      if (current) {
+        const needsUpdate =
+          bookingData.baseFare !== current.fare ||
+          bookingData.vehicleId !== current.numericId ||
+          bookingData.selectedFleetSlug !== current.slug ||
+          bookingData.selectedFleet !== current.name;
+
+        if (needsUpdate) {
+          updateBookingData({
+            vehicleId: current.numericId,
+            selectedFleet: current.name,
+            selectedFleetSlug: current.slug,
+            baseFare: current.fare,
+          });
+        }
       }
     }
-  }, [vehicleList, bookingData.vehicleId, bookingData.selectedFleetSlug, bookingData.baseFare, updateBookingData]);
-
-  // Check if a vehicle is currently selected
-  const selectedSlug = bookingData.selectedFleetSlug || "7-seater";
+  }, [vehicleList, bookingData.vehicleId, bookingData.selectedFleetSlug, bookingData.baseFare, bookingData.selectedFleet, updateBookingData]);
 
   const handleSelectVehicle = (vehicle: (typeof vehicleList)[0]) => {
     updateBookingData({
@@ -193,85 +201,98 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
           </div>
         ) : (
           vehicleList.map((v) => {
-          const isSelected = selectedSlug === v.slug;
+          const isSelected =
+            bookingData.vehicleId != null
+              ? v.numericId === bookingData.vehicleId
+              : v.slug === (bookingData.selectedFleetSlug || "7-seater");
 
           return (
             <div
               key={v.id}
               onClick={() => handleSelectVehicle(v)}
-              className={`p-3.5 sm:p-4 rounded-xl cursor-pointer transition-all flex items-center justify-between gap-3 border ${
+              className={`p-3 sm:p-3.5 rounded-xl cursor-pointer transition-all flex items-center justify-between gap-2.5 sm:gap-3.5 border ${
                 isSelected
                   ? "border-[#C6A45A] bg-[#FDFBF7] shadow-sm ring-1 ring-[#C6A45A]"
                   : "border-slate-200 bg-white hover:border-[#C6A45A]/60 hover:bg-[#FAF9F5]"
               }`}
             >
-              {/* Radio Indicator & Vehicle Info */}
-              <div className="flex items-start gap-3 min-w-0 flex-1">
-                {/* Radio Button */}
+              {/* Left: Vehicle Thumbnail Image */}
+              <div className="w-14 h-11 sm:w-20 sm:h-14 shrink-0 relative rounded-lg overflow-hidden bg-slate-50 border border-slate-200/70 flex items-center justify-center p-1 shadow-2xs">
+                <Image
+                  src={v.image}
+                  alt={v.name}
+                  fill
+                  sizes="(max-width: 640px) 56px, 80px"
+                  className="object-contain"
+                />
+              </div>
+
+              {/* Center: Vehicle Details */}
+              <div className="flex flex-col min-w-0 flex-1 gap-1">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                  <h3 className="font-bold text-sm sm:text-base text-[#071E3B] font-manrope leading-tight">
+                    {v.name}
+                  </h3>
+
+                  {/* Recommendation / Fit Badges */}
+                  {v.isRecommended ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#C6A45A] text-[#071E3B] text-[10px] font-extrabold uppercase tracking-wide">
+                      <Sparkles className="w-2.5 h-2.5 fill-current" />
+                      <span>Recommended</span>
+                    </span>
+                  ) : v.fitsGroup ? (
+                    <span className="px-2 py-0.5 rounded-md bg-[#E8F8EE] text-[#16803C] text-[10px] font-bold">
+                      Fits Group
+                    </span>
+                  ) : !v.fitsPassengers ? (
+                    <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] font-medium">
+                      Max {v.paxCount} Pax
+                    </span>
+                  ) : null}
+                </div>
+
+                <p className="text-xs text-[#667085] font-manrope line-clamp-1">
+                  {v.model}
+                </p>
+
+                {/* Capacity Badges */}
+                <div className="flex items-center gap-1.5 pt-0.5">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F7F5EF] text-[#071E3B] font-bold text-[11px] font-manrope border border-[#E9ECEF]">
+                    <Users className="w-3 h-3 text-[#C6A45A]" />
+                    <span>{v.paxCount} Pax</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F7F5EF] text-[#071E3B] font-bold text-[11px] font-manrope border border-[#E9ECEF]">
+                    <Luggage className="w-3 h-3 text-[#C6A45A]" />
+                    <span>
+                      {v.luggageCount}{" "}
+                      <span className="hidden sm:inline">Luggage</span>
+                      <span className="sm:hidden">Lug</span>
+                    </span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Right: Price & Radio Selection Checkbox */}
+              <div className="flex flex-col items-end justify-between shrink-0 pl-1 self-stretch gap-1.5">
+                <div className="text-right">
+                  <span className="text-base sm:text-lg font-extrabold text-[#071E3B] font-manrope leading-none">
+                    ${v.fare}
+                  </span>
+                  <span className="block text-[10px] text-[#667085] font-medium font-manrope mt-0.5">
+                    Fixed Fare
+                  </span>
+                </div>
+
+                {/* Radio selection circle */}
                 <div
-                  className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
+                  className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
                     isSelected
-                      ? "border-[#C6A45A] bg-[#C6A45A] text-white shadow-xs"
-                      : "border-slate-300 bg-white"
+                      ? "border-[#C6A45A] bg-[#C6A45A] text-white shadow-xs scale-105"
+                      : "border-slate-300 bg-white hover:border-slate-400"
                   }`}
                 >
                   {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
                 </div>
-
-                {/* Details */}
-                <div className="flex flex-col min-w-0 flex-1 gap-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-bold text-sm sm:text-base text-[#071E3B] font-manrope leading-tight">
-                      {v.name}
-                    </h3>
-
-                    {/* Recommendation / Fit Badges */}
-                    {v.isRecommended ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#C6A45A] text-[#071E3B] text-[10px] font-extrabold uppercase tracking-wide">
-                        <Sparkles className="w-2.5 h-2.5 fill-current" />
-                        <span>Recommended</span>
-                      </span>
-                    ) : v.fitsGroup ? (
-                      <span className="px-2 py-0.5 rounded-md bg-[#E8F8EE] text-[#16803C] text-[10px] font-bold">
-                        Fits Group
-                      </span>
-                    ) : !v.fitsPassengers ? (
-                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] font-medium">
-                        Max {v.paxCount} Pax
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <p className="text-xs text-[#667085] font-manrope line-clamp-1">
-                    {v.model}
-                  </p>
-
-                  {/* Capacity Badges */}
-                  <div className="flex items-center gap-1.5 pt-0.5">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F7F5EF] text-[#071E3B] font-bold text-[11px] font-manrope border border-[#E9ECEF]">
-                      <Users className="w-3 h-3 text-[#C6A45A]" />
-                      <span>{v.paxCount} Pax</span>
-                    </span>
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F7F5EF] text-[#071E3B] font-bold text-[11px] font-manrope border border-[#E9ECEF]">
-                      <Luggage className="w-3 h-3 text-[#C6A45A]" />
-                      <span>
-                        {v.luggageCount}{" "}
-                        <span className="hidden sm:inline">Luggage</span>
-                        <span className="sm:hidden">Lug</span>
-                      </span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Price & Select Label */}
-              <div className="flex flex-col items-end shrink-0 pl-2">
-                <span className="text-base sm:text-lg font-extrabold text-[#071E3B] font-manrope leading-none">
-                  ${v.fare}
-                </span>
-                <span className="text-[10px] text-[#667085] font-medium font-manrope mt-0.5">
-                  Fixed Fare
-                </span>
               </div>
             </div>
           );
