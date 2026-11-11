@@ -10,8 +10,7 @@ import MeetAndGreetField from "./AddOns/MeetAndGreetField";
 import ChildSeatField from "./AddOns/ChildSeatField";
 import AdditionalStopField from "./AddOns/AdditionalStopField";
 import WheelchairField from "./AddOns/WheelchairField";
-import LuxuryDatePicker from "./LuxuryDatePicker";
-import LuxuryTimePicker from "./LuxuryTimePicker";
+import CustomDateTimePicker from "./CustomDateTimePicker";
 import { isNightOrEarlyMorningTime, validateBookingDetails, getUAETime } from "@/utils/timeValidation";
 
 interface Step2CardProps {
@@ -176,64 +175,40 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
       </div>
 
       <form onSubmit={handleContinue} className="self-stretch flex flex-col justify-start items-start gap-3.5 sm:gap-4">
-        {/* Date & Time Row */}
-        <div className="self-stretch grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start">
-          {/* Pickup Date */}
-          <LuxuryDatePicker
-            label="Pickup Date"
-            value={bookingData.pickupDate}
-            onChange={(val) => {
-              updateBookingData({ pickupDate: val });
-              if (formErrors.pickupDate) {
-                setFormErrors((prev) => ({ ...prev, pickupDate: "" }));
-              }
-            }}
-            required
-            error={hasAttemptedSubmit ? formErrors.pickupDate : undefined}
-          />
+        {/* Custom Journey Scheduler (Interactive Calendar & Time Selector) */}
+        <CustomDateTimePicker
+          dateValue={bookingData.pickupDate}
+          timeValue={bookingData.pickupTime}
+          onDateChange={(val) => {
+            updateBookingData({ pickupDate: val });
+            if (formErrors.pickupDate) {
+              setFormErrors((prev) => ({ ...prev, pickupDate: "" }));
+            }
+          }}
+          onTimeChange={(val) => {
+            updateBookingData({ pickupTime: val });
+            if (formErrors.pickupTime) {
+              setFormErrors((prev) => ({ ...prev, pickupTime: "" }));
+            }
+          }}
+          dateError={hasAttemptedSubmit ? formErrors.pickupDate : undefined}
+          timeError={hasAttemptedSubmit ? formErrors.pickupTime : undefined}
+        />
 
-          {/* Pickup Time */}
-          <LuxuryTimePicker
-            label="Pickup Time"
-            value={bookingData.pickupTime}
-            onChange={(val) => {
-              updateBookingData({ pickupTime: val });
-              if (formErrors.pickupTime) {
-                setFormErrors((prev) => ({ ...prev, pickupTime: "" }));
-              }
-            }}
-            required
-            error={hasAttemptedSubmit ? formErrors.pickupTime : undefined}
-          />
-        </div>
-
-          {/* Night dispatch / surcharge alert callout */}
-          {isBookingCreationNight ? (
-            <div className="self-stretch sm:col-span-2 p-3 bg-[#FAF7F0] rounded-xl border border-[#C6A45A]/40 flex items-start gap-2.5 text-xs text-[#8A5A00] font-manrope animate-in fade-in">
-              <Moon className="w-4 h-4 shrink-0 text-[#8A5A00] mt-0.5" />
-              <div className="flex flex-col gap-0.5 leading-relaxed">
-                <span className="font-bold text-[#071E3B]">
-                  Late-Night Booking Operations (10:00 PM – 6:00 AM UAE Time)
-                </span>
-                <span>
-                  Current UAE Time: <strong>{uaeTime.timeString}</strong>. Bookings submitted during late-night UAE hours are confirmed directly with our Operations Desk via WhatsApp.{isNightPickup ? " A +$10 SGD late-night transfer surcharge applies for night pickups." : ""}
-                </span>
-              </div>
+        {/* UAE Late-Night Operations Notice if user booking during UAE night */}
+        {isBookingCreationNight && (
+          <div className="self-stretch p-3 bg-[#FAF7F0] rounded-xl border border-[#C6A45A]/40 flex items-start gap-2.5 text-xs text-[#8A5A00] font-manrope animate-in fade-in">
+            <Moon className="w-4 h-4 shrink-0 text-[#8A5A00] mt-0.5" />
+            <div className="flex flex-col gap-0.5 leading-relaxed">
+              <span className="font-bold text-[#071E3B]">
+                Late-Night Booking Operations (10:00 PM – 6:00 AM UAE Time)
+              </span>
+              <span>
+                Current UAE Time: <strong>{uaeTime.timeString}</strong>. Bookings submitted during late-night UAE hours are confirmed directly with our Operations Desk via WhatsApp.{isNightPickup ? " A +$10 SGD late-night transfer surcharge applies for night pickups." : ""}
+              </span>
             </div>
-          ) : isNightPickup ? (
-            <div className="self-stretch sm:col-span-2 p-3 bg-[#FAF7F0] rounded-xl border border-[#C6A45A]/40 flex items-start gap-2.5 text-xs text-[#8A5A00] font-manrope animate-in fade-in">
-              <Moon className="w-4 h-4 shrink-0 text-[#8A5A00] mt-0.5" />
-              <div className="flex flex-col gap-0.5 leading-relaxed">
-                <span className="font-bold text-[#071E3B]">
-                  Late-Night Transfer Surcharge (10:00 PM – 6:00 AM)
-                </span>
-                <span>
-                  You selected <strong>{bookingData.pickupTime}</strong>. A +$10 SGD late-night surcharge is included to guarantee priority chauffeur dispatch and flight tracking buffer.
-                </span>
-              </div>
-            </div>
-          ) : null}
-        </div>
+          </div>
+        )}
 
         {/* Add Ons Dropdown & Dynamic Input Fields */}
         <div className="self-stretch flex flex-col justify-start items-start gap-2 relative">
