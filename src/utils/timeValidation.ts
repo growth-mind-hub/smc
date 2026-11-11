@@ -139,3 +139,45 @@ export function validateBookingDetails(data: {
     errors,
   };
 }
+
+/**
+ * Formats a YYYY-MM-DD date string into a luxury readable string, e.g. "Wed, 25 Nov 2026"
+ */
+export function formatDateDisplay(dateStr?: string): string {
+  if (!dateStr) return "—";
+  try {
+    const parts = dateStr.split("-").map(Number);
+    if (parts.length !== 3) return dateStr;
+    const [year, month, day] = parts;
+    if (!year || !month || !day) return dateStr;
+    const date = new Date(year, month - 1, day);
+    if (isNaN(date.getTime())) return dateStr;
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+/**
+ * Formats a 24-hour "HH:mm" time string into 12-hour "hh:mm AM/PM"
+ */
+export function formatTimeDisplay(timeStr?: string): string {
+  if (!timeStr) return "—";
+  try {
+    const parts = timeStr.split(":").map(Number);
+    if (parts.length < 2) return timeStr;
+    const [h, m] = parts;
+    if (isNaN(h) || isNaN(m)) return timeStr;
+    const period = h >= 12 ? "PM" : "AM";
+    const hour12 = h % 12 === 0 ? 12 : h % 12;
+    const minuteStr = m.toString().padStart(2, "0");
+    return `${hour12}:${minuteStr} ${period}`;
+  } catch {
+    return timeStr;
+  }
+}

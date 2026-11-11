@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
 import Link from "next/link";
-import { isNightOrEarlyMorningTime, validateBookingDetails, getUAETime } from "@/utils/timeValidation";
+import { isNightOrEarlyMorningTime, validateBookingDetails, getUAETime, formatDateDisplay, formatTimeDisplay } from "@/utils/timeValidation";
 import { getVehicleFareForBooking } from "@/utils/serviceResolver";
 import { resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
 
@@ -317,7 +317,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         (!isHourly
           ? `*Dropoff:* ${displayDropoff}%0A`
           : `*Dropoff / Scope:* ${displayDropoff}%0A`) +
-        `*Date & Time:* ${bookingData.pickupDate || "—"}${bookingData.pickupTime ? ` at ${bookingData.pickupTime} SGT` : ""}%0A` +
+        `*Date & Time:* ${formatDateDisplay(bookingData.pickupDate)}${bookingData.pickupTime ? ` at ${formatTimeDisplay(bookingData.pickupTime)} (${bookingData.pickupTime} SGT)` : ""}%0A` +
         `*Pax:* ${bookingData.passengers || 7} | *Luggage:* ${bookingData.luggage || 5} Bags%0A` +
         `*Passenger Name:* ${bookingData.name || "Customer"}%0A` +
         `*Phone/WhatsApp:* ${bookingData.phone ? `${bookingData.countryCode} ${bookingData.phone}` : "Via WhatsApp"}%0A` +
@@ -349,7 +349,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         (!isHourly
           ? `*Dropoff Location:* ${displayDropoff}%0A`
           : `*Dropoff / Charter Scope:* ${displayDropoff}%0A`) +
-        `*Date & Time:* ${bookingData.pickupDate || "—"}${bookingData.pickupTime ? ` at ${bookingData.pickupTime} SGT` : ""}%0A` +
+        `*Date & Time:* ${formatDateDisplay(bookingData.pickupDate)}${bookingData.pickupTime ? ` at ${formatTimeDisplay(bookingData.pickupTime)} (${bookingData.pickupTime} SGT)` : ""}%0A` +
         `*Passengers:* ${bookingData.passengers || 7} Pax | *Luggage:* ${bookingData.luggage || 5} Bags%0A` +
         `*Passenger Name:* ${bookingData.name || "Customer"}%0A` +
         `*Contact Number:* ${bookingData.phone ? `${bookingData.countryCode} ${bookingData.phone}` : "Via WhatsApp"}%0A` +
@@ -479,7 +479,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           <div className="flex justify-between">
             <span className="text-[#5F6B7A]">Date &amp; Time:</span>
             <span>
-              {bookingData.pickupDate || "—"}{bookingData.pickupTime ? ` ${bookingData.pickupTime} SGT` : ""}
+              {formatDateDisplay(bookingData.pickupDate)}{bookingData.pickupTime ? ` at ${formatTimeDisplay(bookingData.pickupTime)} (${bookingData.pickupTime} SGT)` : ""}
             </span>
           </div>
           {selectedAddOnsList.length > 0 && (
@@ -499,7 +499,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         {/* Action Buttons: WhatsApp Chat & Make Another Booking */}
         <div className="flex flex-col gap-3 w-full max-w-sm">
           <a
-            href={`https://wa.me/6588006006?text=${encodeURIComponent(`Hi, I just placed a booking for ${bookingData.name || "Customer"} (${bookingData.selectedFleet || "7 Seater Maxi Cab"}) on ${bookingData.pickupDate || "—"}${bookingData.pickupTime ? ` at ${bookingData.pickupTime} SGT` : ""}. Total: $${totalFare}.00 SGD.`)}`}
+            href={`https://wa.me/6588006006?text=${encodeURIComponent(`Hi, I just placed a booking for ${bookingData.name || "Customer"} (${bookingData.selectedFleet || "7 Seater Maxi Cab"}) on ${formatDateDisplay(bookingData.pickupDate)}${bookingData.pickupTime ? ` at ${formatTimeDisplay(bookingData.pickupTime)} (${bookingData.pickupTime} SGT)` : ""}. Total: $${totalFare}.00 SGD.`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full py-3.5 px-6 bg-[#E8F8EE] hover:bg-[#d5f4e0] border border-[#16803C] text-[#16803C] rounded-lg text-base font-semibold font-manrope transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
@@ -682,10 +682,10 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               DATE &amp; TIME
             </span>
             <div className="text-[#071E3B] text-base font-bold font-manrope leading-6">
-              {bookingData.pickupDate || "—"}
+              {formatDateDisplay(bookingData.pickupDate)}
             </div>
             <div className="text-[#5F6B7A] text-xs sm:text-sm font-medium font-manrope leading-5">
-              {bookingData.pickupTime ? `${bookingData.pickupTime} SGT` : "—"} {(bookingData.flightNumber || bookingData.flightNo) ? `(${bookingData.flightNumber || bookingData.flightNo} Buffer)` : ""}
+              {bookingData.pickupTime ? `${formatTimeDisplay(bookingData.pickupTime)} (${bookingData.pickupTime} SGT)` : "—"} {(bookingData.flightNumber || bookingData.flightNo) ? `(${bookingData.flightNumber || bookingData.flightNo} Buffer)` : ""}
             </div>
           </div>
 

@@ -10,6 +10,8 @@ import MeetAndGreetField from "./AddOns/MeetAndGreetField";
 import ChildSeatField from "./AddOns/ChildSeatField";
 import AdditionalStopField from "./AddOns/AdditionalStopField";
 import WheelchairField from "./AddOns/WheelchairField";
+import LuxuryDatePicker from "./LuxuryDatePicker";
+import LuxuryTimePicker from "./LuxuryTimePicker";
 import { isNightOrEarlyMorningTime, validateBookingDetails, getUAETime } from "@/utils/timeValidation";
 
 interface Step2CardProps {
@@ -177,92 +179,33 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
         {/* Date & Time Row */}
         <div className="self-stretch grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 items-start">
           {/* Pickup Date */}
-          <div className="flex flex-col justify-start items-start gap-1">
-            <label className="text-[#071E3B] text-xs sm:text-sm font-medium font-inter leading-5">
-              Pickup Date <span className="text-rose-500">*</span>
-            </label>
-            <div
-              className={`self-stretch relative p-3 sm:p-3.5 bg-white rounded-xl border ${
-                hasAttemptedSubmit && formErrors.pickupDate ? "border-rose-500 ring-1 ring-rose-500" : "border-[#7A8593]"
-              } flex justify-between items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all`}
-            >
-              <input
-                type="date"
-                value={bookingData.pickupDate}
-                onChange={(e) => {
-                  updateBookingData({ pickupDate: e.target.value });
-                  if (formErrors.pickupDate) {
-                    setFormErrors((prev) => ({ ...prev, pickupDate: "" }));
-                  }
-                }}
-                required
-                className="w-full text-sm sm:text-xs font-normal font-manrope text-[#071E3B] outline-none bg-transparent cursor-pointer"
-              />
-              <svg
-                className="w-4 h-4 text-[#C6A45A] shrink-0 ml-1 pointer-events-none"
-                viewBox="0 0 14 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <rect x="1.5" y="2.5" width="11" height="9.5" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-                <path d="M1.5 5.5H12.5" stroke="currentColor" strokeWidth="1.2" />
-                <path d="M4.5 1V3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-                <path d="M9.5 1V3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
-            </div>
-            {hasAttemptedSubmit && formErrors.pickupDate && (
-              <span className="text-rose-600 text-[11px] font-medium font-manrope">
-                {formErrors.pickupDate}
-              </span>
-            )}
-          </div>
+          <LuxuryDatePicker
+            label="Pickup Date"
+            value={bookingData.pickupDate}
+            onChange={(val) => {
+              updateBookingData({ pickupDate: val });
+              if (formErrors.pickupDate) {
+                setFormErrors((prev) => ({ ...prev, pickupDate: "" }));
+              }
+            }}
+            required
+            error={hasAttemptedSubmit ? formErrors.pickupDate : undefined}
+          />
 
           {/* Pickup Time */}
-          <div className="flex flex-col justify-start items-start gap-1">
-            <div className="flex items-center justify-between w-full">
-              <label className="text-[#071E3B] text-xs sm:text-sm font-medium font-inter leading-5">
-                Pickup Time <span className="text-rose-500">*</span>
-              </label>
-              {isNightPickup && (
-                <span className="text-[10px] font-bold text-[#8A5A00] bg-[#FFF8E7] px-2 py-0.5 rounded-md flex items-center gap-1 font-manrope">
-                  <Moon className="w-3 h-3 text-[#8A5A00]" />
-                  Night Dispatch
-                </span>
-              )}
-            </div>
-            <div
-              className={`self-stretch relative p-3 sm:p-3.5 bg-white rounded-xl border ${
-                hasAttemptedSubmit && formErrors.pickupTime ? "border-rose-500 ring-1 ring-rose-500" : "border-[#7A8593]"
-              } flex justify-between items-center overflow-hidden focus-within:border-[#C6A45A] focus-within:ring-1 focus-within:ring-[#C6A45A] transition-all`}
-            >
-              <input
-                type="time"
-                value={bookingData.pickupTime}
-                onChange={(e) => {
-                  updateBookingData({ pickupTime: e.target.value });
-                  if (formErrors.pickupTime) {
-                    setFormErrors((prev) => ({ ...prev, pickupTime: "" }));
-                  }
-                }}
-                required
-                className="w-full text-sm sm:text-xs font-normal font-manrope text-[#071E3B] outline-none bg-transparent cursor-pointer"
-              />
-              <svg
-                className="w-4 h-4 text-[#C6A45A] shrink-0 ml-1 pointer-events-none"
-                viewBox="0 0 14 14"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.2" />
-                <path d="M7 4V7L9 8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
-              </svg>
-            </div>
-            {hasAttemptedSubmit && formErrors.pickupTime && (
-              <span className="text-rose-600 text-[11px] font-medium font-manrope">
-                {formErrors.pickupTime}
-              </span>
-            )}
-          </div>
+          <LuxuryTimePicker
+            label="Pickup Time"
+            value={bookingData.pickupTime}
+            onChange={(val) => {
+              updateBookingData({ pickupTime: val });
+              if (formErrors.pickupTime) {
+                setFormErrors((prev) => ({ ...prev, pickupTime: "" }));
+              }
+            }}
+            required
+            error={hasAttemptedSubmit ? formErrors.pickupTime : undefined}
+          />
+        </div>
 
           {/* Night dispatch / surcharge alert callout */}
           {isBookingCreationNight ? (
