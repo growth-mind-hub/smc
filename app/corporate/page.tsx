@@ -270,7 +270,7 @@ export default function CorporatePage() {
               Why Corporate Partners Rely On Us
             </h2>
             <p className="text-sm sm:text-base text-[#667085] font-manrope">
-              Tailored invoicing, dedicated fleet scheduling, and reliable 24/7 service for business excellence.
+              Tailored invoicing, dedicated fleet scheduling, and reliable round-the-clock service for business excellence.
             </p>
           </div>
 

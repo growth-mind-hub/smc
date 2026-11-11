@@ -237,6 +237,7 @@ export interface CheckoutRequest {
   add_ons: AddOnSelectionPayload[];
   hours?: number;
   payment_method: "STRIPE";
+  paymentType?: "stripe" | "paynow" | string;
 }
 
 export interface CheckoutSuccessResponse {

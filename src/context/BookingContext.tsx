@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import {
   calculateQuote,
   createBookingCheckout,
@@ -98,7 +99,7 @@ interface BookingContextType {
   resetBooking: () => void;
   calculateTotal: () => number;
   fetchLiveQuote: () => Promise<QuoteResponse | null>;
-  submitLiveCheckout: () => Promise<CheckoutResponse | null>;
+  submitLiveCheckout: (paymentType?: "stripe" | "paynow" | string) => Promise<CheckoutResponse | null>;
   fetchRecommendation: () => Promise<void>;
 }
 
@@ -139,6 +140,18 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [bookingData, setBookingData] = useState<BookingData>(defaultBookingData);
+
+  const pathname = usePathname();
+
+  // Reset booking data, quotation, and close modal when route changes
+  useEffect(() => {
+    setBookingData(defaultBookingData);
+    setQuote(null);
+    setQuoteError(null);
+    setCheckoutError(null);
+    setIsModalOpen(false);
+    setStep(1);
+  }, [pathname]);
 
   // Live Catalog State from API
   const [vehicles, setVehicles] = useState<VehicleCard[]>([]);
@@ -285,27 +298,36 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
 
   const openModal = (options?: BookingModalOptions) => {
     if (options) {
-      setBookingData((prev) => ({
-        ...prev,
-        serviceType: options.serviceType || prev.serviceType,
-        vehicleId: options.vehicleId ?? prev.vehicleId,
-        serviceId: options.serviceId ?? prev.serviceId,
-        selectedFleet: options.selectedFleet || prev.selectedFleet,
-        selectedFleetSlug: options.selectedFleetSlug || prev.selectedFleetSlug,
-        baseFare: options.baseFare ?? prev.baseFare,
-        pickup: options.pickup ?? prev.pickup,
-        dropoff: options.dropoff ?? prev.dropoff,
-        durationHours: options.durationHours ?? prev.durationHours,
-      }));
+      setBookingData({
+        ...defaultBookingData,
+        serviceType: options.serviceType || defaultBookingData.serviceType,
+        vehicleId: options.vehicleId ?? defaultBookingData.vehicleId,
+        serviceId: options.serviceId ?? defaultBookingData.serviceId,
+        selectedFleet: options.selectedFleet || defaultBookingData.selectedFleet,
+        selectedFleetSlug: options.selectedFleetSlug || defaultBookingData.selectedFleetSlug,
+        baseFare: options.baseFare ?? defaultBookingData.baseFare,
+        pickup: options.pickup ?? "",
+        dropoff: options.dropoff ?? "",
+        durationHours: options.durationHours ?? defaultBookingData.durationHours,
+      });
       setStep(options.initialStep ?? 1);
     } else {
+      setBookingData(defaultBookingData);
       setStep(1);
     }
+    setQuote(null);
+    setQuoteError(null);
+    setCheckoutError(null);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setBookingData(defaultBookingData);
+    setQuote(null);
+    setQuoteError(null);
+    setCheckoutError(null);
+    setStep(1);
   };
 
   const updateBookingData = (data: Partial<BookingData>) => {
@@ -409,7 +431,9 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
   };
 
   // 9. Submit live booking and redirect to Stripe Checkout
-  const submitLiveCheckout = async (): Promise<CheckoutResponse | null> => {
+  const submitLiveCheckout = async (
+    paymentType: "stripe" | "paynow" | string = "stripe"
+  ): Promise<CheckoutResponse | null> => {
     setIsCheckingOut(true);
     setCheckoutError(null);
 
@@ -437,6 +461,7 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
       drop: { address: bookingData.dropoff || "Marina Bay Sands" },
       add_ons: buildAddOnSelections(),
       payment_method: "STRIPE",
+      paymentType,
       ...(isHourly ? { hours: Math.min(24, Math.max(1, bookingData.durationHours || 3)) } : {}),
     };
 

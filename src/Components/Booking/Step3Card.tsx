@@ -31,12 +31,40 @@ interface Step3CardProps {
   isModal?: boolean;
 }
 
+function formatDistanceRule(rule?: string, distanceKm?: number): string {
+  if (!rule) {
+    return distanceKm != null ? `${distanceKm} km` : "Standard Distance";
+  }
+
+  // Strip brackets and parentheses
+  const cleaned = rule.replace(/[\[\]\(\)]/g, "").trim();
+
+  // Comma range: e.g. "(20, 35]" -> "20, 35" -> "20–35 km"
+  if (cleaned.includes(",")) {
+    const parts = cleaned.split(",").map((p) => p.replace(/km/gi, "").trim());
+    return `${parts[0]}–${parts[1]} km`;
+  }
+
+  // Hyphen / dash range: e.g. "20km - 35km" -> "20–35 km"
+  if (/[-–—]/.test(cleaned)) {
+    const parts = cleaned.split(/[-–—]/).map((p) => p.replace(/km/gi, "").trim());
+    return `${parts[0]}–${parts[1]} km`;
+  }
+
+  if (!cleaned.toLowerCase().includes("km") && /\d/.test(cleaned)) {
+    return `${cleaned} km`;
+  }
+
+  return cleaned;
+}
+
 export default function Step3Card({ isModal = true }: Step3CardProps) {
   const {
     bookingData,
     calculateTotal,
     setStep,
     closeModal,
+    resetBooking,
     fetchLiveQuote,
     submitLiveCheckout,
     quote,
@@ -281,11 +309,11 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         `*Service:* ${bookingData.serviceType}%0A` +
         (isHourly ? `*Duration:* ${duration} Hours%0A` : "") +
         `*Vehicle:* ${bookingData.selectedFleet || "7-Seater Maxi Cab"}%0A` +
-        `*Pickup:* ${bookingData.pickup || "Singapore Changi Airport (SIN)"}%0A` +
+        `*Pickup:* ${bookingData.pickup || "—"}%0A` +
         (!isHourly
-          ? `*Dropoff:* ${bookingData.dropoff || "Marina Bay Sands Hotel"}%0A`
-          : `*Dropoff / Scope:* ${bookingData.dropoff || "As-Directed City Tour"}%0A`) +
-        `*Date & Time:* ${bookingData.pickupDate || "24 Oct 2024"} at ${bookingData.pickupTime || "17:15"} SGT%0A` +
+          ? `*Dropoff:* ${bookingData.dropoff || "—"}%0A`
+          : `*Dropoff / Scope:* ${bookingData.dropoff || (isHourly ? "As-Directed City Tour" : "—")}%0A`) +
+        `*Date & Time:* ${bookingData.pickupDate || "—"}${bookingData.pickupTime ? ` at ${bookingData.pickupTime} SGT` : ""}%0A` +
         `*Pax:* ${bookingData.passengers || 7} | *Luggage:* ${bookingData.luggage || 5} Bags%0A` +
         `*Passenger Name:* ${bookingData.name || "Customer"}%0A` +
         `*Phone/WhatsApp:* ${bookingData.phone ? `${bookingData.countryCode} ${bookingData.phone}` : "Via WhatsApp"}%0A` +
@@ -313,11 +341,11 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         `*Service:* ${bookingData.serviceType}%0A` +
         (isHourly ? `*Duration:* ${duration} Hours%0A` : "") +
         `*Vehicle:* ${bookingData.selectedFleet || "7-Seater Maxi Cab"}%0A` +
-        `*Pickup Location:* ${bookingData.pickup || "Singapore Changi Airport (SIN)"}%0A` +
+        `*Pickup Location:* ${bookingData.pickup || "—"}%0A` +
         (!isHourly
-          ? `*Dropoff Location:* ${bookingData.dropoff || "Marina Bay Sands Hotel"}%0A`
-          : `*Dropoff / Charter Scope:* ${bookingData.dropoff || "As-Directed City Tour"}%0A`) +
-        `*Date & Time:* ${bookingData.pickupDate || "24 Oct 2024"} at ${bookingData.pickupTime || "17:15"} SGT%0A` +
+          ? `*Dropoff Location:* ${bookingData.dropoff || "—"}%0A`
+          : `*Dropoff / Charter Scope:* ${bookingData.dropoff || (isHourly ? "As-Directed City Tour" : "—")}%0A`) +
+        `*Date & Time:* ${bookingData.pickupDate || "—"}${bookingData.pickupTime ? ` at ${bookingData.pickupTime} SGT` : ""}%0A` +
         `*Passengers:* ${bookingData.passengers || 7} Pax | *Luggage:* ${bookingData.luggage || 5} Bags%0A` +
         `*Passenger Name:* ${bookingData.name || "Customer"}%0A` +
         `*Contact Number:* ${bookingData.phone ? `${bookingData.countryCode} ${bookingData.phone}` : "Via WhatsApp"}%0A` +
@@ -327,7 +355,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         (isNightPickup ? `*Late-Night Surcharge (10 PM–6 AM):* +$${nightSurchargePrice}.00 SGD Included%0A` : "") +
         `--------------------------------%0A` +
         `*PAYMENT DETAILS*%0A` +
-        `*Payment Method:* PayNow (Instant QR Code Transfer)%0A` +
+        `*Payment Method:* PayNow%0A` +
         `*Total Tariff:* $${totalFare}.00 SGD NETT%0A` +
         `*Payment Status:* Pending Official PayNow QR from Dispatch Desk%0A` +
         `--------------------------------%0A` +
@@ -369,16 +397,28 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       return;
     }
 
-    // 3. Daytime Payment: PayNow / Instant QR Option -> Send itinerary to WhatsApp requesting official QR
+    // 3. Daytime Payment: PayNow Option -> Call checkout API with paymentType: 'paynow'
     if (selectedPaymentMethod === "paynow") {
-      forwardToWhatsAppWithPayNow();
+      try {
+        const checkoutRes = await submitLiveCheckout("paynow");
+        if (checkoutRes && "stripe_checkout_url" in checkoutRes && checkoutRes.stripe_checkout_url) {
+          setIsRedirecting(true);
+          return;
+        }
+        setIsRedirecting(false);
+        forwardToWhatsAppWithPayNow();
+      } catch (e) {
+        console.warn("PayNow checkout error, forwarding to WhatsApp:", e);
+        setIsRedirecting(false);
+        forwardToWhatsAppWithPayNow();
+      }
       return;
     }
 
     // 4. Daytime Payment: Stripe Card / Digital Wallets Option
     try {
       // Initiate live Stripe checkout and redirect to Stripe Checkout URL
-      const checkoutRes = await submitLiveCheckout();
+      const checkoutRes = await submitLiveCheckout("stripe");
       if (checkoutRes && "stripe_checkout_url" in checkoutRes && checkoutRes.stripe_checkout_url) {
         setIsRedirecting(true);
         return;
@@ -435,7 +475,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           <div className="flex justify-between">
             <span className="text-[#5F6B7A]">Date &amp; Time:</span>
             <span>
-              {bookingData.pickupDate || "24 Oct 2024"} {bookingData.pickupTime || "17:15"} SGT
+              {bookingData.pickupDate || "—"}{bookingData.pickupTime ? ` ${bookingData.pickupTime} SGT` : ""}
             </span>
           </div>
           {selectedAddOnsList.length > 0 && (
@@ -455,7 +495,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         {/* Action Buttons: WhatsApp Chat & Make Another Booking */}
         <div className="flex flex-col gap-3 w-full max-w-sm">
           <a
-            href={`https://wa.me/6588006006?text=${encodeURIComponent(`Hi, I just placed a booking for ${bookingData.name || "Customer"} (${bookingData.selectedFleet || "7 Seater Maxi Cab"}) on ${bookingData.pickupDate || "24 Oct 2024"} at ${bookingData.pickupTime || "17:15"} SGT. Total: $${totalFare}.00 SGD.`)}`}
+            href={`https://wa.me/6588006006?text=${encodeURIComponent(`Hi, I just placed a booking for ${bookingData.name || "Customer"} (${bookingData.selectedFleet || "7 Seater Maxi Cab"}) on ${bookingData.pickupDate || "—"}${bookingData.pickupTime ? ` at ${bookingData.pickupTime} SGT` : ""}. Total: $${totalFare}.00 SGD.`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full py-3.5 px-6 bg-[#E8F8EE] hover:bg-[#d5f4e0] border border-[#16803C] text-[#16803C] rounded-lg text-base font-semibold font-manrope transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
@@ -467,7 +507,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             type="button"
             onClick={() => {
               setIsSuccess(false);
-              setStep(1);
+              resetBooking();
               if (closeModal) closeModal();
             }}
             className="w-full py-3.5 px-6 bg-[#071E3B] hover:bg-[#0B2A4A] text-white rounded-lg text-base font-semibold font-manrope transition-all cursor-pointer shadow-md"
@@ -606,7 +646,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               )}
             </div>
             <div className="text-[#071E3B] text-base font-bold font-manrope leading-snug sm:leading-7 break-words">
-              {bookingData.pickup || "Singapore Changi Airport (SIN)"}
+              {bookingData.pickup || "—"}
             </div>
             {(bookingData.flightNumber || bookingData.flightNo) ? (
               <div className="text-[#667085] text-xs sm:text-sm font-normal font-manrope leading-5">
@@ -621,7 +661,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               Destination
             </span>
             <div className="text-[#071E3B] text-base font-bold font-manrope leading-snug sm:leading-7 break-words">
-              {bookingData.dropoff || (isHourly ? "As-Directed City Tour" : "Central Singapore")}
+              {bookingData.dropoff || (isHourly ? "As-Directed City Tour" : "—")}
             </div>
             {isHourly && (
               <div className="text-[#667085] text-xs sm:text-sm font-normal font-manrope leading-5">
@@ -638,10 +678,10 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               DATE &amp; TIME
             </span>
             <div className="text-[#071E3B] text-base font-bold font-manrope leading-6">
-              {bookingData.pickupDate || "24 Oct 2024"}
+              {bookingData.pickupDate || "—"}
             </div>
             <div className="text-[#5F6B7A] text-xs sm:text-sm font-medium font-manrope leading-5">
-              {bookingData.pickupTime || "17:15"} SGT {(bookingData.flightNumber || bookingData.flightNo) ? `(${bookingData.flightNumber || bookingData.flightNo} Buffer)` : ""}
+              {bookingData.pickupTime ? `${bookingData.pickupTime} SGT` : "—"} {(bookingData.flightNumber || bookingData.flightNo) ? `(${bookingData.flightNumber || bookingData.flightNo} Buffer)` : ""}
             </div>
           </div>
 
@@ -809,7 +849,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               <div className="self-stretch py-1.5 flex justify-between items-start gap-3 border-b border-slate-100 text-xs">
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className="text-slate-900 font-semibold font-manrope">
-                    Distance Surcharge ({quote.quote.distance_charge?.rule || `${quote.quote.route.distance_km} km`})
+                    Distance Surcharge ({formatDistanceRule(quote.quote.distance_charge?.rule, quote.quote.route?.distance_km)})
                   </span>
                   <span className="text-[#667085]">Verified Google Distance Matrix Route</span>
                 </div>
@@ -893,11 +933,11 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               </span>
             </div>
             <p className="text-xs text-slate-200 font-manrope leading-relaxed">
-              Your booking is being created during our late-night UAE operations window (current UAE time: <strong className="text-white">{uaeTime.timeString}</strong>). To guarantee direct chauffeur tracking, terminal meet &amp; greet buffer, and priority assignment, this ride is confirmed directly with our 24/7 Operations Concierge via WhatsApp.
+              Your booking is being created during our late-night UAE operations window (current UAE time: <strong className="text-white">{uaeTime.timeString}</strong>). To guarantee direct chauffeur tracking, terminal meet &amp; greet buffer, and priority assignment, this ride is confirmed directly with our Operations Concierge via WhatsApp.
             </p>
             <div className="pt-1.5 border-t border-slate-700/60 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-[#C6A45A] font-semibold font-manrope">
               <span>✓ Guaranteed Priority Chauffeur</span>
-              <span>✓ 24/7 Live Operations Desk</span>
+              <span>✓ Live Operations Desk</span>
               <span>✓ {isNightPickup ? `+$${nightSurchargePrice}.00 SGD Night Transfer Surcharge Included` : "No Extra Night Surcharge"}</span>
             </div>
           </div>
@@ -930,7 +970,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {/* Option 1: PayNow / Instant QR */}
+              {/* Option 1: PayNow */}
               <div
                 onClick={() => setSelectedPaymentMethod("paynow")}
                 className={`p-3.5 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between gap-2 text-left relative ${
@@ -946,7 +986,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                     </div>
                     <div>
                       <div className="text-xs sm:text-sm font-bold text-[#071E3B] font-manrope">
-                        PayNow / Instant QR
+                        PayNow
                       </div>
                       <span className="text-[10px] text-[#8A5A00] font-bold uppercase tracking-wider font-manrope">
                         SGQR · WhatsApp Dispatch
@@ -962,7 +1002,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                   </div>
                 </div>
                 <p className="text-[11px] text-[#5F6B7A] font-manrope leading-snug">
-                  Official PayNow QR code sent directly to your WhatsApp by our 24/7 operations desk. Scan &amp; pay to track.
+                  Official PayNow QR code sent directly to your WhatsApp by our operations desk. Scan &amp; pay to track.
                 </p>
                 <div className="text-[10px] text-[#8A5A00] font-semibold font-manrope flex items-center gap-1">
                   <Sparkles className="w-3 h-3 text-[#C6A45A]" />
@@ -1031,7 +1071,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               type="button"
               onClick={handleProceed}
               disabled={isCheckingOut || isRedirecting}
-              className={`flex-1 min-w-0 px-3 sm:px-6 py-3 sm:py-3.5 active:scale-[0.98] text-white rounded-xl flex items-center justify-center gap-2 sm:gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer text-xs sm:text-base font-bold font-manrope whitespace-nowrap disabled:opacity-75 ${
+              className={`flex-1 min-w-0 px-4 sm:px-6 py-3.5 min-h-[48px] active:scale-[0.98] text-white rounded-xl flex items-center justify-center gap-2 sm:gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer text-xs sm:text-base font-bold font-manrope disabled:opacity-75 ${
                 isBookingCreationNight || selectedPaymentMethod === "paynow"
                   ? "bg-[#16803C] hover:bg-[#126831]"
                   : "bg-[#071E3B] hover:bg-[#0B2A4A]"
@@ -1040,12 +1080,20 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               {isCheckingOut ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-[#C6A45A] shrink-0" />
-                  <span>Connecting to Stripe...</span>
+                  <span>
+                    {selectedPaymentMethod === "paynow"
+                      ? "Connecting to PayNow..."
+                      : "Connecting to Stripe..."}
+                  </span>
                 </>
               ) : isRedirecting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-[#C6A45A] shrink-0" />
-                  <span>Redirecting to Stripe...</span>
+                  <span>
+                    {selectedPaymentMethod === "paynow"
+                      ? "Redirecting to PayNow..."
+                      : "Redirecting to Stripe..."}
+                  </span>
                 </>
               ) : isContactSupport ? (
                 <>
@@ -1059,7 +1107,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                 </>
               ) : selectedPaymentMethod === "paynow" ? (
                 <>
-                  <span>Proceed via PayNow Transfer (${totalFare}.00 SGD)</span>
+                  <span>Proceed via PayNow (${totalFare}.00 SGD)</span>
                   <WhatsAppIcon className="w-4 h-4 shrink-0" />
                 </>
               ) : (
@@ -1103,7 +1151,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           <span className="text-[#C6A45A]">·</span>
           <span className="font-normal text-[#5F6B7A]">Fixed Price Guarantee</span>
           <span className="text-[#C6A45A]">·</span>
-          <span className="font-semibold text-[#C6A45A]">24/7 (+65) 8800 6006</span>
+          <span className="font-semibold text-[#C6A45A]">(+65) 8800 6006</span>
         </div>
       </div>
     </div>

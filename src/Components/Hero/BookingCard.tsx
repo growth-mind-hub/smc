@@ -248,7 +248,7 @@ export default function BookingCard() {
           <span className="text-[#C6A45A]">·</span>
           <span>Fixed Price Guarantee</span>
           <span className="text-[#C6A45A]">·</span>
-          <span className="font-semibold text-[#C6A45A]">24/7 (+65) 8800 6006</span>
+          <span className="font-semibold text-[#C6A45A]">(+65) 8800 6006</span>
         </div>
       </form>
     </div>

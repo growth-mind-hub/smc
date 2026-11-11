@@ -30,7 +30,7 @@ export default function BookingValueProps({
     },
     {
       icon: <WhatsAppIcon className="w-5 h-5 text-[#C6A45A]" />,
-      title: "24/7 WhatsApp Support",
+      title: "WhatsApp Support",
       description: "Real people respond fast via WhatsApp, day or night.",
     },
   ];

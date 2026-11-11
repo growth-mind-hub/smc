@@ -1,7 +1,7 @@
 {
   "badge": "Get In Touch",
   "title": "Contact Us",
-  "subtitle": "Questions about booking? Need a custom quote? We're here 24/7 via WhatsApp, phone, or email.",
+  "subtitle": "Questions about booking? Need a custom quote? We're here via WhatsApp, phone, or email.",
   "directContacts": [
     {
       "icon": "whatsapp",
@@ -43,7 +43,7 @@
     },
     {
       "label": "WhatsApp Support",
-      "time": "24/7"
+      "time": "Round-the-clock"
     }
   ]
 }

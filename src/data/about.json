@@ -30,14 +30,14 @@
     },
     {
       "icon": "support",
-      "title": "24/7 Support",
+      "title": "Dedicated Support",
       "description": "WhatsApp us anytime. Real people, real responses."
     }
   ],
   "stats": [
     { "value": "6.5k+", "label": "Happy Customers" },
     { "value": "4.9★", "label": "Google Rating" },
-    { "value": "24/7", "label": "Available" },
+    { "value": "Always", "label": "Available" },
     { "value": "10+", "label": "Licensed Drivers" }
   ],
   "cta": {

@@ -284,7 +284,7 @@ export default function Navbar() {
             <div className="pt-2 flex items-center justify-center gap-4 text-xs text-[#667085] font-medium">
               <a href="tel:+6588006006" className="inline-flex items-center gap-1.5 hover:text-[#071E3B]">
                 <Phone className="w-3.5 h-3.5 text-[#C6A45A]" />
-                <span>Call Hotline 24/7</span>
+                <span>Call Hotline</span>
               </a>
               <span>•</span>
               <span className="inline-flex items-center gap-1 text-[#16803C]">

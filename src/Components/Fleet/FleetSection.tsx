@@ -17,13 +17,15 @@ export default function FleetSection() {
     setMounted(true);
   }, []);
 
-  const showSkeleton = !mounted || isLoadingVehicles;
-
-  // Transform live API vehicles strictly
+  // Fallback to static fleetData.vehicles when liveVehicles is empty
   const vehiclesToDisplay: Vehicle[] =
     liveVehicles && liveVehicles.length > 0
       ? liveVehicles.map((v) => transformApiVehicleToCard(v))
-      : [];
+      : (fleetData.vehicles as Vehicle[]).filter(
+          (v, idx, arr) => arr.findIndex((x) => (x.slug || x.id) === (v.slug || v.id)) === idx
+        );
+
+  const showSkeleton = !mounted || (isLoadingVehicles && vehiclesToDisplay.length === 0);
 
   // Show only 3 fleets (1 row of 3 cards on desktop), route to /fleets for the rest
   const displayedVehicles = vehiclesToDisplay.slice(0, 3);

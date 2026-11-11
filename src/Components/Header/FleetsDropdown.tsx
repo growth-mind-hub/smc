@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { useBookingModal } from "@/context/BookingContext";
 import { resolveSlugFromApiVehicle, getVehicleImage } from "@/lib/fleetResolver";
+import fleetData from "@/data/fleet.json";
 
 interface FleetsDropdownProps {
   onItemClick?: () => void;
@@ -14,38 +15,56 @@ interface FleetsDropdownProps {
 export default function FleetsDropdown({ onItemClick }: FleetsDropdownProps) {
   const { vehicles: liveVehicles, isLoadingVehicles } = useBookingModal();
 
-  // Show only vehicles returned from live API
-  const apiFleets =
+  // Fallback to static fleetData.vehicles when liveVehicles is empty so dropdown never hangs on skeleton loading
+  const staticFleets = React.useMemo(() => {
+    const seen = new Set<string>();
+    return fleetData.vehicles
+      .filter((v) => {
+        const key = v.slug || v.id;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .map((v) => ({
+        id: v.id,
+        name: v.name,
+        capacity: `${v.pax} | ${v.bags}`,
+        slug: v.slug || v.id,
+        image: v.image || "/images/Cab.png",
+      }));
+  }, []);
+
+  const fleets =
     liveVehicles && liveVehicles.length > 0
       ? liveVehicles.map((v) => {
           const slug = resolveSlugFromApiVehicle(v);
           const pax = v.passengerCapacity ?? 7;
           const bags = v.luggageCapacity ?? 4;
           return {
-            id: v.id,
+            id: String(v.id),
             name: v.name,
             capacity: `${pax} Pax | ${bags} Bags`,
             slug,
             image: getVehicleImage(v, "/images/Cab.png"),
           };
         })
-      : [];
+      : staticFleets;
 
   return (
     <div className="w-[360px] sm:w-[504px] max-h-[calc(100vh-100px)] overflow-hidden bg-white rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col z-50">
       {/* Full Vehicle List with natural height */}
       <div className="min-h-0 flex-1 overflow-y-auto p-2 sm:p-3 flex flex-col divide-y divide-slate-100 [scrollbar-width:thin] [scrollbar-color:#C6A45A_transparent]">
-        {apiFleets.length === 0 ? (
+        {fleets.length === 0 ? (
           <div className="flex flex-col gap-2 p-2">
             <div className="h-12 bg-slate-100 rounded-lg animate-pulse" />
             <div className="h-12 bg-slate-100 rounded-lg animate-pulse" />
             <div className="h-12 bg-slate-100 rounded-lg animate-pulse" />
           </div>
         ) : (
-          apiFleets.map((fleet) => (
+          fleets.map((fleet) => (
             <Link
               key={fleet.id}
-              href={`/fleets#${fleet.slug}`}
+              href={`/fleets/${fleet.slug}`}
               onClick={onItemClick}
               className="p-2.5 sm:p-3 rounded-xl flex items-center gap-3.5 hover:bg-[#FBF7EC] active:scale-[0.99] transition-all group"
             >

@@ -19,7 +19,7 @@
         "Seletar Airport pickups available",
         "Help with baggage loading",
         "Fixed flat fare — no waiting charges",
-        "24/7 availability including midnight and early morning flights",
+        "Round-the-clock availability including midnight and early morning flights",
         "WhatsApp your driver directly"
       ],
       "pricing": [
@@ -271,7 +271,7 @@
         "Bottled artisan mineral water, fresh mints & onboard Wi-Fi",
         "Complimentary mobile charging cables & device adapters",
         "Strict non-disclosure confidentiality agreements (NDAs) for all drivers",
-        "24/7 dedicated executive operations manager on standby"
+        "Dedicated executive operations manager on standby"
       ],
       "pricing": [
         { "vehicle": "Mercedes-Benz E-Class Sedan", "rate": "$85 SGD" },
@@ -300,11 +300,11 @@
       "id": "shipping-crew-agent-services",
       "slug": "shipping-crew-agent-services",
       "title": "Shipping Crew & Maritime Agent Services",
-      "subtitle": "24/7 Port Terminal, Shipyard & Crew Change Transportation",
+      "subtitle": "Port Terminal, Shipyard & Crew Change Transportation",
       "shortDescription": "Round-the-clock transfers to Jurong Port, PSA Terminals, Marina South Pier, and shipyards for crew sign-on/sign-off and maritime agents.",
-      "heroDescription": "Specialized 24/7 port transit and crew change logistics across all Singapore seaports, anchorages, and shipyards. Seamless dispatch for shipping lines, vessel agents, and maritime technicians.",
+      "heroDescription": "Specialized port transit and crew change logistics across all Singapore seaports, anchorages, and shipyards. Seamless dispatch for shipping lines, vessel agents, and maritime technicians.",
       "icon": "Anchor",
-      "tags": ["24/7 Port Access", "Crew Change", "PSA & Jurong Port"],
+      "tags": ["Port Access", "Crew Change", "PSA & Jurong Port"],
       "inclusions": [
         "PSA Port Pass & Jurong Port terminal security clearance access",
         "Direct transfers to Marina South Pier, Keppel, Tuas, and Jurong Shipyards",
@@ -313,7 +313,7 @@
         "Immigration checkpoint & ICA Seamen's pass processing buffer",
         "Medical clinic & occupational health checkup escort for sign-on crew",
         "Consolidated monthly corporate billing for shipping agents & ship managers",
-        "Round-the-clock 24/7 dispatch with flight-to-vessel real-time tracking"
+        "Round-the-clock dispatch with flight-to-vessel real-time tracking"
       ],
       "pricing": [
         { "vehicle": "One-Way Marina South Pier Transfer", "rate": "$70 SGD" },
@@ -428,14 +428,14 @@
       "title": "Pilot & Aircrew Daily Transfers",
       "subtitle": "Zero-Delay Scheduled Chauffeur Logistics for Airline Flight Crews",
       "shortDescription": "Punctual, guaranteed daily pick-up and drop-off for commercial airline pilots, flight attendants, and cargo flight crews at Changi and Seletar.",
-      "heroDescription": "Contracted, time-critical transportation for airline flight deck and cabin crew. Strict zero-delay punctuality, 24/7 flight ops tracking, and seamless hotel-to-crew-centre transfers.",
+      "heroDescription": "Contracted, time-critical transportation for airline flight deck and cabin crew. Strict zero-delay punctuality, round-the-clock flight ops tracking, and seamless hotel-to-crew-centre transfers.",
       "icon": "Compass",
-      "tags": ["Airline Flight Crew", "Zero Delay Guarantee", "24/7 Changi & Seletar"],
+      "tags": ["Airline Flight Crew", "Zero Delay Guarantee", "Changi & Seletar"],
       "inclusions": [
         "Strict 100% on-time guarantee with mandatory 15-minute advance arrival",
         "Direct transfers to Changi Flight Operations Centre (FOC) & Seletar Airport",
         "Airline layover hotel shuttles across Singapore",
-        "24/7 round-the-clock operations desk monitoring flight dispatch shifts",
+        "Round-the-clock operations desk monitoring flight dispatch shifts",
         "Generous storage for pilot flight bags, crew roller luggage & garment bags",
         "Quiet, comfortable cabin environment for restorative pre-flight rest",
         "Automated driver check-in alerts sent to airline crew operations",

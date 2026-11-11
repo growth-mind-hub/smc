@@ -196,7 +196,85 @@ export function transformApiVehicleToCard(v: VehicleCard, defaultFallback?: Vehi
 }
 
 /**
- * Build section-wise fleet groups dynamically from API vehicles only
+ * Match a raw slug or ID to a static vehicle
+ */
+export function findMatchingStaticVehicle(
+  rawSlug: string,
+  apiMatch?: VehicleCard
+): (typeof fleetData.vehicles)[number] | undefined {
+  const slug = decodeURIComponent(rawSlug).toLowerCase().trim();
+
+  // 1. Direct match by slug or id in static catalog
+  const directMatch = fleetData.vehicles.find((v) => {
+    const sId = v.id.toLowerCase();
+    const sSlug = (v.slug || v.id).toLowerCase();
+    return sId === slug || sSlug === slug;
+  });
+  if (directMatch) return directMatch;
+
+  // 2. Canonical alias resolution
+  if (slug === "mercedes-e-class" || slug === "e-class") {
+    return fleetData.vehicles.find((v) => v.id === "mercedes-e-class" || v.slug === "mercedes-e-class");
+  }
+  if (slug === "mercedes-s-class" || slug === "s-class") {
+    return fleetData.vehicles.find((v) => v.id === "mercedes-s-class" || v.slug === "mercedes-s-class");
+  }
+  if (slug === "6-seater" || slug === "6-seater-maxi-cab") {
+    return fleetData.vehicles.find((v) => v.id === "6-seater" || v.slug === "6-seater");
+  }
+  if (slug === "7-seater" || slug === "7-seater-maxi-cab") {
+    return fleetData.vehicles.find((v) => v.id === "7-seater" || v.slug === "7-seater");
+  }
+  if (slug === "9-seater" || slug === "9-seater-maxi-cab") {
+    return fleetData.vehicles.find((v) => v.id === "9-seater" || v.slug === "9-seater");
+  }
+  if (slug === "13-seater" || slug === "13-seater-minibus") {
+    return fleetData.vehicles.find((v) => v.id === "13-seater" || v.slug === "13-seater");
+  }
+  if (slug === "vip-minibus" || slug === "vip-executive-minibus") {
+    return (
+      fleetData.vehicles.find((v) => v.slug === "vip-minibus" || v.id === "vip-minibus") ||
+      fleetData.vehicles.find((v) => v.id === "13-seater" || v.slug === "13-seater")
+    );
+  }
+  if (slug === "vip-lounge" || slug === "vip-lounge-7-seater") {
+    return fleetData.vehicles.find((v) => v.id === "vip-lounge" || v.slug === "vip-lounge");
+  }
+  if (slug === "wheelchair-cab" || slug === "wheelchair-maxi-cab") {
+    return fleetData.vehicles.find((v) => v.id === "wheelchair-cab" || v.slug === "wheelchair-cab");
+  }
+  if (slug === "23-seater-coach" || slug === "23-seater") {
+    return fleetData.vehicles.find((v) => v.id === "23-seater-coach" || v.slug === "23-seater-coach");
+  }
+  if (slug === "40-seater-coach" || slug === "40-seater") {
+    return (
+      fleetData.vehicles.find((v) => v.slug === "40-seater-coach" || v.id === "40-seater-coach") ||
+      fleetData.vehicles.find((v) => v.id === "23-seater-coach")
+    );
+  }
+
+  // 3. If apiMatch exists, match by apiMatch properties
+  if (apiMatch) {
+    const apiSlug = resolveSlugFromApiVehicle(apiMatch);
+    const byApiSlug = fleetData.vehicles.find((v) => (v.slug || v.id) === apiSlug);
+    if (byApiSlug) return byApiSlug;
+
+    const byId = fleetData.vehicles.find((v) => v.id === `vehicle-${apiMatch.id}`);
+    if (byId) return byId;
+  }
+
+  // 4. Try matching vehicle ID if slug is a number or vehicle-X
+  const numId = parseInt(slug.replace("vehicle-", ""), 10);
+  if (!isNaN(numId)) {
+    const byId = fleetData.vehicles.find((v) => v.id === `vehicle-${numId}` || v.id === slug);
+    if (byId) return byId;
+  }
+
+  return undefined;
+}
+
+/**
+ * Build section-wise fleet groups dynamically, falling back to static fleet data
  */
 export function buildSectionVehicles(
   apiVehicles: VehicleCard[]
@@ -206,11 +284,56 @@ export function buildSectionVehicles(
   minibuses: Vehicle[];
 } {
   if (!apiVehicles || apiVehicles.length === 0) {
-    return {
-      executive: [],
-      maxiCabs: [],
-      minibuses: [],
-    };
+    const executive: Vehicle[] = [];
+    const maxiCabs: Vehicle[] = [];
+    const minibuses: Vehicle[] = [];
+    const seen = new Set<string>();
+
+    for (const v of fleetData.vehicles) {
+      const slug = v.slug || v.id;
+      if (seen.has(slug)) continue;
+      seen.add(slug);
+
+      const card: Vehicle = {
+        id: v.id,
+        slug,
+        name: v.name,
+        model: v.model,
+        price: v.price,
+        currency: v.currency,
+        description: v.description,
+        heroDescription: v.heroDescription,
+        pax: v.pax,
+        paxCount: v.paxCount,
+        bags: v.bags,
+        luggageCount: v.luggageCount,
+        badge: v.badge,
+        image: v.image || "/images/Cab.png",
+        meetAndGreet: v.meetAndGreet,
+        charter3h: v.charter3h,
+        buttonText: v.buttonText,
+      };
+
+      const name = v.name.toLowerCase();
+      const pax = v.paxCount || 7;
+
+      if (
+        name.includes("vip") ||
+        name.includes("executive") ||
+        name.includes("mercedes") ||
+        slug.includes("e-class") ||
+        slug.includes("s-class") ||
+        pax <= 4
+      ) {
+        executive.push(card);
+      } else if (pax >= 10 || name.includes("minibus") || name.includes("coach") || slug.includes("coach")) {
+        minibuses.push(card);
+      } else {
+        maxiCabs.push(card);
+      }
+    }
+
+    return { executive, maxiCabs, minibuses };
   }
 
   const executive: Vehicle[] = [];
@@ -251,27 +374,22 @@ export function buildSectionVehicles(
 }
 
 /**
- * Resolve a vehicle by slug, ID, or name, strictly from live API data
+ * Resolve a vehicle by slug, ID, or name, seamlessly supporting static fallback
  */
 export async function resolveVehicle(rawSlug: string): Promise<VehicleDetail | null> {
   const slug = decodeURIComponent(rawSlug).toLowerCase().trim();
   const apiVehicles = await fetchLiveVehicles();
 
-  // 1. Match API vehicle only
+  // 1. Match API vehicle
   const apiMatch = findMatchingApiVehicle(slug, apiVehicles);
 
-  if (!apiMatch) {
+  // 2. Match Static vehicle
+  const staticMatch = findMatchingStaticVehicle(slug, apiMatch);
+
+  // If neither API vehicle nor static vehicle matched, return null
+  if (!apiMatch && !staticMatch) {
     return null;
   }
-
-  // Optional styling/content embellishments from fleetData if matched
-  const staticMatch = fleetData.vehicles.find((v) => {
-    const sId = v.id.toLowerCase();
-    const sSlug = (v.slug || v.id).toLowerCase();
-    if (sId === slug || sSlug === slug) return true;
-    if (v.id === `vehicle-${apiMatch.id}`) return true;
-    return false;
-  });
 
   // 3. Extract pricing from API or fallback to static
   const departureAmount = apiMatch?.prices?.departure_transfer?.amount;

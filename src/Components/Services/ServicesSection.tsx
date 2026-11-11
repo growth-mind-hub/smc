@@ -25,33 +25,34 @@ interface ServicesSectionProps {
 
 export default function ServicesSection({ isPage = false }: ServicesSectionProps) {
   const getServiceIcon = (iconName: string) => {
+    const iconClass = "w-6 h-6 text-[#123F6B] group-hover:text-[#C6A45A] transition-colors";
     switch (iconName) {
       case "Plane":
-        return <Plane className="w-6 h-6 text-[#123F6B]" strokeWidth={1.5} />;
+        return <Plane className={iconClass} strokeWidth={1.5} />;
       case "Briefcase":
-        return <Briefcase className="w-6 h-6 text-[#123F6B]" />;
+        return <Briefcase className={iconClass} />;
       case "Sparkles":
-        return <Sparkles className="w-6 h-6 text-[#123F6B]" />;
+        return <Sparkles className={iconClass} />;
       case "Users":
-        return <Users className="w-6 h-6 text-[#123F6B]" />;
+        return <Users className={iconClass} />;
       case "Clock":
-        return <Clock className="w-6 h-6 text-[#123F6B]" />;
+        return <Clock className={iconClass} />;
       case "HeartHandshake":
-        return <HeartHandshake className="w-6 h-6 text-[#123F6B]" />;
+        return <HeartHandshake className={iconClass} />;
       case "Crown":
-        return <Crown className="w-6 h-6 text-[#123F6B]" />;
+        return <Crown className={iconClass} />;
       case "Anchor":
-        return <Anchor className="w-6 h-6 text-[#123F6B]" />;
+        return <Anchor className={iconClass} />;
       case "Flag":
-        return <Flag className="w-6 h-6 text-[#123F6B]" />;
+        return <Flag className={iconClass} />;
       case "Building2":
-        return <Building2 className="w-6 h-6 text-[#123F6B]" />;
+        return <Building2 className={iconClass} />;
       case "Compass":
-        return <Compass className="w-6 h-6 text-[#123F6B]" />;
+        return <Compass className={iconClass} />;
       case "MapPin":
-        return <MapPin className="w-6 h-6 text-[#123F6B]" />;
+        return <MapPin className={iconClass} />;
       default:
-        return <Plane className="w-6 h-6 text-[#123F6B]" strokeWidth={1.5} />;
+        return <Plane className={iconClass} strokeWidth={1.5} />;
     }
   };
 
@@ -86,7 +87,7 @@ export default function ServicesSection({ isPage = false }: ServicesSectionProps
           >
             {/* Top: Icon & Text */}
             <div className="flex items-start gap-4 sm:gap-5">
-              <div className="w-12 h-12 bg-[#EEF5FB] rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 bg-[#EEF5FB] group-hover:bg-[#FBF7EC] rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-all">
                 {getServiceIcon(service.icon)}
               </div>
               <div className="flex flex-col gap-1 sm:gap-2 flex-1">

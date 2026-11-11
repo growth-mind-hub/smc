@@ -21,7 +21,7 @@ export default function MobileQuickBar() {
           aria-label="Call Singapore Maxi Cab"
         >
           <Phone className="w-3.5 h-3.5 text-[#C6A45A]" />
-          <span>Call 24/7</span>
+          <span>Call Hotline</span>
         </a>
 
         {/* Quick WhatsApp Button */}

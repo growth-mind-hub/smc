@@ -37,6 +37,24 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
     return list;
   });
 
+  // Keep add-ons synced when bookingData is reset or updated
+  React.useEffect(() => {
+    const list: string[] = [];
+    if (bookingData.meetAndGreet) list.push("meet-greet");
+    if (bookingData.babySeat) list.push("baby-seat");
+    if (bookingData.additionalStopsCount || bookingData.extraStopsWithin2km) list.push("additional-stops");
+    if (bookingData.wheelchairAccessible || bookingData.wheelchairCount) list.push("wheelchair");
+    setSelectedAddOnIds(bookingData.selectedAddOnIds || list);
+  }, [
+    bookingData.selectedAddOnIds,
+    bookingData.meetAndGreet,
+    bookingData.babySeat,
+    bookingData.additionalStopsCount,
+    bookingData.extraStopsWithin2km,
+    bookingData.wheelchairAccessible,
+    bookingData.wheelchairCount,
+  ]);
+
   const handleToggleAddOn = (id: string) => {
     if (selectedAddOnIds.includes(id)) {
       handleRemoveAddOn(id);
@@ -255,7 +273,7 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
                   Late-Night Booking Operations (10:00 PM – 6:00 AM UAE Time)
                 </span>
                 <span>
-                  Current UAE Time: <strong>{uaeTime.timeString}</strong>. Bookings submitted during late-night UAE hours are confirmed directly with our 24/7 Operations Desk via WhatsApp.{isNightPickup ? " A +$10 SGD late-night transfer surcharge applies for night pickups." : ""}
+                  Current UAE Time: <strong>{uaeTime.timeString}</strong>. Bookings submitted during late-night UAE hours are confirmed directly with our Operations Desk via WhatsApp.{isNightPickup ? " A +$10 SGD late-night transfer surcharge applies for night pickups." : ""}
                 </span>
               </div>
             </div>
@@ -541,7 +559,7 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
           <span className="text-[#C6A45A]">·</span>
           <span className="font-normal text-[#5F6B7A]">Fixed Price Guarantee</span>
           <span className="text-[#C6A45A]">·</span>
-          <span className="font-semibold text-[#C6A45A]">24/7 (+65) 8800 6006</span>
+          <span className="font-semibold text-[#C6A45A]">(+65) 8800 6006</span>
         </div>
       </form>
     </div>

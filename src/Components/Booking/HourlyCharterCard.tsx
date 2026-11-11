@@ -344,7 +344,7 @@ export default function HourlyCharterCard({ isModal = true }: HourlyCharterCardP
           <span>·</span>
           <span className="font-normal">Fixed Price Guarantee</span>
           <span>·</span>
-          <span className="font-semibold text-[#C6A45A]">24/7 (+65) 8800 6006</span>
+          <span className="font-semibold text-[#C6A45A]">(+65) 8800 6006</span>
         </div>
       </form>
     </div>

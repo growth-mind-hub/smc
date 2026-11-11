@@ -139,7 +139,7 @@ export default function PaymentSuccessCard({
             className="w-full py-3.5 px-6 rounded-lg bg-[#E8F8EE] hover:bg-[#d5f4e0] active:scale-[0.98] border border-[#16803C] text-[#16803C] text-base font-semibold font-manrope transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer shadow-xs text-center"
           >
             <WhatsAppIcon className="w-5 h-5 text-[#16803C]" />
-            <span>Chat With 24/7 Dispatch Team</span>
+            <span>Chat With Dispatch Team</span>
           </a>
 
           {/* Book Another Journey CTA */}

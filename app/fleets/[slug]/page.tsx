@@ -20,12 +20,30 @@ export async function generateStaticParams() {
     slug: v.slug || v.id,
   }));
 
+  // Canonical fleet aliases
+  const canonicalAliases = [
+    "mercedes-e-class",
+    "mercedes-s-class",
+    "6-seater",
+    "7-seater",
+    "9-seater",
+    "13-seater",
+    "vip-minibus",
+    "vip-lounge",
+    "wheelchair-cab",
+    "23-seater-coach",
+    "40-seater-coach",
+  ].map((slug) => ({ slug }));
+
   // Include known API vehicle IDs
   const apiIdSlugs = Array.from({ length: 12 }, (_, i) => ({
     slug: String(i + 1),
   }));
 
-  return [...staticSlugs, ...apiIdSlugs];
+  const allSlugs = [...staticSlugs, ...canonicalAliases, ...apiIdSlugs];
+  const uniqueSlugs = Array.from(new Set(allSlugs.map((s) => s.slug))).map((slug) => ({ slug }));
+
+  return uniqueSlugs;
 }
 
 export async function generateMetadata({ params }: FleetPageProps): Promise<Metadata> {

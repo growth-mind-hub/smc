@@ -8,12 +8,12 @@ export default function StatsSection() {
     { value: "$0", label: "HIDDEN FEES" },
     { value: "6.5k+", label: "Happy Customers" },
     { value: "4.9", label: "GOOGLE RATING", hasStar: true },
-    { value: "24/7", label: "AVAILABLE ANYTIME" },
+    { value: "Always", label: "AVAILABLE ANYTIME" },
     { value: "10+", label: "Drivers" },
     { value: "$0", label: "HIDDEN FEES" },
     { value: "6.5k+", label: "Happy Customers" },
     { value: "4.9", label: "GOOGLE RATING", hasStar: true },
-    { value: "24/7", label: "ROUND-THE-CLOCK" },
+    { value: "Always", label: "ROUND-THE-CLOCK" },
     { value: "10+", label: "Drivers" },
   ];
 

@@ -9,7 +9,7 @@ import PaymentFailedCard from "@/Components/Booking/PaymentFailedCard";
 export const metadata: Metadata = {
   title: "Booking Failed | Singapore Maxicabs - Premium Transport",
   description:
-    "We could not process your booking or payment at this time. Please retry booking or contact our 24/7 WhatsApp dispatch team.",
+    "We could not process your booking or payment at this time. Please retry booking or contact our WhatsApp dispatch team.",
 };
 
 function PaymentFailedFallback() {
