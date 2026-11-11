@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useBookingModal } from "@/context/BookingContext";
 import { ArrowLeft, ArrowRight, Check, Users, Luggage, X, Sparkles } from "lucide-react";
 import fleetData from "@/data/fleet.json";
-import { getRecommendedFleet } from "@/utils/recommendation";
+import { getRecommendedFleet, checkVehicleCapacityFit } from "@/utils/recommendation";
 import { resolveSlugFromApiVehicle, getVehicleImage } from "@/lib/fleetResolver";
 import { getVehicleFareForBooking } from "@/utils/serviceResolver";
 
@@ -56,16 +56,19 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const fare = getVehicleFareForBooking(v as any, bookingData, services);
 
-        const paxCount = v.passengerCapacity ?? fleetMatch?.paxCount ?? 7;
-        const luggageCount = v.luggageCapacity ?? fleetMatch?.luggageCount ?? 4;
+        const fitInfo = checkVehicleCapacityFit(
+          slug,
+          bookingData.passengers,
+          bookingData.luggage,
+          bookingData.wheelchairAccessible
+        );
 
         const isRecommended =
           recommendedInfo.selectedFleetSlug === slug ||
           recommendedInfo.vehicleId === v.id;
 
-        const fitsPassengers = paxCount >= bookingData.passengers;
-        const fitsLuggage = luggageCount >= bookingData.luggage;
-        const fitsGroup = fitsPassengers && fitsLuggage;
+        const fitsGroup = fitInfo.fits;
+        const fitsPassengers = fitInfo.maxPax >= bookingData.passengers;
 
         const shortModel = v.vehicleType || fleetMatch?.model || v.name;
 
@@ -75,14 +78,16 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
           slug,
           name: v.name,
           model: shortModel,
-          paxCount,
-          luggageCount,
+          paxCount: fitInfo.maxPax,
+          luggageCount: fitInfo.maxLuggage,
           fare,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           image: getVehicleImage(v as any, fleetMatch?.image || "/images/Cab.png"),
           isRecommended,
           fitsGroup,
           fitsPassengers,
+          badgeNote: fitInfo.badgeNote,
+          fitReason: fitInfo.reason,
         };
       })
       .sort((a, b) => {
@@ -244,16 +249,22 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
                     <span className="px-2 py-0.5 rounded-md bg-[#E8F8EE] text-[#16803C] text-[10px] font-bold">
                       Fits Group
                     </span>
-                  ) : !v.fitsPassengers ? (
-                    <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] font-medium">
-                      Max {v.paxCount} Pax
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-medium">
+                      {v.fitReason || `Max ${v.paxCount} Pax`}
                     </span>
-                  ) : null}
+                  )}
                 </div>
 
                 <p className="text-xs text-[#667085] font-manrope line-clamp-1">
                   {v.model}
                 </p>
+
+                {v.badgeNote && (
+                  <p className="text-[11px] text-[#A77E3C] font-semibold font-manrope leading-tight">
+                    {v.badgeNote}
+                  </p>
+                )}
 
                 {/* Capacity Badges */}
                 <div className="flex items-center gap-1.5 pt-0.5">

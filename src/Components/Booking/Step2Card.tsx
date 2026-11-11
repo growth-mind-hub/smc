@@ -97,6 +97,7 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
       updates.extraStopsWithin2km = 0;
       updates.extraStopsOver2km = 0;
       updates.additionalStopAddress = "";
+      updates.additionalStopDistanceTier = "<2km";
     } else if (id === "wheelchair") {
       updates.wheelchairAccessible = false;
       updates.wheelchairCount = 0;
@@ -274,11 +275,16 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
             {selectedAddOnIds.includes("additional-stops") && (
               <AdditionalStopField
                 onRemove={() => handleRemoveAddOn("additional-stops")}
+                initialStops={bookingData.additionalStopsCount || 1}
+                initialAddress={bookingData.additionalStopAddress || ""}
+                initialTier={bookingData.additionalStopDistanceTier || "<2km"}
                 onChange={(data) => {
                   updateBookingData({
                     additionalStopsCount: data.stops,
-                    extraStopsWithin2km: data.stops,
+                    extraStopsWithin2km: data.tier === "<2km" ? data.stops : 0,
+                    extraStopsOver2km: data.tier === "2-5km" ? data.stops : 0,
                     additionalStopAddress: data.address,
+                    additionalStopDistanceTier: data.tier,
                   });
                 }}
               />

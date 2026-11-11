@@ -36,7 +36,7 @@ export default function AddOnDropdown({ onSelect, activeIds }: AddOnDropdownProp
   const dynamicOptions: AddOnOption[] = [
     { id: "meet-greet", name: "Meet & Greet service", priceNote: `+$${meetGreetPrice}` },
     { id: "baby-seat", name: "Baby Seat", priceNote: `+$${babySeatPrice}` },
-    { id: "additional-stops", name: "Additional Stops", priceNote: `From +$${stopPrice}` },
+    { id: "additional-stops", name: "Additional Stops", priceNote: `From +$10 (<2km: $10, 2-5km: $15)` },
     { id: "wheelchair", name: "Wheelchair Accessible", priceNote: "Available" },
   ];
 

@@ -7,6 +7,8 @@ export interface BookingServiceContext {
   pickup?: string;
   dropoff?: string;
   durationHours?: number;
+  wheelchairAccessible?: boolean;
+  wheelchairCount?: number;
 }
 
 /**

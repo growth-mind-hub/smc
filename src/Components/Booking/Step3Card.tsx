@@ -129,8 +129,27 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
   const duration = bookingData.durationHours || 3;
 
   const quoteRoute = quote && "quote" in quote ? quote.quote?.route : null;
-  const displayPickup = bookingData.pickup || quoteRoute?.pickup || "—";
-  const displayDropoff = bookingData.dropoff || quoteRoute?.drop || (isHourly ? "As-Directed City Tour" : "—");
+  const isCityTour = bookingData.serviceType.toLowerCase().includes("tour");
+  const isAirport = !isCityTour && !isHourly && (bookingData.serviceType.toLowerCase().includes("airport") || bookingData.serviceType.toLowerCase().includes("arrival"));
+
+  const fallbackPickup = isAirport
+    ? "Singapore Changi Airport (T1-T4)"
+    : isHourly
+    ? "Hotel Grand Pacific Singapore"
+    : isCityTour
+    ? "Marina Bay Sands Foyer"
+    : "Marina Bay Financial Centre";
+
+  const fallbackDropoff = isHourly
+    ? "As-Directed City Tour"
+    : isAirport
+    ? "Marina Bay Sands Hotel"
+    : isCityTour
+    ? "Sentosa / Gardens by the Bay"
+    : "Orchard Road Shopping District";
+
+  const displayPickup = bookingData.pickup || quoteRoute?.pickup || fallbackPickup;
+  const displayDropoff = bookingData.dropoff || quoteRoute?.drop || fallbackDropoff;
 
   // Selected vehicle object from API catalog to guarantee exact fare consistency with Step 2 listing
   const selectedVehicleObj = vehicles?.find(
@@ -242,15 +261,30 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
     const stops = bookingData.additionalStopsCount || bookingData.extraStopsWithin2km || 0;
     if (stops > 0) {
-      const amt = stopPrice * stops;
+      const tier = bookingData.additionalStopDistanceTier || "<2km";
+      let amt = 0;
+      let amtText = "";
+      let tierLabel = "< 2 km";
+      if (tier === "<2km") {
+        amt = 10 * stops;
+        amtText = `+$${amt}.00`;
+        tierLabel = "< 2 km (+$10/stop)";
+      } else if (tier === "2-5km") {
+        amt = 15 * stops;
+        amtText = `+$${amt}.00`;
+        tierLabel = "2–5 km (+$15/stop)";
+      } else {
+        amt = 0;
+        amtText = "Enquiry (WhatsApp)";
+        tierLabel = "Above 5 km (Please enquire)";
+      }
+
       selectedAddOnsList.push({
         id: "additional-stops",
         title: `Additional Stop${stops > 1 ? "s" : ""} (${stops} stop${stops > 1 ? "s" : ""})`,
-        subtitle: bookingData.additionalStopAddress
-          ? `Via: ${bookingData.additionalStopAddress}`
-          : "En-route additional passenger pick-up / drop-off",
+        subtitle: `${tierLabel}${bookingData.additionalStopAddress ? ` • Via: ${bookingData.additionalStopAddress}` : ""}`,
         amount: amt,
-        amountText: `+$${amt}.00`,
+        amountText: amtText,
       });
     }
 

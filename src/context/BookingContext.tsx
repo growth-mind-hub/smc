@@ -54,6 +54,7 @@ export interface BookingData {
   extraStopsWithin2km?: number;
   extraStopsOver2km?: number;
   additionalStopsCount?: number;
+  additionalStopDistanceTier?: "<2km" | "2-5km" | ">5km";
   additionalStopAddress?: string;
   wheelchairAccessible?: boolean;
   wheelchairCount?: number;
@@ -108,8 +109,8 @@ const defaultBookingData: BookingData = {
   serviceId: 1,
   serviceCode: "arrival",
   serviceType: "Airport Transfer",
-  pickup: "",
-  dropoff: "",
+  pickup: "Singapore Changi Airport (T1-T4)",
+  dropoff: "Marina Bay Sands Hotel",
   passengers: 7,
   luggage: 5,
   meetAndGreet: false,
@@ -127,6 +128,9 @@ const defaultBookingData: BookingData = {
   nightTravel: false,
   extraStopsWithin2km: 0,
   extraStopsOver2km: 0,
+  additionalStopsCount: 0,
+  additionalStopDistanceTier: "<2km",
+  additionalStopAddress: "",
   specialRequests: "",
   name: "",
   phone: "",
@@ -360,11 +364,14 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
       list.push({ add_on_id: nightTravelAddOn?.id || 1, quantity: 1 });
     }
     const stopsCount = bookingData.additionalStopsCount || bookingData.extraStopsWithin2km || 0;
+    const stopTier = bookingData.additionalStopDistanceTier || "<2km";
     if (stopsCount > 0) {
-      list.push({ add_on_id: stopWithin2km?.id || 4, quantity: stopsCount });
-    }
-    if (bookingData.extraStopsOver2km && bookingData.extraStopsOver2km > 0) {
-      list.push({ add_on_id: stopOver2km?.id || 5, quantity: bookingData.extraStopsOver2km });
+      if (stopTier === "<2km") {
+        list.push({ add_on_id: stopWithin2km?.id || 4, quantity: stopsCount });
+      } else if (stopTier === "2-5km") {
+        list.push({ add_on_id: stopOver2km?.id || 5, quantity: stopsCount });
+      }
+      // >5km: requires special enquiry/quote, not billed as standard online add-on
     }
 
     return list;
@@ -524,11 +531,16 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
       addOnsAmt += babySeatPrice * (bookingData.babySeatsCount || 1);
     }
     const stops = bookingData.additionalStopsCount || bookingData.extraStopsWithin2km || 0;
+    const stopTier = bookingData.additionalStopDistanceTier || "<2km";
     if (stops > 0) {
-      addOnsAmt += stopWithin2kmPrice * stops;
-    }
-    if (bookingData.extraStopsOver2km && bookingData.extraStopsOver2km > 0) {
-      addOnsAmt += stopOver2kmPrice * bookingData.extraStopsOver2km;
+      if (stopTier === "<2km") {
+        addOnsAmt += stopWithin2kmPrice * stops;
+      } else if (stopTier === "2-5km") {
+        addOnsAmt += 15 * stops;
+      } else {
+        // >5km: Enquiry via WhatsApp, no automated charge applied
+        addOnsAmt += 0;
+      }
     }
     if (bookingData.nightTravel || isNightPickup) {
       addOnsAmt += nightTravelPrice;
