@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, ArrowRight, Check, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { useBookingModal } from "@/context/BookingContext";
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
 import { findMatchingApiVehicle, getVehicleImage } from "@/lib/fleetResolver";
@@ -112,12 +112,6 @@ export default function FleetDetailTemplate({ vehicle }: { vehicle: VehicleDetai
                 <span className="text-base sm:text-lg font-bold text-[#C6A45A] tracking-wide font-manrope">
                   Our Fleet
                 </span>
-                {vehicle.isApiConnected && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-[#16803C]/20 text-[#60D669] border border-[#16803C]/40">
-                    <Zap className="w-3 h-3" />
-                    <span>Live API Rates</span>
-                  </span>
-                )}
               </div>
 
               <h1 className="text-4xl sm:text-6xl font-bold text-white tracking-tight leading-[1.15] font-manrope">
