@@ -298,21 +298,20 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
 
   const openModal = (options?: BookingModalOptions) => {
     if (options) {
-      setBookingData({
-        ...defaultBookingData,
-        serviceType: options.serviceType || defaultBookingData.serviceType,
-        vehicleId: options.vehicleId ?? defaultBookingData.vehicleId,
-        serviceId: options.serviceId ?? defaultBookingData.serviceId,
-        selectedFleet: options.selectedFleet || defaultBookingData.selectedFleet,
-        selectedFleetSlug: options.selectedFleetSlug || defaultBookingData.selectedFleetSlug,
-        baseFare: options.baseFare ?? defaultBookingData.baseFare,
-        pickup: options.pickup ?? "",
-        dropoff: options.dropoff ?? "",
-        durationHours: options.durationHours ?? defaultBookingData.durationHours,
-      });
+      setBookingData((prev) => ({
+        ...prev,
+        ...(options.serviceType ? { serviceType: options.serviceType } : {}),
+        ...(options.vehicleId !== undefined ? { vehicleId: options.vehicleId } : {}),
+        ...(options.serviceId !== undefined ? { serviceId: options.serviceId } : {}),
+        ...(options.selectedFleet ? { selectedFleet: options.selectedFleet } : {}),
+        ...(options.selectedFleetSlug ? { selectedFleetSlug: options.selectedFleetSlug } : {}),
+        ...(options.baseFare !== undefined ? { baseFare: options.baseFare } : {}),
+        ...(options.pickup !== undefined && options.pickup !== "" ? { pickup: options.pickup } : {}),
+        ...(options.dropoff !== undefined && options.dropoff !== "" ? { dropoff: options.dropoff } : {}),
+        ...(options.durationHours !== undefined ? { durationHours: options.durationHours } : {}),
+      }));
       setStep(options.initialStep ?? 1);
     } else {
-      setBookingData(defaultBookingData);
       setStep(1);
     }
     setQuote(null);
@@ -323,11 +322,6 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setBookingData(defaultBookingData);
-    setQuote(null);
-    setQuoteError(null);
-    setCheckoutError(null);
-    setStep(1);
   };
 
   const updateBookingData = (data: Partial<BookingData>) => {

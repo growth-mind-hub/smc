@@ -128,6 +128,10 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
   const isHourly = bookingData.serviceType.toLowerCase().includes("hourly");
   const duration = bookingData.durationHours || 3;
 
+  const quoteRoute = quote && "quote" in quote ? quote.quote?.route : null;
+  const displayPickup = bookingData.pickup || quoteRoute?.pickup || "—";
+  const displayDropoff = bookingData.dropoff || quoteRoute?.drop || (isHourly ? "As-Directed City Tour" : "—");
+
   // Selected vehicle object from API catalog to guarantee exact fare consistency with Step 2 listing
   const selectedVehicleObj = vehicles?.find(
     (v) => v.id === bookingData.vehicleId || resolveSlugFromApiVehicle(v) === bookingData.selectedFleetSlug
@@ -309,10 +313,10 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         `*Service:* ${bookingData.serviceType}%0A` +
         (isHourly ? `*Duration:* ${duration} Hours%0A` : "") +
         `*Vehicle:* ${bookingData.selectedFleet || "7-Seater Maxi Cab"}%0A` +
-        `*Pickup:* ${bookingData.pickup || "—"}%0A` +
+        `*Pickup:* ${displayPickup}%0A` +
         (!isHourly
-          ? `*Dropoff:* ${bookingData.dropoff || "—"}%0A`
-          : `*Dropoff / Scope:* ${bookingData.dropoff || (isHourly ? "As-Directed City Tour" : "—")}%0A`) +
+          ? `*Dropoff:* ${displayDropoff}%0A`
+          : `*Dropoff / Scope:* ${displayDropoff}%0A`) +
         `*Date & Time:* ${bookingData.pickupDate || "—"}${bookingData.pickupTime ? ` at ${bookingData.pickupTime} SGT` : ""}%0A` +
         `*Pax:* ${bookingData.passengers || 7} | *Luggage:* ${bookingData.luggage || 5} Bags%0A` +
         `*Passenger Name:* ${bookingData.name || "Customer"}%0A` +
@@ -341,10 +345,10 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         `*Service:* ${bookingData.serviceType}%0A` +
         (isHourly ? `*Duration:* ${duration} Hours%0A` : "") +
         `*Vehicle:* ${bookingData.selectedFleet || "7-Seater Maxi Cab"}%0A` +
-        `*Pickup Location:* ${bookingData.pickup || "—"}%0A` +
+        `*Pickup Location:* ${displayPickup}%0A` +
         (!isHourly
-          ? `*Dropoff Location:* ${bookingData.dropoff || "—"}%0A`
-          : `*Dropoff / Charter Scope:* ${bookingData.dropoff || (isHourly ? "As-Directed City Tour" : "—")}%0A`) +
+          ? `*Dropoff Location:* ${displayDropoff}%0A`
+          : `*Dropoff / Charter Scope:* ${displayDropoff}%0A`) +
         `*Date & Time:* ${bookingData.pickupDate || "—"}${bookingData.pickupTime ? ` at ${bookingData.pickupTime} SGT` : ""}%0A` +
         `*Passengers:* ${bookingData.passengers || 7} Pax | *Luggage:* ${bookingData.luggage || 5} Bags%0A` +
         `*Passenger Name:* ${bookingData.name || "Customer"}%0A` +
@@ -375,8 +379,8 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         `*Customized Route Quotation Request*%0A` +
         `--------------------------------%0A` +
         `*Service:* ${bookingData.serviceType}%0A` +
-        `*Pickup:* ${bookingData.pickup}%0A` +
-        `*Dropoff:* ${bookingData.dropoff}%0A` +
+        `*Pickup:* ${displayPickup}%0A` +
+        `*Dropoff:* ${displayDropoff}%0A` +
         `*Vehicle:* ${bookingData.selectedFleet || "7-Seater Maxi Cab"}%0A` +
         `*Pax:* ${bookingData.passengers} | *Luggage:* ${bookingData.luggage}%0A` +
         `*Contact:* ${bookingData.name} (${bookingData.countryCode} ${bookingData.phone})%0A` +
@@ -646,7 +650,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               )}
             </div>
             <div className="text-[#071E3B] text-base font-bold font-manrope leading-snug sm:leading-7 break-words">
-              {bookingData.pickup || "—"}
+              {displayPickup}
             </div>
             {(bookingData.flightNumber || bookingData.flightNo) ? (
               <div className="text-[#667085] text-xs sm:text-sm font-normal font-manrope leading-5">
@@ -661,7 +665,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               Destination
             </span>
             <div className="text-[#071E3B] text-base font-bold font-manrope leading-snug sm:leading-7 break-words">
-              {bookingData.dropoff || (isHourly ? "As-Directed City Tour" : "—")}
+              {displayDropoff}
             </div>
             {isHourly && (
               <div className="text-[#667085] text-xs sm:text-sm font-normal font-manrope leading-5">

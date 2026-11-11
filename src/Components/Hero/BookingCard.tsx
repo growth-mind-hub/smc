@@ -79,7 +79,16 @@ export default function BookingCard() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    openModal({ initialStep: 2 });
+    openModal({
+      initialStep: 2,
+      pickup: bookingData.pickup,
+      dropoff: bookingData.dropoff,
+      selectedFleet: bookingData.selectedFleet,
+      selectedFleetSlug: bookingData.selectedFleetSlug,
+      baseFare: bookingData.baseFare,
+      vehicleId: bookingData.vehicleId,
+      durationHours: bookingData.durationHours,
+    });
   };
 
   return (

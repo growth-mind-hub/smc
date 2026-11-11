@@ -51,16 +51,16 @@ export default function CommonServiceSelectionModal() {
     fleet: string;
     slug: string;
     fare: number;
-    pickup: string;
-    dropoff: string;
+    pickup?: string;
+    dropoff?: string;
   }) => {
     updateBookingData({
       serviceType: service.title,
       selectedFleet: service.fleet,
       selectedFleetSlug: service.slug,
       baseFare: service.fare,
-      pickup: service.pickup,
-      dropoff: service.dropoff,
+      ...(service.pickup ? { pickup: service.pickup } : {}),
+      ...(service.dropoff ? { dropoff: service.dropoff } : {}),
     });
     setStep(1);
   };
