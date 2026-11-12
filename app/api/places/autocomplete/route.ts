@@ -313,10 +313,12 @@ export async function POST(request: NextRequest) {
             headers: {
               "Content-Type": "application/json",
               "X-Goog-Api-Key": apiKey.trim(),
+              "X-Goog-FieldMask": "*",
             },
             body: JSON.stringify({
               input,
               includedRegionCodes,
+              languageCode: "en",
             }),
             cache: "no-store",
           }
@@ -398,10 +400,12 @@ export async function GET(request: NextRequest) {
           headers: {
             "Content-Type": "application/json",
             "X-Goog-Api-Key": apiKey.trim(),
+            "X-Goog-FieldMask": "*",
           },
           body: JSON.stringify({
             input,
             includedRegionCodes: [region],
+            languageCode: "en",
           }),
           cache: "no-store",
         }

@@ -473,6 +473,7 @@ export interface GooglePlaceSuggestion {
 export interface GooglePlacesAutocompleteRequest {
   input: string;
   includedRegionCodes?: string[];
+  languageCode?: string;
 }
 
 export interface GooglePlacesAutocompleteResponse {
