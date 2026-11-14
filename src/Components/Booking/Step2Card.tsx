@@ -65,7 +65,6 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
       const updates: Partial<typeof bookingData> = { selectedAddOnIds: next };
       if (id === "meet-greet") {
         updates.meetAndGreet = true;
-        updates.meetGreetPax = bookingData.meetGreetPax || 1;
       } else if (id === "baby-seat") {
         updates.babySeat = true;
         updates.babySeatsCount = bookingData.babySeatsCount || 1;
@@ -88,7 +87,6 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
     const updates: Partial<typeof bookingData> = { selectedAddOnIds: next };
     if (id === "meet-greet") {
       updates.meetAndGreet = false;
-      updates.meetGreetPax = 0;
     } else if (id === "baby-seat") {
       updates.babySeat = false;
       updates.babySeatsCount = 0;
@@ -254,8 +252,8 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
             {selectedAddOnIds.includes("meet-greet") && (
               <MeetAndGreetField
                 onRemove={() => handleRemoveAddOn("meet-greet")}
-                onChange={(data) => {
-                  updateBookingData({ meetAndGreet: true, meetGreetPax: data.passengers });
+                onChange={() => {
+                  updateBookingData({ meetAndGreet: true });
                 }}
               />
             )}

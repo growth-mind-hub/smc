@@ -187,7 +187,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       if (item.code === "BABY_SEAT") {
         details = `${item.quantity} ${bookingData.babySeatType || "Toddler"} seat${item.quantity > 1 ? "s" : ""}${bookingData.babySeatAge ? ` (${bookingData.babySeatAge})` : ""}`;
       } else if (item.code === "MEET_GREET") {
-        details = `${bookingData.meetGreetPax || item.quantity} Pax Arrival Meet & Greet with signage`;
+        details = "Arrival Meet & Greet with personalized signboard (60m grace period)";
       } else if (item.code === "NIGHT_TRAVEL" || item.code.includes("NIGHT")) {
         details = "Late-Night Transfer Surcharge (10:00 PM – 6:00 AM)";
       } else if (item.code.includes("STOP")) {
@@ -234,14 +234,12 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
     const stopPrice = stopItem?.price ?? 10;
 
     if (bookingData.meetAndGreet) {
-      const pax = bookingData.meetGreetPax || 1;
-      const amt = meetGreetPrice * pax;
       selectedAddOnsList.push({
         id: "meet-greet",
         title: "Meet & Greet Service",
-        subtitle: `${pax} Pax arrival meetpoint greeting with signboard banner`,
-        amount: amt,
-        amountText: `+$${amt}.00`,
+        subtitle: "Arrival meetpoint greeting with personalized signboard (60m buffer)",
+        amount: meetGreetPrice,
+        amountText: `+$${meetGreetPrice}.00`,
       });
     }
 

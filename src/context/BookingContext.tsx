@@ -354,7 +354,7 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
     const stopOver2km = addOns.find((a) => a.code === "STOP_OVER_2KM");
 
     if (bookingData.meetAndGreet) {
-      list.push({ add_on_id: meetGreetAddOn?.id || 2, quantity: bookingData.meetGreetPax || 1 });
+      list.push({ add_on_id: meetGreetAddOn?.id || 2, quantity: 1 });
     }
     if (bookingData.babySeat) {
       list.push({ add_on_id: babySeatAddOn?.id || 3, quantity: bookingData.babySeatsCount || 1 });
@@ -525,7 +525,7 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
     const stopOver2kmPrice = stopOver2kmItem ? stopOver2kmItem.price : 20;
 
     if (bookingData.meetAndGreet) {
-      addOnsAmt += meetGreetPrice * (bookingData.meetGreetPax || 1);
+      addOnsAmt += meetGreetPrice;
     }
     if (bookingData.babySeat) {
       addOnsAmt += babySeatPrice * (bookingData.babySeatsCount || 1);
