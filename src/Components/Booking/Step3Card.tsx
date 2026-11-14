@@ -840,7 +840,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                 <span className="text-zinc-600 text-xs font-normal font-manrope leading-4 mt-0.5">
                   {isHourly
                     ? `${duration} hours dedicated chauffeur @ $${hourlyRate}/hr`
-                    : "Includes terminal meet & greet, toll systems, and driver dispatch"}
+                    : "Includes arrival driveway pickup, toll systems, and driver dispatch"}
                 </span>
               </div>
               <div className="text-right shrink-0 flex flex-col items-end">
@@ -914,7 +914,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                 </div>
                 <div className="flex-1 min-w-[130px] sm:min-w-0 p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-col justify-between items-start gap-1 h-full min-h-[64px] sm:min-h-[70px]">
                   <span className="text-[#5F6B7A] text-xs font-medium font-manrope">
-                    Meet &amp; Greet + 60m Wait
+                    {bookingData.meetAndGreet ? "Meet & Greet + 60m Wait" : "Driveway Pickup + 60m"}
                   </span>
                   <span className="text-[#8A5A00] text-xs font-bold font-manrope">
                     INCLUDED ($0)

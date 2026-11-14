@@ -32,6 +32,16 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  icons: {
+    icon: [
+      { url: "/favicon.ico?v=2", sizes: "any" },
+      { url: "/app-icon.png?v=2", type: "image/png" },
+    ],
+    apple: [
+      { url: "/app-icon.png?v=2", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: ["/favicon.ico?v=2"],
+  },
   openGraph: {
     title: "Singapore Maxicabs | Premium Maxi Cab & Luxury Chauffeur Service",
     description:
@@ -40,10 +50,10 @@ export const metadata: Metadata = {
     siteName: "Singapore Maxicabs",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/logo.jpeg",
         width: 1200,
-        height: 630,
-        alt: "Singapore Maxicabs Premium Fleet",
+        height: 1200,
+        alt: "Singapore Maxicabs Logo",
       },
     ],
     locale: "en_SG",
@@ -54,7 +64,7 @@ export const metadata: Metadata = {
     title: "Singapore Maxicabs | Premium Maxi Cab & Luxury Chauffeur Service",
     description:
       "Book Singapore's premium maxi cab service. Comfortable rides, fixed flat-rate fares, and reliable airport transfers.",
-    images: ["/og-image.jpg"],
+    images: ["/logo.jpeg"],
     creator: "@singaporemaxicabs",
   },
   robots: {
@@ -89,7 +99,8 @@ export default function RootLayout({
     "@context": "https://schema.org",
     "@type": "TaxiService",
     name: "Singapore Maxicabs",
-    image: "https://www.singaporemaxicabs.com.sg/og-image.jpg",
+    image: "https://www.singaporemaxicabs.com.sg/logo.jpeg",
+    logo: "https://www.singaporemaxicabs.com.sg/app-icon.png",
     "@id": "https://www.singaporemaxicabs.com.sg",
     url: "https://www.singaporemaxicabs.com.sg",
     telephone: "+6591234567",
@@ -128,6 +139,11 @@ export default function RootLayout({
       lang="en"
       className={`${manrope.variable} ${inter.variable} ${playfair.variable} scroll-smooth antialiased`}
     >
+      <head>
+        <link rel="icon" href="/favicon.ico?v=2" sizes="any" />
+        <link rel="icon" href="/app-icon.png?v=2" type="image/png" />
+        <link rel="apple-touch-icon" href="/app-icon.png?v=2" />
+      </head>
       <body className="min-h-screen flex flex-col font-sans bg-white text-[#071E3B] pb-16 md:pb-0">
         <script
           type="application/ld+json"

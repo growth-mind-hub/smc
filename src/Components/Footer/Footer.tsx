@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Phone } from "lucide-react";
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
 
@@ -65,13 +66,22 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 sm:gap-10">
           {/* Brand Info Column (Span 2) */}
           <div className="lg:col-span-2 flex flex-col items-start gap-4">
-            <Link href="/" className="flex flex-col items-start">
-              <span className="text-xs sm:text-sm font-extrabold text-[#071E3B] uppercase tracking-[2px] sm:tracking-[2.64px] font-manrope">
-                {footerData.brand.name}
-              </span>
-              <span className="text-[10px] text-[#C6A45A] font-semibold uppercase tracking-wider">
-                Premium Transport Service
-              </span>
+            <Link href="/" className="flex items-center gap-3 group">
+              <Image
+                src="/app-icon.png"
+                alt="Singapore Maxicabs"
+                width={48}
+                height={48}
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain shrink-0 group-hover:scale-105 transition-transform"
+              />
+              <div className="flex flex-col items-start">
+                <span className="text-xs sm:text-sm font-extrabold text-[#071E3B] uppercase tracking-[2px] sm:tracking-[2.64px] font-manrope leading-tight">
+                  {footerData.brand.name}
+                </span>
+                <span className="text-[10px] text-[#C6A45A] font-semibold uppercase tracking-wider">
+                  Your Preferred Chauffeurs
+                </span>
+              </div>
             </Link>
 
             <p className="text-xs sm:text-sm font-normal text-[#667085] font-manrope leading-relaxed max-w-sm">

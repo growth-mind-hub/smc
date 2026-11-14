@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import navData from "@/data/navigation.json";
 import { ArrowRight, Menu, X, Phone, ShieldCheck, ChevronDown } from "lucide-react";
 import { useBookingModal } from "@/context/BookingContext";
@@ -37,13 +38,23 @@ export default function Navbar() {
     <header className="sticky top-0 z-40 w-full h-16 sm:h-20 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all">
       <div className="max-w-[1440px] mx-auto h-full px-4 sm:px-8 lg:px-12 flex items-center justify-between">
         {/* Brand Logo */}
-        <Link href="/" className="flex flex-col items-start group">
-          <span className="text-xs sm:text-[13px] font-extrabold text-[#071E3B] uppercase tracking-[2px] sm:tracking-[2.64px] font-manrope">
-            {navData.brand.name}
-          </span>
-          <span className="text-[9px] sm:text-[10px] text-[#C6A45A] tracking-wider uppercase font-semibold">
-            Premium Transport
-          </span>
+        <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group">
+          <Image
+            src="/app-icon.png"
+            alt="Singapore Maxicabs"
+            width={48}
+            height={48}
+            className="w-9 h-9 sm:w-11 sm:h-11 object-contain shrink-0 group-hover:scale-105 transition-transform"
+            priority
+          />
+          <div className="flex flex-col items-start">
+            <span className="text-xs sm:text-[13px] font-extrabold text-[#071E3B] uppercase tracking-[1.5px] sm:tracking-[2.2px] font-manrope leading-tight">
+              {navData.brand.name}
+            </span>
+            <span className="text-[9px] sm:text-[10px] text-[#C6A45A] tracking-wider uppercase font-semibold">
+              Your Preferred Chauffeurs
+            </span>
+          </div>
         </Link>
 
         {/* Center Desktop Links */}

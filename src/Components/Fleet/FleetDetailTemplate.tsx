@@ -22,6 +22,7 @@ export interface VehicleDetail {
   bags: string;
   pointToPoint: string;
   meetAndGreet: string;
+  arrivalDrivewayPickup?: string;
   charter3h: string;
   charter8h: string;
   vehicleType: string;
@@ -83,7 +84,7 @@ export default function FleetDetailTemplate({ vehicle }: { vehicle: VehicleDetai
   const specs = [
     { label: "Passengers", value: vehicle.pax },
     { label: "Luggage", value: vehicle.bags },
-    { label: "Changi Meet & Greet", value: vehicle.meetAndGreet },
+    { label: "Arrival Driveway Pickup", value: vehicle.arrivalDrivewayPickup || vehicle.meetAndGreet },
     { label: "3-Hour Charter", value: liveCharter3h },
     { label: "8-Hour Charter", value: liveCharter8h },
     { label: "Vehicle Type", value: vehicle.vehicleType },

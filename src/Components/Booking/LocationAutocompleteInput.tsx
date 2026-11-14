@@ -112,7 +112,7 @@ export default function LocationAutocompleteInput({
     }
   }, [suggestions.length]);
 
-  // 2000ms Debounced input watcher
+  // 250ms Debounced input watcher for snappy Google Places autocomplete
   useEffect(() => {
     if (isSelectingRef.current) {
       isSelectingRef.current = false;
@@ -123,7 +123,7 @@ export default function LocationAutocompleteInput({
       if (document.activeElement === inputRef.current) {
         fetchSuggestions(inputValue);
       }
-    }, 2000);
+    }, 250);
 
     return () => clearTimeout(timer);
   }, [inputValue, fetchSuggestions]);

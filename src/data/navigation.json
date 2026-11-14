@@ -1,7 +1,9 @@
 {
   "brand": {
     "name": "SINGAPORE MAXICABS",
-    "sub": "Logo",
+    "sub": "Your Preferred Chauffeurs",
+    "logo": "/logo.jpeg",
+    "icon": "/app-icon.png",
     "phone": "(+65) 8800 6006",
     "whatsapp": "+6588006006",
     "email": "booking@singaporemaxicabs.com.sg"

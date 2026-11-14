@@ -37,7 +37,7 @@ export default function FleetCardSkeleton() {
               <div className="h-3.5 bg-[#16365C] rounded w-20" />
             </div>
 
-            {/* Row 2: Changi Meet & Greet */}
+            {/* Row 2: Arrival Driveway Pickup */}
             <div className="flex items-center justify-between">
               <div className="h-3.5 bg-[#16365C] rounded w-32" />
               <div className="h-4 bg-[#C6A45A]/30 rounded w-16" />

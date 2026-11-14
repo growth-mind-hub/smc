@@ -31,7 +31,7 @@
         "WhatsApp driver direct line"
       ],
       "extras": [
-        { "label": "Changi Meet & Greet", "price": "$95" },
+        { "label": "Arrival Driveway Pickup", "price": "$95" },
         { "label": "3-Hour Charter", "price": "$210" }
       ],
       "buttonText": "Reserve E-Class",
@@ -65,7 +65,7 @@
         "Discreet, non-intrusive diplomatic service"
       ],
       "extras": [
-        { "label": "Changi Meet & Greet", "price": "$180" },
+        { "label": "Arrival Driveway Pickup", "price": "$180" },
         { "label": "3-Hour Charter", "price": "$380" }
       ],
       "buttonText": "Reserve S-Class",
@@ -98,7 +98,7 @@
         "WhatsApp driver contact"
       ],
       "extras": [
-        { "label": "Changi Meet & Greet", "price": "$80" },
+        { "label": "Arrival Driveway Pickup", "price": "$80" },
         { "label": "3-Hour Charter", "price": "$180" }
       ],
       "buttonText": "Reserve 6-Seater",
@@ -131,7 +131,7 @@
         "WhatsApp driver contact"
       ],
       "extras": [
-        { "label": "Changi Meet & Greet", "price": "$80" },
+        { "label": "Arrival Driveway Pickup", "price": "$80" },
         { "label": "3-Hour Charter", "price": "$180" }
       ],
       "buttonText": "Reserve 7-Seater",
@@ -164,7 +164,7 @@
         "WhatsApp driver contact"
       ],
       "extras": [
-        { "label": "Changi Meet & Greet", "price": "$80" },
+        { "label": "Arrival Driveway Pickup", "price": "$80" },
         { "label": "3-Hour Charter", "price": "$200" }
       ],
       "buttonText": "Reserve 9-Seater",
@@ -197,7 +197,7 @@
         "WhatsApp driver contact"
       ],
       "extras": [
-        { "label": "Changi Meet & Greet", "price": "$85" },
+        { "label": "Arrival Driveway Pickup", "price": "$85" },
         { "label": "3-Hour Charter", "price": "$220" }
       ],
       "buttonText": "Reserve 13-Seater",
@@ -298,7 +298,7 @@
         "WhatsApp chauffeur contact"
       ],
       "extras": [
-        { "label": "Changi Meet & Greet", "price": "$95" },
+        { "label": "Arrival Driveway Pickup", "price": "$95" },
         { "label": "3-Hour Charter", "price": "$210" }
       ],
       "buttonText": "Reserve E-Class",
@@ -332,7 +332,7 @@
         "Discreet, non-intrusive protocol"
       ],
       "extras": [
-        { "label": "Changi Meet & Greet", "price": "$180" },
+        { "label": "Arrival Driveway Pickup", "price": "$180" },
         { "label": "3-Hour Charter", "price": "$380" }
       ],
       "buttonText": "Reserve S-Class",
@@ -366,7 +366,7 @@
         "Direct dispatch coordinator contact"
       ],
       "extras": [
-        { "label": "Changi Meet & Greet", "price": "$150" },
+        { "label": "Arrival Driveway Pickup", "price": "$150" },
         { "label": "3-Hour Charter", "price": "$330" }
       ],
       "buttonText": "Reserve 23-Seater",

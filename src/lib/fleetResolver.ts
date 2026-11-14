@@ -190,6 +190,7 @@ export function transformApiVehicleToCard(v: VehicleCard, defaultFallback?: Vehi
     badge: v.recommendation ? "Recommended" : localMatch?.badge,
     image: getVehicleImage(v, localMatch?.image),
     meetAndGreet: meetAndGreetStr,
+    arrivalDrivewayPickup: meetAndGreetStr,
     charter3h: charter3hStr,
     buttonText: `Reserve ${v.name.split(" ")[0]}`,
   };
@@ -480,6 +481,7 @@ export async function resolveVehicle(rawSlug: string): Promise<VehicleDetail | n
     bags: bagsStr,
     pointToPoint: pointToPointStr,
     meetAndGreet: meetAndGreetStr,
+    arrivalDrivewayPickup: meetAndGreetStr,
     charter3h: charter3hStr,
     charter8h: charter8hStr,
     vehicleType: vehicleTypeStr,

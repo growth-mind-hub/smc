@@ -259,10 +259,9 @@ export default function CityTourCard({ isModal = true }: CityTourCardProps) {
           </div>
 
           {/* Luggage */}
-          <div className="px-2.5 sm:px-3 py-2 sm:py-2.5 bg-[#F8F7F4] rounded-lg border border-slate-200/90 flex justify-between items-center">
-            <span className="text-[#5F6B7A] text-xs font-semibold font-manrope leading-4">
-              <span className="hidden sm:inline">Luggage</span>
-              <span className="sm:hidden">Lug</span>
+          <div className="px-3 py-2 sm:py-2.5 bg-[#F8F7F4] rounded-lg border border-slate-200/90 flex justify-between items-center gap-2">
+            <span className="text-[#5F6B7A] text-xs font-semibold font-manrope leading-4 shrink-0 pr-1">
+              Luggage
             </span>
             <div className="flex items-center gap-1.5 sm:gap-2">
               <button

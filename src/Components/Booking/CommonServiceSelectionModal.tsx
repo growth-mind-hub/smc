@@ -59,8 +59,8 @@ export default function CommonServiceSelectionModal() {
       selectedFleet: service.fleet,
       selectedFleetSlug: service.slug,
       baseFare: service.fare,
-      pickup: bookingData.pickup || service.pickup || "Singapore Changi Airport (T1-T4)",
-      dropoff: bookingData.dropoff || service.dropoff || "Marina Bay Sands Hotel",
+      pickup: bookingData.pickup || "",
+      dropoff: bookingData.dropoff || "",
     });
     setStep(1);
   };
@@ -78,8 +78,6 @@ export default function CommonServiceSelectionModal() {
       description: `Changi Airport meet & greet (+$${meetGreetPrice}) with flight tracking & 60-min terminal grace period. Fixed rates from $${minAirportFare}.`,
       tags: [`Meet & Greet (+$${meetGreetPrice})`, "60m Grace", "Flight Monitored"],
       icon: <Plane className="w-3.5 h-3.5 text-[#C6A45A]" strokeWidth={1.5} />,
-      pickup: "Singapore Changi Airport (T1-T4)",
-      dropoff: "Marina Bay Sands Hotel",
       bgImage: "/images/Home/what_are_you_booking.png",
     },
     {
@@ -94,8 +92,6 @@ export default function CommonServiceSelectionModal() {
       description: `Dedicated chauffeur at your disposal, flexible itinerary, 3 hr minimum. From $${minHourlyRate}/hr.`,
       tags: ["3h Minimum", "Unlimited Stops", "On-Standby"],
       icon: <Clock className="w-3.5 h-3.5 text-[#C6A45A]" />,
-      pickup: "Hotel Grand Pacific Singapore",
-      dropoff: "As-Directed City Tour",
       bgImage: "/images/Home/what_are_you_booking.png",
     },
     {
@@ -110,8 +106,6 @@ export default function CommonServiceSelectionModal() {
       description: `Effortless hotel, office, and point-to-point journeys across Singapore. Fixed rates from $${minCityFare}.`,
       tags: ["Direct Route", "Zero Surge", "Luggage Assist"],
       icon: <Car className="w-3.5 h-3.5 text-[#C6A45A]" />,
-      pickup: "Marina Bay Financial Centre",
-      dropoff: "Orchard Road Shopping District",
       bgImage: "/images/Home/what_are_you_booking.png",
     },
     {
@@ -126,8 +120,6 @@ export default function CommonServiceSelectionModal() {
       description: `Customized island tour, Marina Bay, Sentosa, cultural landmarks. From $${minCityTourFare}.`,
       tags: ["Full Day Options", "Bespoke Route", "Local Guide"],
       icon: <MapPin className="w-3.5 h-3.5 text-[#C6A45A]" />,
-      pickup: "Marina Bay Sands Foyer",
-      dropoff: "Sentosa / Gardens by the Bay",
       bgImage: "/images/Home/what_are_you_booking.png",
     },
   ];

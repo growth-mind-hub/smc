@@ -252,8 +252,8 @@ export async function getPlacesAutocomplete(
   includedRegionCodes: string[] = ["sg"],
   options?: RequestOptions
 ): Promise<GooglePlacesAutocompleteResponse> {
-  const cleanInput = (input || "").toLowerCase().trim();
-  const cacheKey = `${cleanInput}_${includedRegionCodes.sort().join(",")}`;
+  const cleanInput = (input || "").trim();
+  const cacheKey = `${cleanInput.toLowerCase()}_${includedRegionCodes.sort().join(",")}`;
 
   // Check client memory cache first
   if (clientPlacesCache.has(cacheKey)) {
@@ -269,6 +269,7 @@ export async function getPlacesAutocomplete(
       body: JSON.stringify({
         input: cleanInput,
         includedRegionCodes,
+        languageCode: "en",
       }),
       signal: options?.signal,
     });

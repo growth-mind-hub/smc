@@ -22,6 +22,7 @@ export interface Vehicle {
   badge?: string;
   image?: string;
   meetAndGreet?: string;
+  arrivalDrivewayPickup?: string;
   charter3h?: string;
   specsRow1Label?: string;
   specsRow1Value?: string;
@@ -50,9 +51,9 @@ export default function FleetCard({ vehicle }: { vehicle: Vehicle }) {
   const row1Label = vehicle.specsRow1Label || "Passenger / Bags";
   const row1Value = vehicle.specsRow1Value || `${vehicle.pax} • ${vehicle.bags}`;
 
-  // Row 2: Changi Meet & Greet
-  const row2Label = vehicle.specsRow2Label || "Changi Meet & Greet";
-  const row2Value = vehicle.specsRow2Value || vehicle.meetAndGreet || "$80 SGD";
+  // Row 2: Arrival Driveway Pickup
+  const row2Label = vehicle.specsRow2Label || "Arrival Driveway Pickup";
+  const row2Value = vehicle.specsRow2Value || vehicle.arrivalDrivewayPickup || vehicle.meetAndGreet || "$80 SGD";
 
   // Row 3: 3-Hour Charter or LTA
   const row3Label = vehicle.specsRow3Label || (vehicle.id === "wheelchair-cab" ? "LTA Certified" : "3-Hour Charter");
@@ -119,7 +120,7 @@ export default function FleetCard({ vehicle }: { vehicle: Vehicle }) {
               </span>
             </div>
 
-            {/* Row 2: Changi Meet & Greet */}
+            {/* Row 2: Arrival Driveway Pickup */}
             <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="font-normal text-white/90 font-manrope">
                 {row2Label}

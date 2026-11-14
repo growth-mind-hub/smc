@@ -155,10 +155,9 @@ export default function BookingCard() {
           </div>
 
           {/* Luggage */}
-          <div className="px-2.5 sm:px-3 py-2 sm:py-2.5 bg-white rounded-xl flex items-center justify-between gap-2 shadow-sm">
-            <span className="text-[#5F6B7A] text-[11px] sm:text-xs font-bold font-manrope uppercase tracking-tight shrink-0 pr-1">
-              <span className="hidden sm:inline">Luggage</span>
-              <span className="sm:hidden">Lug</span>
+          <div className="px-3 sm:px-3.5 py-2 sm:py-2.5 bg-white rounded-xl flex items-center justify-between gap-2 sm:gap-3 shadow-sm">
+            <span className="text-[#5F6B7A] text-[11px] sm:text-xs font-bold font-manrope uppercase tracking-tight shrink-0 pr-1.5 sm:pr-2">
+              Luggage
             </span>
             <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               <button
