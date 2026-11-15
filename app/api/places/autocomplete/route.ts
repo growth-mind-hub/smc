@@ -298,10 +298,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const apiKey =
-      process.env.GOOGLE_PLACES_API_KEY ||
-      process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY ||
-      "AIzaSyDn_3Y4fLrq7KSgH0PLQeXH9qHQU4C7GQ8";
+    const apiKey = process.env.GOOGLE_PLACES_API_KEY || "";
 
     // 2. If API key is provided, call Google Places Autocomplete API
     if (apiKey && apiKey.trim() !== "") {
@@ -386,10 +383,7 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const apiKey =
-    process.env.GOOGLE_PLACES_API_KEY ||
-    process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY ||
-    "AIzaSyDn_3Y4fLrq7KSgH0PLQeXH9qHQU4C7GQ8";
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY || "";
 
   if (apiKey && apiKey.trim() !== "" && input) {
     try {
