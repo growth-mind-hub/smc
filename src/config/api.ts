@@ -4,8 +4,8 @@
  */
 
 export const API_CONFIG = {
-  // Base URL: Set via NEXT_PUBLIC_API_BASE_URL or fallback to live deployed backend
-  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.singaporemaxicabs.com.sg",
+  // Base URL: Set via NEXT_PUBLIC_API_BASE_URL or API_BASE_URL, with live backend fallback
+  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || process.env.API_BASE_URL || "https://api.singaporemaxicabs.com.sg",
   // Proxy URL for client-side calls to bypass browser CORS / preflight restrictions
   PROXY_PREFIX: "/api/proxy",
   // Standard API prefix
