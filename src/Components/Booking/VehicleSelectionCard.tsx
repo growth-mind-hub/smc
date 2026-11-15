@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useMemo, useEffect } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import Image from "next/image";
 import { useBookingModal } from "@/context/BookingContext";
-import { ArrowLeft, ArrowRight, Check, Users, Luggage, X, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Users, Luggage, X, Info } from "lucide-react";
 import fleetData from "@/data/fleet.json";
 import { getRecommendedFleet, checkVehicleCapacityFit } from "@/utils/recommendation";
 import { resolveSlugFromApiVehicle, getVehicleImage } from "@/lib/fleetResolver";
@@ -13,8 +13,45 @@ interface VehicleSelectionCardProps {
   isModal?: boolean;
 }
 
+// Subcomponent for robust vehicle image rendering with error fallback & direct loading
+function VehicleShowcaseImage({
+  src,
+  alt,
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  priority?: boolean;
+}) {
+  const [imgSrc, setImgSrc] = useState(src);
+
+  useEffect(() => {
+    setImgSrc(src);
+  }, [src]);
+
+  return (
+    <Image
+      src={imgSrc || "/images/Cab.png"}
+      alt={alt}
+      fill
+      unoptimized
+      sizes="(max-width: 640px) 100vw, 600px"
+      className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+      priority={priority}
+      onError={() => {
+        if (imgSrc !== "/images/Cab.png") {
+          setImgSrc("/images/Cab.png");
+        }
+      }}
+    />
+  );
+}
+
 export default function VehicleSelectionCard({ isModal = true }: VehicleSelectionCardProps) {
   const { bookingData, updateBookingData, setStep, closeModal, vehicles: liveVehicles, services } = useBookingModal();
+  const [infoVehicleId, setInfoVehicleId] = useState<string | null>(null);
+
+  const isHourly = (bookingData.serviceType || "").toLowerCase().includes("hour");
 
   // Find the algorithmic recommendation for this group size
   const recommendedInfo = useMemo(() => {
@@ -37,6 +74,8 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
             vehicleType: fv.model,
             passengerCapacity: fv.paxCount,
             luggageCapacity: fv.luggageCount,
+            imageUrl: (fv as any).imageUrl || (fv as any).image,
+            image: (fv as any).image,
             status: "active" as const,
             isActive: true,
             prices: {
@@ -70,7 +109,28 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
         const fitsGroup = fitInfo.fits;
         const fitsPassengers = fitInfo.maxPax >= bookingData.passengers;
 
-        const shortModel = v.vehicleType || fleetMatch?.model || v.name;
+        let shortModel = v.vehicleType || fleetMatch?.model || v.name;
+        if (slug.includes("alphard") || v.name.toLowerCase().includes("alphard") || slug === "6-seater") {
+          shortModel = "Premium Executive MPV";
+        } else if (slug.includes("viano") || slug.includes("vito") || v.name.toLowerCase().includes("viano")) {
+          shortModel = "7/9 Seater Luxury Transporter";
+        } else if (slug.includes("v-class")) {
+          shortModel = "Mercedes V-Class / Luxury MPV";
+        } else if (slug.includes("hiace") || slug.includes("13-seater")) {
+          shortModel = "Toyota HiAce Commuter / 13 Seater";
+        } else if (slug.includes("e-class")) {
+          shortModel = "Executive Limousine Sedan";
+        } else if (slug.includes("s-class")) {
+          shortModel = "VIP Flagship Limousine";
+        } else if (slug.includes("coach") || slug.includes("40-seater")) {
+          shortModel = "40 Seater Luxury Coach";
+        } else if (slug.includes("23-seater")) {
+          shortModel = "23 Seater Mini Coach";
+        } else if (slug.includes("wheelchair")) {
+          shortModel = "Wheelchair Accessible Cab";
+        }
+
+        const resolvedImage = getVehicleImage(v as any, fleetMatch?.image || "/images/Cab.png");
 
         return {
           id: String(v.id),
@@ -81,8 +141,8 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
           paxCount: fitInfo.maxPax,
           luggageCount: fitInfo.maxLuggage,
           fare,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          image: getVehicleImage(v as any, fleetMatch?.image || "/images/Cab.png"),
+          image: resolvedImage,
+          imageUrl: resolvedImage,
           isRecommended,
           fitsGroup,
           fitsPassengers,
@@ -144,7 +204,7 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
   };
 
   return (
-    <div className="w-full max-w-[562px] mx-auto p-4 sm:p-6 bg-white rounded-2xl border border-slate-200 flex flex-col justify-start items-start gap-4 sm:gap-5 shadow-2xl relative max-h-[92vh] overflow-hidden selection:bg-[#C6A45A] selection:text-[#071E3B]">
+    <div className="w-full max-w-[620px] mx-auto p-4 sm:p-6 bg-white rounded-2xl sm:rounded-3xl border border-slate-200 flex flex-col justify-start items-start gap-4 sm:gap-5 shadow-2xl relative max-h-[92vh] overflow-hidden selection:bg-[#C6A45A] selection:text-[#071E3B]">
       {/* Header Bar */}
       <div className="self-stretch flex justify-between items-start border-b border-slate-100 pb-3">
         <div className="flex flex-col gap-1">
@@ -196,119 +256,186 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
         </button>
       </div>
 
-      {/* Vehicle Options List (Scrollable) */}
-      <div className="self-stretch flex flex-col gap-2.5 overflow-y-auto max-h-[46vh] sm:max-h-[50vh] pr-1 py-1">
+      {/* Vehicle Options Showcase List (Scrollable) */}
+      <div className="self-stretch flex flex-col gap-4 overflow-y-auto max-h-[50vh] sm:max-h-[54vh] pr-1 py-1 [scrollbar-width:thin] [scrollbar-color:#C6A45A_transparent]">
         {vehicleList.length === 0 ? (
-          <div className="flex flex-col gap-2.5 py-1">
-            <div className="h-16 bg-slate-100 rounded-xl animate-pulse" />
-            <div className="h-16 bg-slate-100 rounded-xl animate-pulse" />
-            <div className="h-16 bg-slate-100 rounded-xl animate-pulse" />
+          <div className="flex flex-col gap-3 py-1">
+            <div className="h-44 bg-slate-100 rounded-2xl animate-pulse" />
+            <div className="h-44 bg-slate-100 rounded-2xl animate-pulse" />
           </div>
         ) : (
-          vehicleList.map((v) => {
-          const isSelected =
-            bookingData.vehicleId != null
-              ? v.numericId === bookingData.vehicleId
-              : v.slug === (bookingData.selectedFleetSlug || "7-seater");
+          vehicleList.map((v, idx) => {
+            const isSelected =
+              bookingData.vehicleId != null
+                ? v.numericId === bookingData.vehicleId
+                : v.slug === (bookingData.selectedFleetSlug || "7-seater");
 
-          return (
-            <div
-              key={v.id}
-              onClick={() => handleSelectVehicle(v)}
-              className={`p-3 sm:p-3.5 rounded-xl cursor-pointer transition-all flex items-center justify-between gap-2.5 sm:gap-3.5 border ${
-                isSelected
-                  ? "border-[#C6A45A] bg-[#FDFBF7] shadow-sm ring-1 ring-[#C6A45A]"
-                  : "border-slate-200 bg-white hover:border-[#C6A45A]/60 hover:bg-[#FAF9F5]"
-              }`}
-            >
-              {/* Left: Vehicle Thumbnail Image */}
-              <div className="w-14 h-11 sm:w-20 sm:h-14 shrink-0 relative rounded-lg overflow-hidden bg-slate-50 border border-slate-200/70 flex items-center justify-center p-1 shadow-2xs">
-                <Image
-                  src={v.image}
-                  alt={v.name}
-                  fill
-                  sizes="(max-width: 640px) 56px, 80px"
-                  className="object-contain"
-                />
-              </div>
+            return (
+              <div
+                key={v.id}
+                onClick={() => handleSelectVehicle(v)}
+                className={`group relative rounded-2xl sm:rounded-[22px] transition-all overflow-hidden cursor-pointer flex flex-col bg-white ${
+                  isSelected
+                    ? "border-2 border-[#C6A45A] shadow-md ring-1 ring-[#C6A45A]/20"
+                    : "border border-slate-200/90 shadow-xs hover:border-[#C6A45A]/60"
+                }`}
+              >
+                {/* 1. Top Showcase Image Area */}
+                <div className="relative w-full h-44 sm:h-52 bg-slate-900/10 overflow-hidden">
+                  <VehicleShowcaseImage
+                    src={v.imageUrl || v.image || "/images/Cab.png"}
+                    alt={v.name}
+                    priority={idx < 2}
+                  />
 
-              {/* Center: Vehicle Details */}
-              <div className="flex flex-col min-w-0 flex-1 gap-1">
-                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                  <h3 className="font-bold text-sm sm:text-base text-[#071E3B] font-manrope leading-tight">
-                    {v.name}
-                  </h3>
+                  {/* Soft gradient fade out at bottom of image matching mockup */}
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/50 to-transparent pointer-events-none" />
 
-                  {/* Recommendation / Fit Badges */}
+                  {/* Recommended Badge Top-Left */}
                   {v.isRecommended ? (
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#C6A45A] text-[#071E3B] text-[10px] font-extrabold uppercase tracking-wide">
-                      <Sparkles className="w-2.5 h-2.5 fill-current" />
-                      <span>Recommended</span>
-                    </span>
+                    <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 z-10 px-3 py-1 rounded-full bg-white/95 backdrop-blur-xs text-[#071E3B] text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider shadow-sm border border-slate-100">
+                      RECOMMENDED
+                    </div>
                   ) : v.fitsGroup ? (
-                    <span className="px-2 py-0.5 rounded-md bg-[#E8F8EE] text-[#16803C] text-[10px] font-bold">
-                      Fits Group
-                    </span>
-                  ) : (
-                    <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-medium">
-                      {v.fitReason || `Max ${v.paxCount} Pax`}
-                    </span>
-                  )}
+                    <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 z-10 px-3 py-1 rounded-full bg-white/95 backdrop-blur-xs text-[#16803C] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-sm border border-slate-100">
+                      FITS GROUP
+                    </div>
+                  ) : null}
+
+                  {/* Selection Radio / Check Circle Top-Right */}
+                  <div
+                    className={`absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all ${
+                      isSelected
+                        ? "bg-[#C6A45A] text-white shadow-md scale-105"
+                        : "border-2 border-white/90 bg-black/40 backdrop-blur-xs shadow-md"
+                    }`}
+                  >
+                    {isSelected && <Check className="w-4 h-4 stroke-[3]" />}
+                  </div>
                 </div>
 
-                <p className="text-xs text-[#667085] font-manrope line-clamp-1">
-                  {v.model}
-                </p>
+                {/* 2. Bottom Card Body */}
+                <div className="p-4 sm:p-5 flex items-end justify-between gap-3 bg-white relative z-10">
+                  {/* Left: Info & Specs */}
+                  <div className="flex flex-col min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-base sm:text-lg font-bold text-[#071E3B] font-manrope leading-tight">
+                        {v.name}
+                      </h3>
+                      {isSelected && (
+                        <span className="px-2 py-0.5 rounded bg-[#FEF9EE] border border-[#EADBBD] text-[#8A5A00] text-[10px] font-bold uppercase tracking-wider">
+                          SELECTED
+                        </span>
+                      )}
+                    </div>
 
-                {v.badgeNote && (
-                  <p className="text-[11px] text-[#A77E3C] font-semibold font-manrope leading-tight">
-                    {v.badgeNote}
-                  </p>
-                )}
+                    <p className={`text-xs font-manrope mt-1 line-clamp-1 ${isSelected ? "text-[#8A5A00] font-semibold" : "text-[#667085]"}`}>
+                      {v.model}
+                    </p>
 
-                {/* Capacity Badges */}
-                <div className="flex items-center gap-1.5 pt-0.5">
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F7F5EF] text-[#071E3B] font-bold text-[11px] font-manrope border border-[#E9ECEF]">
-                    <Users className="w-3 h-3 text-[#C6A45A]" />
-                    <span>{v.paxCount} Pax</span>
-                  </span>
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#F7F5EF] text-[#071E3B] font-bold text-[11px] font-manrope border border-[#E9ECEF]">
-                    <Luggage className="w-3 h-3 text-[#C6A45A]" />
-                    <span>
-                      {v.luggageCount}{" "}
-                      <span className="hidden sm:inline">Luggage</span>
-                      <span className="sm:hidden">Lug</span>
-                    </span>
-                  </span>
+                    {/* Specs Pills: Pax, Luggage, Highlight */}
+                    <div className="flex items-center gap-2 flex-wrap mt-3">
+                      {/* Pax Pill */}
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-medium text-slate-700 font-manrope shadow-2xs">
+                        <Users className="w-3.5 h-3.5 text-slate-500" strokeWidth={1.8} />
+                        <span>{v.paxCount} pax</span>
+                      </span>
+
+                      {/* Luggage Pill */}
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-xs font-medium text-slate-700 font-manrope shadow-2xs">
+                        <Luggage className="w-3.5 h-3.5 text-slate-500" strokeWidth={1.8} />
+                        <span>{v.luggageCount} × 28&quot;</span>
+                      </span>
+
+                      {/* Highlight Pill: Most popular / Fits Group / Best Value */}
+                      {v.isRecommended ? (
+                        <span className="px-2.5 py-1 rounded-lg bg-[#FEF9EE] border border-[#EADBBD] text-[#8A5A00] text-xs font-bold font-manrope">
+                          Most popular
+                        </span>
+                      ) : v.fitsGroup ? (
+                        <span className="px-2.5 py-1 rounded-lg bg-[#E8F8EE] border border-[#B6EAD0] text-[#16803C] text-xs font-bold font-manrope">
+                          Fits group
+                        </span>
+                      ) : v.badgeNote ? (
+                        <span className="px-2.5 py-1 rounded-lg bg-[#FEF9EE] border border-[#EADBBD] text-[#8A5A00] text-xs font-bold font-manrope">
+                          {v.badgeNote}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  {/* Right: Info button & Fare */}
+                  <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0 self-center sm:self-end">
+                    {/* Info circle button with popover */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setInfoVehicleId(infoVehicleId === v.id ? null : v.id);
+                        }}
+                        className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-slate-200 bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-[#071E3B] transition-colors cursor-pointer"
+                        aria-label="Vehicle details"
+                        title="View vehicle details and inclusions"
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                      </button>
+
+                      {infoVehicleId === v.id && (
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute bottom-full right-0 mb-2 w-64 p-3 bg-white rounded-xl shadow-xl border border-slate-200 text-xs font-manrope z-30 animate-in fade-in duration-150"
+                        >
+                          <div className="flex items-center justify-between pb-1.5 border-b border-slate-100 font-bold text-[#071E3B]">
+                            <span>{v.name} Details</span>
+                            <button
+                              type="button"
+                              onClick={() => setInfoVehicleId(null)}
+                              className="text-slate-400 hover:text-slate-600"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          <div className="flex flex-col gap-1.5 pt-2 text-[#5F6B7A]">
+                            <div className="flex justify-between">
+                              <span>Max Capacity:</span>
+                              <strong className="text-[#071E3B]">{v.paxCount} Pax • {v.luggageCount} Bags</strong>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Wait Time Buffer:</span>
+                              <strong className="text-[#071E3B]">60m Free Airport Buffer</strong>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Tolls &amp; ERP:</span>
+                              <strong className="text-emerald-700">Included ($0)</strong>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>Surge Pricing:</span>
+                              <strong className="text-emerald-700">Zero Surge</strong>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Price & Transfer Fare Label */}
+                    <div className="flex flex-col items-end">
+                      <div className="flex items-baseline gap-0.5 leading-none">
+                        <span className="text-base sm:text-lg font-bold text-[#C6A45A] font-manrope">$</span>
+                        <span className="text-2xl sm:text-3xl font-extrabold text-[#071E3B] font-manrope leading-none">
+                          {v.fare}
+                        </span>
+                      </div>
+                      <span className={`text-[9px] sm:text-[10px] font-bold tracking-wider uppercase font-manrope mt-1.5 ${isSelected ? "text-[#8A5A00]" : "text-slate-400"}`}>
+                        {isHourly ? "HOURLY FARE" : "TRANSFER FARE"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
-
-              {/* Right: Price & Radio Selection Checkbox */}
-              <div className="flex flex-col items-end justify-between shrink-0 pl-1 self-stretch gap-1.5">
-                <div className="text-right">
-                  <span className="text-base sm:text-lg font-extrabold text-[#071E3B] font-manrope leading-none">
-                    ${v.fare}
-                  </span>
-                  <span className="block text-[10px] text-[#667085] font-medium font-manrope mt-0.5">
-                    Fixed Fare
-                  </span>
-                </div>
-
-                {/* Radio selection circle */}
-                <div
-                  className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
-                    isSelected
-                      ? "border-[#C6A45A] bg-[#C6A45A] text-white shadow-xs scale-105"
-                      : "border-slate-300 bg-white hover:border-slate-400"
-                  }`}
-                >
-                  {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
-                </div>
-              </div>
-            </div>
-          );
-        })
-      )}
+            );
+          })
+        )}
       </div>
 
       {/* Actions Footer */}

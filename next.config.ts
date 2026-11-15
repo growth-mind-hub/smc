@@ -6,10 +6,12 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "api.singaporemaxicabs.com.sg",
+        pathname: "/**",
       },
       {
         protocol: "https",
         hostname: "placehold.co",
+        pathname: "/**",
       },
     ],
   },
