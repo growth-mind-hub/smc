@@ -1005,12 +1005,8 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                   </div>
                 </div>
                 <p className="text-[11px] text-[#5F6B7A] font-manrope leading-snug">
-                  Official PayNow QR code sent directly to your WhatsApp by our operations desk. Scan &amp; pay to track.
+                  Instant booking confirmation with official PayNow SGQR payment reference. Zero transaction fees.
                 </p>
-                <div className="text-[10px] text-[#8A5A00] font-semibold font-manrope flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-[#C6A45A]" />
-                  <span>≈ AED {(totalFare * 2.72).toFixed(2)} (Standard bank rate)</span>
-                </div>
               </div>
 
               {/* Option 2: Credit / Debit Card (Stripe) */}
