@@ -69,8 +69,23 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
       liveVehicles && liveVehicles.length > 0
         ? liveVehicles.filter((v) => v.status !== "inactive" && v.isActive !== false)
         : fleetData.vehicles.map((fv) => ({
-            id: fv.id === "6-seater" ? 1 : fv.id === "7-seater" ? 3 : fv.id === "9-seater" ? 12 : 6,
-            name: fv.name,
+            id:
+              fv.id === "mercedes-e-class" ? 1 :
+              fv.id === "mercedes-s-class" ? 2 :
+              fv.id === "6-seater" ? 3 :
+              fv.id === "7-seater" ? 4 :
+              fv.id === "mercedes-v-class" ? 5 :
+              fv.id === "13-seater" ? 6 :
+              fv.id === "vip-lounge" ? 7 :
+              fv.id === "wheelchair-cab" ? 8 :
+              fv.id === "23-seater" ? 9 :
+              fv.id === "40-seater" ? 10 :
+              fv.id === "9-seater" ? 12 : 3,
+            name:
+              fv.name === "6 Seater Maxi Cab" ? "Toyota Alphard / Vellfire" :
+              fv.name === "7 Seater Maxi Cab" ? "Mercedes Viano" :
+              fv.name === "9 Seater Maxi Cab" ? "Mercedes Viano" :
+              fv.name,
             vehicleType: fv.model,
             passengerCapacity: fv.paxCount,
             luggageCapacity: fv.luggageCount,
@@ -112,7 +127,7 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
         let shortModel = v.vehicleType || fleetMatch?.model || v.name;
         if (slug.includes("alphard") || v.name.toLowerCase().includes("alphard") || slug === "6-seater") {
           shortModel = "Premium Executive MPV";
-        } else if (slug.includes("viano") || slug.includes("vito") || v.name.toLowerCase().includes("viano")) {
+        } else if (slug.includes("viano") || slug.includes("vito") || v.name.toLowerCase().includes("viano") || slug === "7-seater" || slug === "9-seater") {
           shortModel = "7/9 Seater Luxury Transporter";
         } else if (slug.includes("v-class")) {
           shortModel = "Mercedes V-Class / Luxury MPV";
@@ -130,16 +145,25 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
           shortModel = "Wheelchair Accessible Cab";
         }
 
+        let displayName = v.name;
+        if (!displayName || displayName === "6 Seater Maxi Cab" || displayName === "6-Seater Maxi Cab") {
+          displayName = "Toyota Alphard / Vellfire";
+        } else if (displayName === "7 Seater Maxi Cab" || displayName === "7-Seater Maxi Cab") {
+          displayName = "Mercedes Viano";
+        } else if (displayName === "9 Seater Minibus" || displayName === "9-Seater Minibus") {
+          displayName = "Mercedes Viano";
+        }
+
         const resolvedImage = getVehicleImage(v as any, fleetMatch?.image || "/images/Cab.png");
 
         return {
           id: String(v.id),
           numericId: v.id,
           slug,
-          name: v.name,
+          name: displayName,
           model: shortModel,
-          paxCount: fitInfo.maxPax,
-          luggageCount: fitInfo.maxLuggage,
+          paxCount: v.passengerCapacity ?? fitInfo.maxPax,
+          luggageCount: v.luggageCapacity ?? fitInfo.maxLuggage,
           fare,
           image: resolvedImage,
           imageUrl: resolvedImage,
@@ -206,7 +230,7 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
   return (
     <div className="w-full max-w-[620px] mx-auto p-4 sm:p-6 bg-white rounded-2xl sm:rounded-3xl border border-slate-200 flex flex-col justify-start items-start gap-4 sm:gap-5 shadow-2xl relative max-h-[92vh] overflow-hidden selection:bg-[#C6A45A] selection:text-[#071E3B]">
       {/* Header Bar */}
-      <div className="self-stretch flex justify-between items-start border-b border-slate-100 pb-3">
+      <div className="self-stretch flex justify-between items-start border-b border-slate-100 pb-3 shrink-0">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#C6A45A] font-manrope">
@@ -238,7 +262,7 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
       </div>
 
       {/* Route & Group Summary Banner */}
-      <div className="self-stretch px-3.5 py-2.5 bg-[#F8F7F4] rounded-xl border border-slate-200/80 flex items-center justify-between gap-3 text-xs font-manrope">
+      <div className="self-stretch px-3.5 py-2.5 bg-[#F8F7F4] rounded-xl border border-slate-200/80 flex items-center justify-between gap-3 text-xs font-manrope shrink-0">
         <div className="flex items-center gap-2 min-w-0">
           <span className="px-2 py-0.5 rounded bg-[#071E3B] text-white text-[10px] font-bold uppercase tracking-wider shrink-0">
             {bookingData.serviceType || "Point-to-Point"}
@@ -257,7 +281,7 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
       </div>
 
       {/* Vehicle Options Showcase List (Scrollable) */}
-      <div className="self-stretch flex flex-col gap-4 overflow-y-auto max-h-[50vh] sm:max-h-[54vh] pr-1 py-1 [scrollbar-width:thin] [scrollbar-color:#C6A45A_transparent]">
+      <div className="self-stretch w-full flex-1 min-h-0 overflow-y-auto flex flex-col gap-4 pr-1 py-1 [scrollbar-width:thin] [scrollbar-color:#C6A45A_transparent]">
         {vehicleList.length === 0 ? (
           <div className="flex flex-col gap-3 py-1">
             <div className="h-44 bg-slate-100 rounded-2xl animate-pulse" />
@@ -274,14 +298,14 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
               <div
                 key={v.id}
                 onClick={() => handleSelectVehicle(v)}
-                className={`group relative rounded-2xl sm:rounded-[22px] transition-all overflow-hidden cursor-pointer flex flex-col bg-white ${
+                className={`group relative w-full shrink-0 rounded-2xl sm:rounded-[22px] transition-all overflow-hidden cursor-pointer flex flex-col bg-white ${
                   isSelected
                     ? "border-2 border-[#C6A45A] shadow-md ring-1 ring-[#C6A45A]/20"
                     : "border border-slate-200/90 shadow-xs hover:border-[#C6A45A]/60"
                 }`}
               >
                 {/* 1. Top Showcase Image Area */}
-                <div className="relative w-full h-44 sm:h-52 bg-slate-900/10 overflow-hidden">
+                <div className="relative w-full h-48 sm:h-56 shrink-0 bg-slate-100 overflow-hidden">
                   <VehicleShowcaseImage
                     src={v.imageUrl || v.image || "/images/Cab.png"}
                     alt={v.name}
@@ -289,22 +313,18 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
                   />
 
                   {/* Soft gradient fade out at bottom of image matching mockup */}
-                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white via-white/50 to-transparent pointer-events-none" />
+                  <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white via-white/50 to-transparent pointer-events-none" />
 
                   {/* Recommended Badge Top-Left */}
                   {v.isRecommended ? (
-                    <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 z-10 px-3 py-1 rounded-full bg-white/95 backdrop-blur-xs text-[#071E3B] text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider shadow-sm border border-slate-100">
+                    <div className="absolute top-3.5 left-3.5 z-10 px-3 py-1 rounded-full bg-white/95 backdrop-blur-xs text-[#071E3B] text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider shadow-sm border border-slate-100">
                       RECOMMENDED
-                    </div>
-                  ) : v.fitsGroup ? (
-                    <div className="absolute top-3 left-3 sm:top-3.5 sm:left-3.5 z-10 px-3 py-1 rounded-full bg-white/95 backdrop-blur-xs text-[#16803C] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-sm border border-slate-100">
-                      FITS GROUP
                     </div>
                   ) : null}
 
                   {/* Selection Radio / Check Circle Top-Right */}
                   <div
-                    className={`absolute top-3 right-3 sm:top-3.5 sm:right-3.5 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all ${
+                    className={`absolute top-3.5 right-3.5 z-10 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all ${
                       isSelected
                         ? "bg-[#C6A45A] text-white shadow-md scale-105"
                         : "border-2 border-white/90 bg-black/40 backdrop-blur-xs shadow-md"
@@ -315,7 +335,7 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
                 </div>
 
                 {/* 2. Bottom Card Body */}
-                <div className="p-4 sm:p-5 flex items-end justify-between gap-3 bg-white relative z-10">
+                <div className="p-4 sm:p-5 flex items-end justify-between gap-3 bg-white shrink-0 relative z-10">
                   {/* Left: Info & Specs */}
                   <div className="flex flex-col min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -352,13 +372,9 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
                         <span className="px-2.5 py-1 rounded-lg bg-[#FEF9EE] border border-[#EADBBD] text-[#8A5A00] text-xs font-bold font-manrope">
                           Most popular
                         </span>
-                      ) : v.fitsGroup ? (
+                      ) : !isSelected && v.fitsGroup ? (
                         <span className="px-2.5 py-1 rounded-lg bg-[#E8F8EE] border border-[#B6EAD0] text-[#16803C] text-xs font-bold font-manrope">
                           Fits group
-                        </span>
-                      ) : v.badgeNote ? (
-                        <span className="px-2.5 py-1 rounded-lg bg-[#FEF9EE] border border-[#EADBBD] text-[#8A5A00] text-xs font-bold font-manrope">
-                          {v.badgeNote}
                         </span>
                       ) : null}
                     </div>
@@ -439,7 +455,7 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
       </div>
 
       {/* Actions Footer */}
-      <div className="self-stretch flex items-center justify-between gap-2.5 sm:gap-3 pt-2 border-t border-slate-100">
+      <div className="self-stretch flex items-center justify-between gap-2.5 sm:gap-3 pt-2 border-t border-slate-100 shrink-0">
         <button
           type="button"
           onClick={() => setStep(1)}
@@ -463,7 +479,7 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
       </div>
 
       {/* Footer Info Ribbon */}
-      <div className="self-stretch pt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-[#071E3B] font-manrope text-center border-t border-slate-100">
+      <div className="self-stretch pt-2 flex flex-wrap items-center justify-center gap-2 text-xs text-[#071E3B] font-manrope text-center border-t border-slate-100 shrink-0">
         <span className="font-normal text-[#5F6B7A]">All-inclusive transparent rates</span>
         <span className="text-[#C6A45A]">·</span>
         <span className="font-normal text-[#5F6B7A]">Fixed Price Guarantee</span>

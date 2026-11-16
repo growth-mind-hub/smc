@@ -83,8 +83,8 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const uaeTime = getUAETime();
-  const isBookingCreationNight = uaeTime.isLateNight; // Booking created during UAE night (10 PM - 6 AM UAE)
-  const isNightPickup = isNightOrEarlyMorningTime(bookingData.pickupTime); // Fleet needed at night (10 PM - 6 AM)
+  const isBookingCreationNight = uaeTime.isLateNight; // Booking created during Singapore night (11:30 PM - 6:30 AM SGT)
+  const isNightPickup = isNightOrEarlyMorningTime(bookingData.pickupTime); // Fleet needed at night (11:30 PM - 6:30 AM SGT)
   const router = useRouter();
 
   // Reset redirecting state when returning from Stripe (browser Back, BFCache, or tab focus)
@@ -303,7 +303,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       selectedAddOnsList.push({
         id: "night-surcharge",
         title: "Late-Night Transfer Surcharge",
-        subtitle: "Night chauffeur dispatch & flight radar buffer (10:00 PM – 6:00 AM)",
+        subtitle: "Night chauffeur dispatch & flight radar buffer (11:30 PM – 6:30 AM Singapore Time SGT)",
         amount: nightSurchargePrice,
         amountText: `+$${nightSurchargePrice}.00`,
       });
@@ -356,7 +356,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         `*Email:* ${bookingData.email || "booking@singaporemaxicabs.com.sg"}%0A` +
         (bookingData.flightNumber ? `*Flight Number:* ${bookingData.flightNumber}%0A` : "") +
         (bookingData.signboardName ? `*Signboard Name:* ${bookingData.signboardName}%0A` : "") +
-        (isNightPickup ? `*Late-Night Surcharge (10 PM–6 AM):* +$${nightSurchargePrice}.00 SGD Included%0A` : "") +
+        (isNightPickup ? `*Late-Night Surcharge (11:30 PM–6:30 AM SGT):* +$${nightSurchargePrice}.00 SGD Included%0A` : "") +
         `*Booking Created At:* ${uaeTime.timeString}%0A` +
         `*Final Tariff:* $${totalFare}.00 SGD NETT%0A` +
         `--------------------------------%0A` +
@@ -388,7 +388,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         `*Email:* ${bookingData.email || "booking@singaporemaxicabs.com.sg"}%0A` +
         (bookingData.flightNumber ? `*Flight Number:* ${bookingData.flightNumber}%0A` : "") +
         (bookingData.signboardName ? `*Signboard Name:* ${bookingData.signboardName}%0A` : "") +
-        (isNightPickup ? `*Late-Night Surcharge (10 PM–6 AM):* +$${nightSurchargePrice}.00 SGD Included%0A` : "") +
+        (isNightPickup ? `*Late-Night Surcharge (11:30 PM–6:30 AM SGT):* +$${nightSurchargePrice}.00 SGD Included%0A` : "") +
         `--------------------------------%0A` +
         `*PAYMENT DETAILS*%0A` +
         `*Payment Method:* PayNow%0A` +
@@ -500,6 +500,18 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
         {/* Itinerary Quick Summary Pill */}
         <div className="w-full max-w-sm p-4 rounded-xl bg-[#FBF7EC] border border-[#F4EAD1] text-left text-xs space-y-1.5 text-[#071E3B] font-manrope">
+          <div className="flex justify-between font-semibold pb-1.5 border-b border-[#C6A45A]/20">
+            <span className="text-[#5F6B7A]">Booking ID:</span>
+            <span className="font-mono font-bold text-[#071E3B] bg-white px-2 py-0.5 rounded border border-slate-200">
+              {`SMC-${(bookingData.pickupDate || new Date().toISOString().slice(0, 10)).replace(/-/g, "")}-${(bookingData.phone || "8800").replace(/\D/g, "").slice(-4) || "8800"}`}
+            </span>
+          </div>
+          <div className="flex justify-between font-semibold">
+            <span className="text-[#5F6B7A]">Payment Method:</span>
+            <span className="font-bold text-[#071E3B]">
+              {selectedPaymentMethod === "paynow" ? "PayNow (SGQR)" : "Credit / Debit Card (Stripe)"}
+            </span>
+          </div>
           <div className="flex justify-between font-semibold">
             <span className="text-[#5F6B7A]">Passenger:</span>
             <span>{bookingData.name || "Customer"}</span>
@@ -650,17 +662,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             </div>
           </div>
           <div className="text-white text-lg sm:text-2xl font-bold font-manrope leading-tight tracking-tight drop-shadow-sm">
-            {bookingData.selectedFleet === "6 Seater Maxi Cab"
-              ? "Toyota Vellfire / Toyota Alphard"
-              : bookingData.selectedFleet === "9 Seater Maxi Cab"
-              ? "Toyota HiAce / Mercedes Vito"
-              : bookingData.selectedFleet === "13 Seater Minibus"
-              ? "Toyota HiAce Commuter Minibus"
-              : bookingData.selectedFleet === "VIP Lounge 7-Seater"
-              ? "Mercedes V-Class / Luxury MPV"
-              : bookingData.selectedFleet === "Wheelchair Maxi Cab"
-              ? "Modified Toyota HiAce Accessible"
-              : "Mercedes-Benz V-Class / Toyota Vellfire"}
+            {bookingData.selectedFleet || "Singapore Maxi Cab"}
           </div>
         </div>
       </div>
@@ -840,7 +842,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                 <span className="text-zinc-600 text-xs font-normal font-manrope leading-4 mt-0.5">
                   {isHourly
                     ? `${duration} hours dedicated chauffeur @ $${hourlyRate}/hr`
-                    : "Includes arrival driveway pickup, toll systems, and driver dispatch"}
+                    : "Includes Peak & Surge Multiplier, toll systems, and driver dispatch"}
                 </span>
               </div>
               <div className="text-right shrink-0 flex flex-col items-end">
@@ -914,7 +916,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                 </div>
                 <div className="flex-1 min-w-[130px] sm:min-w-0 p-2 sm:p-2.5 bg-[#FAF7F0] rounded-xl border border-[#EADBBD]/70 flex flex-col justify-between items-start gap-1 h-full min-h-[64px] sm:min-h-[70px]">
                   <span className="text-[#5F6B7A] text-xs font-medium font-manrope">
-                    {bookingData.meetAndGreet ? "Meet & Greet + 60m Wait" : "Driveway Pickup + 60m"}
+                    60m
                   </span>
                   <span className="text-[#8A5A00] text-xs font-bold font-manrope">
                     INCLUDED ($0)
@@ -957,19 +959,19 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
         {/* Night Dispatch Protocol Notice OR Payment Method Selection */}
         {isBookingCreationNight ? (
-          /* Late-Night Booking Creation (10:00 PM – 6:00 AM UAE Time) */
+          /* Late-Night Booking Creation (11:30 PM – 6:30 AM Singapore Time) */
           <div className="self-stretch p-4 bg-[#071E3B] text-white rounded-2xl border border-[#C6A45A]/40 shadow-sm flex flex-col gap-2.5 animate-in fade-in">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-[#C6A45A] font-bold text-sm font-manrope">
                 <Moon className="w-4 h-4 shrink-0 text-[#C6A45A]" />
-                <span>Late-Night Operations Window (10 PM – 6 AM UAE)</span>
+                <span>Late-Night Operations Window (11:30 PM – 6:30 AM Singapore Time)</span>
               </div>
               <span className="px-2 py-0.5 bg-[#C6A45A]/20 text-[#C6A45A] text-[10px] font-bold rounded-md uppercase tracking-wider font-manrope">
                 {uaeTime.timeString}
               </span>
             </div>
             <p className="text-xs text-slate-200 font-manrope leading-relaxed">
-              Your booking is being created during our late-night UAE operations window (current UAE time: <strong className="text-white">{uaeTime.timeString}</strong>). To guarantee direct chauffeur tracking, terminal meet &amp; greet buffer, and priority assignment, this ride is confirmed directly with our Operations Concierge via WhatsApp.
+              Your booking is being created during our late-night operations window (current Singapore time: <strong className="text-white">{uaeTime.timeString}</strong>). To guarantee direct chauffeur tracking, terminal meet &amp; greet buffer, and priority assignment, this ride is confirmed directly with our Operations Concierge via WhatsApp.
             </p>
             <div className="pt-1.5 border-t border-slate-700/60 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-[#C6A45A] font-semibold font-manrope">
               <span>✓ Guaranteed Priority Chauffeur</span>
@@ -978,7 +980,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             </div>
           </div>
         ) : (
-          /* Daytime Booking Creation in UAE */
+          /* Daytime Booking Creation */
           <div className="self-stretch flex flex-col gap-2.5 pt-1">
             {/* If fleet is needed at night, inform user about the late-night surcharge */}
             {isNightPickup && (
@@ -986,7 +988,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                 <Moon className="w-4 h-4 text-[#8A5A00] shrink-0 mt-0.5" />
                 <div className="flex-1 leading-snug">
                   <span className="font-bold text-[#8A5A00]">
-                    Late-Night Transfer Schedule (10:00 PM – 6:00 AM):
+                    Late-Night Transfer Schedule (11:30 PM – 6:30 AM Singapore Time):
                   </span>{" "}
                   Pickup scheduled for <strong>{bookingData.pickupTime}</strong>. A +${nightSurchargePrice}.00 SGD late-night surcharge has been added to your tariff. You can complete checkout directly below.
                 </div>

@@ -56,6 +56,8 @@ export default function ServicesSection({ isPage = false }: ServicesSectionProps
     }
   };
 
+  const displayedServices = isPage ? servicesData.services : servicesData.services.slice(0, 4);
+
   return (
     <section id="services" className="w-full px-4 sm:px-8 lg:px-12 py-12 sm:py-20 flex flex-col justify-start items-center gap-10 sm:gap-14 bg-white selection:bg-[#C6A45A] selection:text-[#071E3B]">
       {/* Header (shown when on homepage or not isPage) */}
@@ -79,7 +81,7 @@ export default function ServicesSection({ isPage = false }: ServicesSectionProps
 
       {/* 2-Column Grid matching servicepagedesign.html */}
       <div className="w-full max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 xl:gap-10 items-stretch">
-        {servicesData.services.map((service) => (
+        {displayedServices.map((service) => (
           <Link
             key={service.id}
             href={`/services/${service.slug}`}
@@ -127,6 +129,19 @@ export default function ServicesSection({ isPage = false }: ServicesSectionProps
           </Link>
         ))}
       </div>
+
+      {/* Show More CTA on Home Page */}
+      {!isPage && (
+        <div className="flex justify-center pt-2 sm:pt-4">
+          <Link
+            href="/services"
+            className="px-6 sm:px-8 py-3.5 rounded-xl bg-[#071E3B] hover:bg-[#0B2A4A] text-white text-sm font-bold font-manrope flex items-center justify-center gap-2.5 transition-all shadow-md hover:shadow-lg active:scale-[0.98] cursor-pointer"
+          >
+            <span>Show More Services</span>
+            <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+          </Link>
+        </div>
+      )}
     </section>
   );
 }

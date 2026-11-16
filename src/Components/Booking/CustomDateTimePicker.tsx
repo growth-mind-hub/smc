@@ -238,7 +238,7 @@ export default function CustomDateTimePicker({
     { label: "12:00 PM", time: "12:00" },
     { label: "03:30 PM", time: "15:30" },
     { label: "07:00 PM", time: "19:00" },
-    { label: "10:30 PM", time: "22:30", isNight: true },
+    { label: "11:30 PM", time: "23:30", isNight: true },
   ];
 
   const handleApplySlot = (slot: (typeof quickTimeSlots)[0]) => {
@@ -640,7 +640,7 @@ export default function CustomDateTimePicker({
           <div className="p-2.5 bg-[#FAF7F0] rounded-xl border border-[#C6A45A]/40 flex items-start gap-2 text-[11px] text-[#8A5A00] font-manrope leading-tight animate-in fade-in">
             <Moon className="w-3.5 h-3.5 shrink-0 text-[#8A5A00] mt-0.5" />
             <span>
-              <strong>Late-Night Transfer Window (10:00 PM – 6:00 AM SGT):</strong> A +$10 SGD dispatch surcharge is automatically applied to confirm dedicated night drivers.
+              <strong>Late-Night Transfer Window (11:30 PM – 6:30 AM Singapore Time SGT):</strong> A +$10 SGD dispatch surcharge is automatically applied to confirm dedicated night drivers.
             </span>
           </div>
         )}

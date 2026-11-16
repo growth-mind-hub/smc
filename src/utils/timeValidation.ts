@@ -1,24 +1,26 @@
 /**
  * Time and Form Validation Utilities for Singapore Maxi Cabs
  *
- * Late-night operations window: 10:00 PM (22:00) to 6:00 AM (06:00) UAE timezone (Asia/Dubai).
+ * Late-night operations window: 11:30 PM (23:30) to 6:30 AM (06:30) Singapore Time (Asia/Singapore, SGT).
  */
 
-export interface UAETimeInfo {
+export interface SingaporeTimeInfo {
   hours: number;
   minutes: number;
   timeString: string;
   isLateNight: boolean;
 }
 
+// Backward compatibility alias
+export type UAETimeInfo = SingaporeTimeInfo;
+
 /**
- * Returns the current time converted to UAE timezone (Asia/Dubai, UTC+4).
- * Asia/Dubai does not observe Daylight Saving Time.
- * Late-night window: 10:00 PM (22:00) to 6:00 AM (06:00) UAE time.
+ * Returns the current time converted to Singapore timezone (Asia/Singapore, UTC+8, SGT).
+ * Late-night window: 11:30 PM (23:30) to 6:30 AM (06:30) Singapore Time.
  */
-export function getUAETime(date: Date = new Date()): UAETimeInfo {
+export function getSingaporeTime(date: Date = new Date()): SingaporeTimeInfo {
   const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Dubai",
+    timeZone: "Asia/Singapore",
     hour: "numeric",
     minute: "numeric",
     hourCycle: "h23",
@@ -31,13 +33,12 @@ export function getUAETime(date: Date = new Date()): UAETimeInfo {
   const hours = hourPart ? parseInt(hourPart.value, 10) % 24 : 0;
   const minutes = minutePart ? parseInt(minutePart.value, 10) : 0;
 
-  // Window: 10:00 PM (22:00) to 6:00 AM (06:00) UAE
-  // 22:00 - 23:59: hours >= 22
-  // 00:00 - 05:59: hours < 6
-  const isLateNight = hours >= 22 || hours < 6;
+  // Window: 11:30 PM (23:30) to 6:30 AM (06:30) SGT
+  const isLateNight =
+    (hours === 23 && minutes >= 30) || (hours >= 0 && hours < 6) || (hours === 6 && minutes <= 30);
 
   const displayTime = date.toLocaleTimeString("en-US", {
-    timeZone: "Asia/Dubai",
+    timeZone: "Asia/Singapore",
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
@@ -46,25 +47,29 @@ export function getUAETime(date: Date = new Date()): UAETimeInfo {
   return {
     hours,
     minutes,
-    timeString: `${displayTime} (UAE)`,
+    timeString: `${displayTime} (SGT)`,
     isLateNight,
   };
 }
 
+export const getUAETime = getSingaporeTime;
+
 /**
- * Helper to check if current moment in UAE timezone is late night (10 PM to 6 AM).
+ * Helper to check if current moment in Singapore timezone is late night (11:30 PM to 6:30 AM SGT).
  */
-export function isCurrentTimeUAENight(date: Date = new Date()): boolean {
-  return getUAETime(date).isLateNight;
+export function isCurrentTimeSingaporeNight(date: Date = new Date()): boolean {
+  return getSingaporeTime(date).isLateNight;
 }
+
+export const isCurrentTimeUAENight = isCurrentTimeSingaporeNight;
 
 /**
  * Checks if a selected pickup time falls within the late-night window
- * of 10:00 PM (22:00) to 6:00 AM (06:00).
+ * of 11:30 PM (23:30) to 6:30 AM (06:30) Singapore Time (SGT).
  *
  * Supported formats:
- * - HTML5 time input: "22:00", "05:45", "17:15"
- * - 12-hour strings: "10:00 PM", "11:30 PM", "5:15 AM", "6:00 AM"
+ * - HTML5 time input: "23:45", "05:45", "17:15"
+ * - 12-hour strings: "11:30 PM", "11:45 PM", "5:15 AM", "6:30 AM"
  */
 export function isNightOrEarlyMorningTime(timeStr?: string): boolean {
   if (!timeStr) return false;
@@ -77,15 +82,21 @@ export function isNightOrEarlyMorningTime(timeStr?: string): boolean {
   if (!match) return false;
 
   let hours = parseInt(match[1], 10);
+  const minutes = parseInt(match[2], 10) || 0;
   if (isNaN(hours)) return false;
 
   if (isPM && hours < 12) hours += 12;
   if (isAM && hours === 12) hours = 0;
 
-  // Window: 10:00 PM (22:00) up to 6:00 AM (06:00)
-  // 22:00 - 23:59: hours >= 22
-  // 00:00 - 05:59: hours < 6
-  return hours >= 22 || hours < 6;
+  // Window: 11:30 PM (23:30) to 6:30 AM (06:30)
+  // 23:30 - 23:59: (hours === 23 && minutes >= 30)
+  // 00:00 - 05:59: (hours >= 0 && hours < 6)
+  // 06:00 - 06:30: (hours === 6 && minutes <= 30)
+  return (
+    (hours === 23 && minutes >= 30) ||
+    (hours >= 0 && hours < 6) ||
+    (hours === 6 && minutes <= 30)
+  );
 }
 
 export const isLateNightPickupTime = isNightOrEarlyMorningTime;

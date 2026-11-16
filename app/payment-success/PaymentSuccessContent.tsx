@@ -15,6 +15,11 @@ export default function PaymentSuccessContent() {
     "";
   const amountParam = searchParams.get("amount") || "";
   const currencyParam = searchParams.get("currency") || "SGD";
+  const paymentTypeParam =
+    searchParams.get("payment_type") ||
+    searchParams.get("payment") ||
+    searchParams.get("type") ||
+    "";
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
@@ -30,6 +35,7 @@ export default function PaymentSuccessContent() {
           bookingId={bookingIdParam}
           amount={amountParam}
           currency={currencyParam}
+          paymentType={paymentTypeParam}
         />
       </div>
     </div>

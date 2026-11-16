@@ -122,15 +122,23 @@ export function resolveSlugFromApiVehicle(v: VehicleCard): string {
  */
 const DEFAULT_FLEET_IMAGES: Record<string, string> = {
   "mercedes-e-class": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/75d82abd-50eb-4acd-9a04-5cb82094eaf2.webp",
+  "e-class": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/75d82abd-50eb-4acd-9a04-5cb82094eaf2.webp",
   "mercedes-s-class": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/df92deb4-258d-4ba2-a420-b53676c2d335.webp",
+  "s-class": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/df92deb4-258d-4ba2-a420-b53676c2d335.webp",
   "6-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/4f3b6a13-491d-4a94-8d38-73bacdac848d.webp",
+  "alphard": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/4f3b6a13-491d-4a94-8d38-73bacdac848d.webp",
   "7-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/c02b35a2-1aa8-4eea-ad16-51e393566d9a.webp",
+  "viano": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/c02b35a2-1aa8-4eea-ad16-51e393566d9a.webp",
+  "vito": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/c02b35a2-1aa8-4eea-ad16-51e393566d9a.webp",
   "9-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/c02b35a2-1aa8-4eea-ad16-51e393566d9a.webp",
   "13-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/14947438-8bd8-475e-a77f-146fe5ebdfa3.webp",
+  "hiace": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/14947438-8bd8-475e-a77f-146fe5ebdfa3.webp",
   "vip-minibus": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/352642b2-b916-4e34-99cb-8d1007580ab7.webp",
   "vip-lounge": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/352642b2-b916-4e34-99cb-8d1007580ab7.webp",
   "wheelchair-cab": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/bb8f5a22-63fa-46c8-a847-1714f722b018.webp",
+  "23-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/4796c88b-e958-4a27-8809-ab7d72c41576.webp",
   "23-seater-coach": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/4796c88b-e958-4a27-8809-ab7d72c41576.webp",
+  "40-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/e118cc3e-de71-476d-a618-044439d18158.webp",
   "40-seater-coach": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/e118cc3e-de71-476d-a618-044439d18158.webp",
 };
 
@@ -147,9 +155,12 @@ export function getVehicleImage(
   // If passed a raw string URL directly
   if (typeof apiVehicle === "string" && apiVehicle.trim()) {
     const raw = apiVehicle.trim();
-    if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) return raw;
-    if (raw.startsWith("/uploads/")) return `${apiBase}${raw}`;
-    return raw;
+    if (raw !== "/images/Cab.png") {
+      if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("data:")) return raw;
+      if (raw.startsWith("/uploads/")) return `${apiBase}${raw}`;
+      if (raw.startsWith("/")) return raw;
+      return `${apiBase}/${raw}`;
+    }
   }
 
   // Check object properties: imageUrl, image_url, or image
@@ -158,7 +169,7 @@ export function getVehicleImage(
     (apiVehicle as any)?.image_url ||
     (apiVehicle as any)?.image;
 
-  if (typeof rawUrl === "string" && rawUrl.trim()) {
+  if (typeof rawUrl === "string" && rawUrl.trim() && rawUrl.trim() !== "/images/Cab.png") {
     const clean = rawUrl.trim();
     if (clean.startsWith("http://") || clean.startsWith("https://") || clean.startsWith("data:")) {
       return clean;
@@ -184,7 +195,11 @@ export function getVehicleImage(
     }
   }
 
-  return fallbackImage || "/images/Cab.png";
+  if (fallbackImage && fallbackImage !== "/images/Cab.png") {
+    return fallbackImage;
+  }
+
+  return "/images/Cab.png";
 }
 
 /**
@@ -512,8 +527,8 @@ export async function resolveVehicle(rawSlug: string): Promise<VehicleDetail | n
     apiMatch?.name ||
     "Toyota Vellfire / Alphard";
 
-  // Display Name: prefer clean static name if matching category, else API name
-  const displayName = staticMatch?.name || apiMatch?.name || "Singapore Maxi Cab";
+  // Display Name: prefer live API name, fallback to static name
+  const displayName = apiMatch?.name || staticMatch?.name || "Singapore Maxi Cab";
 
   return {
     id: apiMatch ? String(apiMatch.id) : staticMatch?.id || slug,

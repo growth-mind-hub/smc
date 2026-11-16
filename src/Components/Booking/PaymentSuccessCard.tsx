@@ -12,6 +12,7 @@ interface PaymentSuccessCardProps {
   customerName?: string;
   amount?: number | string;
   currency?: string;
+  paymentType?: "paynow" | "stripe" | string;
   className?: string;
 }
 
@@ -21,28 +22,60 @@ export default function PaymentSuccessCard({
   customerName,
   amount,
   currency = "SGD",
+  paymentType,
   className = "",
 }: PaymentSuccessCardProps) {
   const { bookingData, resetBooking } = useBookingModal();
 
   const [resolvedBookingId, setResolvedBookingId] = useState<string>(bookingId || "");
   const [resolvedAmount, setResolvedAmount] = useState<string>(amount ? String(amount) : "");
+  const [resolvedPaymentType, setResolvedPaymentType] = useState<string>(paymentType || "");
 
   useEffect(() => {
-    if (!resolvedBookingId && typeof window !== "undefined") {
-      const storedId = sessionStorage.getItem("last_booking_id");
-      if (storedId) setResolvedBookingId(storedId);
+    if (typeof window !== "undefined") {
+      if (!resolvedBookingId) {
+        const storedId = sessionStorage.getItem("last_booking_id");
+        if (storedId) setResolvedBookingId(storedId);
+      }
 
-      const storedAmt = sessionStorage.getItem("last_booking_amount");
-      if (storedAmt && !resolvedAmount) setResolvedAmount(storedAmt);
+      if (!resolvedAmount) {
+        const storedAmt = sessionStorage.getItem("last_booking_amount");
+        if (storedAmt) setResolvedAmount(storedAmt);
+      }
+
+      if (!resolvedPaymentType) {
+        const storedType = sessionStorage.getItem("last_payment_method");
+        if (storedType) {
+          setResolvedPaymentType(storedType);
+        } else {
+          const urlParams = new URLSearchParams(window.location.search);
+          const typeFromUrl =
+            urlParams.get("payment_type") ||
+            urlParams.get("payment") ||
+            urlParams.get("type");
+          if (typeFromUrl) {
+            setResolvedPaymentType(typeFromUrl);
+          } else if (urlParams.get("session_id")) {
+            setResolvedPaymentType("stripe");
+          } else {
+            setResolvedPaymentType("stripe");
+          }
+        }
+      }
     }
-  }, [resolvedBookingId, resolvedAmount]);
+  }, [resolvedBookingId, resolvedAmount, resolvedPaymentType]);
 
   const displayName = customerName || bookingData?.name?.trim() || "Valued Customer";
   const displayBookingId = resolvedBookingId || "CONFIRMED";
 
+  const isPayNow =
+    resolvedPaymentType.toLowerCase().includes("paynow") ||
+    resolvedPaymentType.toLowerCase().includes("sgqr");
+
+  const paymentLabel = isPayNow ? "PayNow (SGQR)" : "Stripe (Card / Digital Wallet)";
+
   const whatsappMessage = encodeURIComponent(
-    `Hi Singapore Maxicabs! I just completed my Stripe payment for Booking Reference: ${displayBookingId} (${displayName}). Could you please share the driver dispatch details when ready? Thank you!`
+    `Hi Singapore Maxicabs! I just completed my ${isPayNow ? "PayNow" : "Stripe"} payment for Booking ID: ${displayBookingId} (${displayName}). Could you please share the driver dispatch details when ready? Thank you!`
   );
   const whatsappUrl = `https://wa.me/6588006006?text=${whatsappMessage}`;
 
@@ -67,25 +100,32 @@ export default function PaymentSuccessCard({
             {title}
           </h2>
           <p className="text-sm sm:text-base text-[#5F6B7A] font-normal font-manrope leading-relaxed">
-            Thank you, <span className="font-semibold text-[#071E3B]">{displayName}</span>! Your payment was processed securely via Stripe. A driver will be assigned and dispatch confirmation sent via WhatsApp.
+            Thank you, <span className="font-semibold text-[#071E3B]">{displayName}</span>! Your payment was processed securely via {paymentLabel}. A driver will be assigned and dispatch confirmation sent via WhatsApp.
           </p>
         </div>
 
         {/* Booking Reference Card */}
         <div className="w-full max-w-md p-4 sm:p-5 rounded-xl bg-[#FBF7EC] border border-[#F4EAD1] text-left text-xs sm:text-sm space-y-2.5 text-[#071E3B] font-manrope">
           <div className="flex justify-between items-center pb-2 border-b border-[#C6A45A]/20">
-            <span className="text-[#5F6B7A] font-medium">Booking Reference</span>
+            <span className="text-[#5F6B7A] font-medium">Booking ID</span>
             <span className="font-bold text-[#071E3B] font-mono tracking-wider text-sm bg-white px-2.5 py-0.5 rounded border border-slate-200">
               {displayBookingId}
             </span>
           </div>
 
           <div className="flex justify-between items-center">
-            <span className="text-[#5F6B7A]">Payment Status</span>
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-xs font-semibold">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-              PAID (Stripe)
-            </span>
+            <span className="text-[#5F6B7A]">Payment Type</span>
+            {isPayNow ? (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#FAF0FA] border border-[#7B187B]/30 text-[#7B187B] text-xs font-bold font-manrope">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#7B187B]" />
+                PayNow (SGQR)
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-100 border border-emerald-300 text-emerald-800 text-xs font-bold font-manrope">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                Stripe (Credit / Debit Card)
+              </span>
+            )}
           </div>
 
           {bookingData?.selectedFleet && (

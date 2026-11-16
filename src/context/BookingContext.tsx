@@ -476,6 +476,7 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
             sessionStorage.setItem("last_booking_id", response.booking_id || "");
             sessionStorage.setItem("last_booking_amount", String(response.amount || ""));
             sessionStorage.setItem("last_booking_currency", response.currency || "SGD");
+            sessionStorage.setItem("last_payment_method", paymentType || "stripe");
           } catch {}
           // Navigate to Stripe checkout URL
           window.location.href = response.stripe_checkout_url;

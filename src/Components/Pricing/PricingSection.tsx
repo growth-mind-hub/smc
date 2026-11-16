@@ -64,12 +64,17 @@ export default function PricingSection() {
 
       const pax = liveMatch?.passengerCapacity ? String(liveMatch.passengerCapacity) : item.pax;
       const luggage = liveMatch?.luggageCapacity ? String(liveMatch.luggageCapacity) : item.luggage;
+      const description =
+        liveMatch?.description ||
+        (item as any).description ||
+        item.model ||
+        "Executive luxury transport";
 
       return {
         id: String(liveMatch?.id ?? item.id),
         slug: item.slug,
-        name: item.name,
-        model: item.model,
+        name: liveMatch?.name || item.name,
+        description,
         pax,
         luggage,
         pointToPoint,
@@ -99,7 +104,7 @@ export default function PricingSection() {
             id: String(v.id),
             slug: `vehicle-${v.id}`,
             name: v.name,
-            model: v.description || v.vehicleType || "Executive Maxi Cab",
+            description: v.description || v.vehicleType || "Executive Maxi Cab",
             pax: `${v.passengerCapacity || 7}`,
             luggage: `${v.luggageCapacity || 5}`,
             pointToPoint: `$${pointToPoint} SGD`,
@@ -189,15 +194,15 @@ export default function PricingSection() {
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 pr-1">
+                    <div className="min-w-0 pr-1 flex-1">
                       <Link
                         href={`/fleets/${row.slug}`}
-                        className="font-bold text-lg text-[#071E3B] hover:text-[#C6A45A] transition-colors font-manrope block leading-snug"
+                        className="font-bold text-lg text-[#071E3B] hover:text-[#C6A45A] transition-colors font-manrope block leading-snug truncate"
                       >
                         {row.name}
                       </Link>
-                      <span className="block text-xs text-[#667085] mt-0.5 font-manrope line-clamp-1">
-                        {row.model}
+                      <span className="block text-xs text-[#667085] mt-0.5 font-manrope truncate max-w-[240px]" title={row.description}>
+                        {row.description}
                       </span>
                     </div>
                     {/* Capacity icons: Pax & Luggage */}
@@ -222,10 +227,14 @@ export default function PricingSection() {
                   </div>
 
                   {/* Rates Breakdown */}
-                  <div className="mt-4 grid grid-cols-3 gap-2 bg-[#F8F7F4] p-3 rounded-xl border border-slate-100 text-center">
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#F8F7F4] p-3 rounded-xl border border-slate-100 text-center">
                     <div className="flex flex-col">
                       <span className="text-[10px] text-[#667085] uppercase font-bold font-inter">Point-to-Point</span>
                       <span className="text-base font-bold text-[#C6A45A] font-manrope">{row.pointToPoint}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-[#667085] uppercase font-bold font-inter">Arrival Pickup</span>
+                      <span className="text-sm font-semibold text-[#8A5A00] font-manrope">{row.meetAndGreet}</span>
                     </div>
                     <div className="flex flex-col">
                       <span className="text-[10px] text-[#667085] uppercase font-bold font-inter">3h Charter</span>
@@ -260,14 +269,15 @@ export default function PricingSection() {
 
           {/* Desktop Table Container (hidden on < md) */}
           <div className="hidden md:block w-full rounded-2xl border border-[#E9ECEF] overflow-hidden shadow-xs">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse table-fixed">
               <thead>
                 <tr className="bg-[#071E3B] text-white text-sm font-bold font-manrope">
-                  <th className="py-4 px-6">Vehicle</th>
-                  <th className="py-4 px-4 text-center">Capacity</th>
-                  <th className="py-4 px-4 text-center">Point-to-Point</th>
-                  <th className="py-4 px-4 text-center">3h Charter</th>
-                  <th className="py-4 px-4 text-center">8h Charter</th>
+                  <th className="py-4 px-6 w-[28%]">Vehicle</th>
+                  <th className="py-4 px-3 text-center w-[12%]">Capacity</th>
+                  <th className="py-4 px-3 text-center w-[15%]">Point-to-Point</th>
+                  <th className="py-4 px-3 text-center w-[15%]">Arrival Driveway Pickup</th>
+                  <th className="py-4 px-3 text-center w-[15%]">3h Charter</th>
+                  <th className="py-4 px-3 text-center w-[15%]">8h Charter</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -281,17 +291,17 @@ export default function PricingSection() {
                     <td className="py-4 px-6">
                       <Link
                         href={`/fleets/${row.slug}`}
-                        className="group flex flex-col"
+                        className="group flex flex-col min-w-0"
                       >
-                        <span className="font-semibold text-xl text-[#071E3B] group-hover:text-[#C6A45A] transition-colors font-manrope leading-8">
+                        <span className="font-semibold text-lg text-[#071E3B] group-hover:text-[#C6A45A] transition-colors font-manrope leading-7 truncate">
                           {row.name}
                         </span>
-                        <span className="text-sm font-normal text-[#667085] font-manrope leading-5">
-                          {row.model}
+                        <span className="text-xs font-normal text-[#667085] font-manrope leading-5 truncate block max-w-[260px]" title={row.description}>
+                          {row.description}
                         </span>
                       </Link>
                     </td>
-                    <td className="py-4 px-4 text-center font-manrope">
+                    <td className="py-4 px-3 text-center font-manrope">
                       <div className="inline-flex items-center justify-center gap-1.5">
                         <span
                           className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white border border-[#E9ECEF] text-xs font-bold text-[#071E3B]"
@@ -311,13 +321,16 @@ export default function PricingSection() {
                         )}
                       </div>
                     </td>
-                    <td className="py-4 px-4 text-center font-bold text-base text-[#C6A45A] font-manrope leading-6">
+                    <td className="py-4 px-3 text-center font-bold text-base text-[#C6A45A] font-manrope leading-6">
                       {row.pointToPoint}
                     </td>
-                    <td className="py-4 px-4 text-center text-sm font-semibold text-[#A77E3C] font-manrope leading-5">
+                    <td className="py-4 px-3 text-center text-sm font-semibold text-[#8A5A00] font-manrope leading-5">
+                      {row.meetAndGreet}
+                    </td>
+                    <td className="py-4 px-3 text-center text-sm font-semibold text-[#A77E3C] font-manrope leading-5">
                       {row.charter3h}
                     </td>
-                    <td className="py-4 px-4 text-center text-sm font-semibold text-[#A77E3C] font-manrope leading-5">
+                    <td className="py-4 px-3 text-center text-sm font-semibold text-[#A77E3C] font-manrope leading-5">
                       {row.charter8h}
                     </td>
                   </tr>

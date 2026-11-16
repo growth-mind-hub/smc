@@ -20,8 +20,27 @@ interface Step2CardProps {
 export default function Step2Card({ isModal = true }: Step2CardProps) {
   const { bookingData, updateBookingData, setStep, closeModal } = useBookingModal();
   const [isAddOnDropdownOpen, setIsAddOnDropdownOpen] = useState(false);
+  const addOnContainerRef = React.useRef<HTMLDivElement>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+
+  // Auto-close add-on dropdown when user clicks outside
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        addOnContainerRef.current &&
+        !addOnContainerRef.current.contains(event.target as Node)
+      ) {
+        setIsAddOnDropdownOpen(false);
+      }
+    }
+    if (isAddOnDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isAddOnDropdownOpen]);
 
   const isNightPickup = isNightOrEarlyMorningTime(bookingData.pickupTime);
   const uaeTime = getUAETime();
@@ -194,23 +213,23 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
           timeError={hasAttemptedSubmit ? formErrors.pickupTime : undefined}
         />
 
-        {/* UAE Late-Night Operations Notice if user booking during UAE night */}
+        {/* Singapore Late-Night Operations Notice if user booking during Singapore night */}
         {isBookingCreationNight && (
           <div className="self-stretch p-3 bg-[#FAF7F0] rounded-xl border border-[#C6A45A]/40 flex items-start gap-2.5 text-xs text-[#8A5A00] font-manrope animate-in fade-in">
             <Moon className="w-4 h-4 shrink-0 text-[#8A5A00] mt-0.5" />
             <div className="flex flex-col gap-0.5 leading-relaxed">
               <span className="font-bold text-[#071E3B]">
-                Late-Night Booking Operations (10:00 PM – 6:00 AM UAE Time)
+                Late-Night Booking Operations (11:30 PM – 6:30 AM Singapore Time)
               </span>
               <span>
-                Current UAE Time: <strong>{uaeTime.timeString}</strong>. Bookings submitted during late-night UAE hours are confirmed directly with our Operations Desk via WhatsApp.{isNightPickup ? " A +$10 SGD late-night transfer surcharge applies for night pickups." : ""}
+                Current Singapore Time: <strong>{uaeTime.timeString}</strong>. Bookings submitted during late-night Singapore hours are confirmed directly with our Operations Desk via WhatsApp.{isNightPickup ? " A +$10 SGD late-night transfer surcharge applies for night pickups." : ""}
               </span>
             </div>
           </div>
         )}
 
         {/* Add Ons Dropdown & Dynamic Input Fields */}
-        <div className="self-stretch flex flex-col justify-start items-start gap-2 relative">
+        <div ref={addOnContainerRef} className="self-stretch flex flex-col justify-start items-start gap-2 relative">
           <label className="text-[#071E3B] text-xs sm:text-sm font-medium font-inter leading-5">
             Add Ons
           </label>
@@ -226,9 +245,11 @@ export default function Step2Card({ isModal = true }: Step2CardProps) {
               </span>
             </div>
             <div className="flex justify-start items-center gap-2">
-              <span className="text-xs text-[#C6A45A] font-bold font-manrope">
-                {isAddOnDropdownOpen ? "Close Menu" : "+ Add Option"}
-              </span>
+              {!isAddOnDropdownOpen && (
+                <span className="text-xs text-[#C6A45A] font-bold font-manrope">
+                  + Add Option
+                </span>
+              )}
               <ChevronDown
                 className={`w-4 h-4 text-[#667085] transition-transform ${
                   isAddOnDropdownOpen ? "rotate-180" : ""

@@ -30,9 +30,6 @@ export default function PayNowQRModal({
   const phoneDigits = (bookingData.phone || "8800").replace(/\D/g, "").slice(-4);
   const bookingRef = `SMC-${dateStr}-${phoneDigits || "8800"}`;
 
-  // Approximate AED equivalent for UAE / GCC clients (standard pegged rate ~2.72 SGD/AED)
-  const aedAmount = (totalAmount * 2.72).toFixed(2);
-
   const handleCopyUEN = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {
       navigator.clipboard.writeText(uenNumber);
@@ -61,7 +58,7 @@ export default function PayNowQRModal({
       `*Pickup:* ${bookingData.pickup}%0A` +
       `*Dropoff:* ${bookingData.dropoff}%0A` +
       `*Date & Time:* ${bookingData.pickupDate} at ${bookingData.pickupTime} SGT%0A` +
-      `*Amount Transferred:* $${totalAmount}.00 SGD (~AED ${aedAmount})%0A` +
+      `*Amount Transferred:* $${totalAmount}.00 SGD%0A` +
       `*Payee UEN:* ${uenNumber} (Singapore Maxi Cabs)%0A` +
       `--------------------------------%0A` +
       `I have completed the PayNow transfer. Attaching receipt screenshot for instant chauffeur dispatch!`;
@@ -114,11 +111,6 @@ export default function PayNowQRModal({
             </span>
             <div className="text-2xl sm:text-3xl font-extrabold text-[#071E3B] font-manrope mt-0.5">
               ${totalAmount}.00 <span className="text-sm font-bold text-[#8A5A00]">SGD NETT</span>
-            </div>
-            {/* UAE conversion pill for Middle East / International visitors */}
-            <div className="mt-1 inline-flex items-center gap-1.5 px-2.5 py-1 bg-white rounded-full border border-[#C6A45A]/40 text-[#8A5A00] text-[11px] font-semibold font-manrope">
-              <Sparkles className="w-3 h-3 text-[#C6A45A]" />
-              <span>≈ AED {aedAmount} (Direct bank settlement · Zero FX markup)</span>
             </div>
           </div>
 
