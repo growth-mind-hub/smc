@@ -370,41 +370,6 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       setIsSuccess(true);
     };
 
-    const forwardToWhatsAppWithPayNow = () => {
-      const text =
-        `*Singapore Maxi Cab Booking — PayNow Transfer Requested*%0A` +
-        `--------------------------------%0A` +
-        `*Service:* ${bookingData.serviceType}%0A` +
-        (isHourly ? `*Duration:* ${duration} Hours%0A` : "") +
-        `*Vehicle:* ${bookingData.selectedFleet || "7-Seater Maxi Cab"}%0A` +
-        `*Pickup Location:* ${displayPickup}%0A` +
-        (!isHourly
-          ? `*Dropoff Location:* ${displayDropoff}%0A`
-          : `*Dropoff / Charter Scope:* ${displayDropoff}%0A`) +
-        `*Date & Time:* ${formatDateDisplay(bookingData.pickupDate)}${bookingData.pickupTime ? ` at ${formatTimeDisplay(bookingData.pickupTime)} (${bookingData.pickupTime} SGT)` : ""}%0A` +
-        `*Passengers:* ${bookingData.passengers || 7} Pax | *Luggage:* ${bookingData.luggage || 5} Bags%0A` +
-        `*Passenger Name:* ${bookingData.name || "Customer"}%0A` +
-        `*Contact Number:* ${bookingData.phone ? `${bookingData.countryCode} ${bookingData.phone}` : "Via WhatsApp"}%0A` +
-        `*Email:* ${bookingData.email || "booking@singaporemaxicabs.com.sg"}%0A` +
-        (bookingData.flightNumber ? `*Flight Number:* ${bookingData.flightNumber}%0A` : "") +
-        (bookingData.signboardName ? `*Signboard Name:* ${bookingData.signboardName}%0A` : "") +
-        (isNightPickup ? `*Late-Night Surcharge (11:30 PM–6:30 AM SGT):* +$${nightSurchargePrice}.00 SGD Included%0A` : "") +
-        `--------------------------------%0A` +
-        `*PAYMENT DETAILS*%0A` +
-        `*Payment Method:* PayNow%0A` +
-        `*Total Tariff:* $${totalFare}.00 SGD NETT%0A` +
-        `*Payment Status:* Pending Official PayNow QR from Dispatch Desk%0A` +
-        `--------------------------------%0A` +
-        `Hello Operations Desk, please send me the official PayNow QR code for $${totalFare}.00 SGD to confirm and track my booking. Thank you!`;
-
-      const waUrl = `https://wa.me/6588006006?text=${text}`;
-      const opened = window.open(waUrl, "_blank");
-      if (!opened) {
-        window.location.href = waUrl;
-      }
-      setIsSuccess(true);
-    };
-
     if (isContactSupport) {
       // Direct to WhatsApp for customized quotation
       const text =
@@ -433,7 +398,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       return;
     }
 
-    // 3. Daytime Payment: PayNow Option -> Call checkout API with paymentType: 'paynow'
+    // 3. Daytime Payment: PayNow Option -> Call checkout API with paymentType: 'paynow' and show confirmation
     if (selectedPaymentMethod === "paynow") {
       try {
         const checkoutRes = await submitLiveCheckout("paynow");
@@ -442,11 +407,11 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           return;
         }
         setIsRedirecting(false);
-        forwardToWhatsAppWithPayNow();
+        setIsSuccess(true);
       } catch (e) {
-        console.warn("PayNow checkout error, forwarding to WhatsApp:", e);
+        console.warn("PayNow checkout error, proceeding to confirmation:", e);
         setIsRedirecting(false);
-        forwardToWhatsAppWithPayNow();
+        setIsSuccess(true);
       }
       return;
     }
