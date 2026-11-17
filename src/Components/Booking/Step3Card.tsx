@@ -367,7 +367,6 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       if (!opened) {
         window.location.href = waUrl;
       }
-      setIsSuccess(true);
     };
 
     if (isContactSupport) {
@@ -1071,7 +1070,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
               onClick={handleProceed}
               disabled={isCheckingOut || isRedirecting}
               className={`flex-1 min-w-0 px-4 sm:px-6 py-3.5 min-h-[48px] active:scale-[0.98] text-white rounded-xl flex items-center justify-center gap-2 sm:gap-3 transition-all shadow-md hover:shadow-lg cursor-pointer text-xs sm:text-base font-bold font-manrope disabled:opacity-75 ${
-                isBookingCreationNight || selectedPaymentMethod === "paynow"
+                isBookingCreationNight || isContactSupport
                   ? "bg-[#16803C] hover:bg-[#126831]"
                   : "bg-[#071E3B] hover:bg-[#0B2A4A]"
               }`}
@@ -1101,13 +1100,13 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
                 </>
               ) : isBookingCreationNight ? (
                 <>
-                  <span>Confirm via WhatsApp (UAE Night Dispatch)</span>
+                  <span>Confirm via WhatsApp (Night Dispatch)</span>
                   <WhatsAppIcon className="w-4 h-4 shrink-0" />
                 </>
               ) : selectedPaymentMethod === "paynow" ? (
                 <>
                   <span>Proceed via PayNow (${totalFare}.00 SGD)</span>
-                  <WhatsAppIcon className="w-4 h-4 shrink-0" />
+                  <ArrowRight className="w-4 h-4 stroke-[2.5] shrink-0" />
                 </>
               ) : (
                 <>
