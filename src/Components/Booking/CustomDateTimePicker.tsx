@@ -231,12 +231,11 @@ export default function CustomDateTimePicker({
     onTimeChange(newTime);
   };
 
-  // Quick preset transfer slots
+  // Quick preset transfer slots (Clean 5 slots fitted without scroll)
   const quickTimeSlots = [
-    { label: "⚡ ASAP (+45m)", isAsap: true },
+    { label: "⚡ ASAP", isAsap: true },
     { label: "09:00 AM", time: "09:00" },
     { label: "12:00 PM", time: "12:00" },
-    { label: "03:30 PM", time: "15:30" },
     { label: "07:00 PM", time: "19:00" },
     { label: "11:30 PM", time: "23:30", isNight: true },
   ];
@@ -273,7 +272,7 @@ export default function CustomDateTimePicker({
     <div
       className={`w-full bg-[#FAF9F5] rounded-2xl border ${
         dateError || timeError ? "border-rose-400 ring-1 ring-rose-400" : "border-slate-200/90"
-      } p-3.5 sm:p-5 flex flex-col gap-4 sm:gap-5 shadow-xs ${className}`}
+      } p-3.5 sm:p-4 flex flex-col gap-3 sm:gap-3.5 shadow-xs ${className}`}
     >
       {/* 1. Header & Live Summary Badge */}
       <div className="flex items-center justify-between gap-3 border-b border-slate-200/70 pb-3 flex-wrap sm:flex-nowrap">
@@ -552,8 +551,8 @@ export default function CustomDateTimePicker({
           </div>
         </div>
 
-        {/* Popular Limousine Time Slot Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        {/* Popular Limousine Time Slot Chips (Fixed Grid - Zero Scroll) */}
+        <div className="grid grid-cols-5 gap-1.5 sm:gap-2 w-full">
           {quickTimeSlots.map((slot) => {
             const isSelected = slot.time === timeValue;
             return (
@@ -561,7 +560,7 @@ export default function CustomDateTimePicker({
                 key={slot.label}
                 type="button"
                 onClick={() => handleApplySlot(slot)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold font-manrope whitespace-nowrap transition-all cursor-pointer border ${
+                className={`py-2 px-1 rounded-xl text-[11px] sm:text-xs font-bold font-manrope text-center transition-all cursor-pointer border truncate ${
                   isSelected
                     ? "bg-[#071E3B] text-white border-[#C6A45A] shadow-xs ring-1 ring-[#C6A45A]"
                     : "bg-white hover:bg-[#FAF7F0] text-[#071E3B] hover:text-[#C6A45A] border-slate-200/80 shadow-2xs"
