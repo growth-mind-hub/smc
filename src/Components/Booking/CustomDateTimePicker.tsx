@@ -276,32 +276,27 @@ export default function CustomDateTimePicker({
       } p-3.5 sm:p-5 flex flex-col gap-4 sm:gap-5 shadow-xs ${className}`}
     >
       {/* 1. Header & Live Summary Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/70 pb-3">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-[#071E3B] text-[#C6A45A] flex items-center justify-center shrink-0 shadow-xs">
-            <CalendarIcon className="w-4 h-4 text-[#C6A45A]" strokeWidth={2.2} />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-[#C6A45A] font-manrope">
-              Schedule Your Pickup
-            </span>
-            <span className="text-xs sm:text-sm font-bold text-[#071E3B] font-manrope">
-              Date &amp; Chauffeur Time
-            </span>
-          </div>
+      <div className="flex items-center justify-between gap-3 border-b border-slate-200/70 pb-3 flex-wrap sm:flex-nowrap">
+        <div className="flex flex-col">
+          <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#C6A45A] font-manrope">
+            Schedule Your Pickup
+          </span>
+          <span className="text-xs sm:text-sm font-bold text-[#071E3B] font-manrope">
+            Date &amp; Chauffeur Time
+          </span>
         </div>
 
         {/* Live Active Schedule Badge */}
-        <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#C6A45A]/30 shadow-2xs self-start sm:self-auto">
-          <span className="text-xs font-bold text-[#071E3B] font-manrope">
+        <div className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-white border border-[#C6A45A]/30 shadow-2xs shrink-0 whitespace-nowrap">
+          <span className="text-xs font-bold text-[#071E3B] font-manrope whitespace-nowrap">
             {formatDateDisplay(dateValue)}
           </span>
           <span className="text-slate-300">•</span>
-          <span className="text-xs font-bold text-[#C6A45A] font-manrope">
+          <span className="text-xs font-bold text-[#C6A45A] font-manrope whitespace-nowrap">
             {formatTimeDisplay(timeValue)} SGT
           </span>
           {isNight && (
-            <span className="ml-1 text-[10px] font-extrabold text-[#8A5A00] bg-[#FFF8E7] px-1.5 py-0.5 rounded flex items-center gap-0.5">
+            <span className="ml-0.5 text-[10px] font-extrabold text-[#8A5A00] bg-[#FFF8E7] px-1.5 py-0.5 rounded flex items-center gap-0.5 whitespace-nowrap">
               <Moon className="w-2.5 h-2.5" /> Night
             </span>
           )}

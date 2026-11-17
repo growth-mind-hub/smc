@@ -25,13 +25,21 @@ export default function FleetsDropdown({ onItemClick }: FleetsDropdownProps) {
         seen.add(key);
         return true;
       })
-      .map((v) => ({
-        id: v.id,
-        name: v.name,
-        capacity: `${v.pax} | ${v.bags}`,
-        slug: v.slug || v.id,
-        image: v.image || "/images/Cab.png",
-      }));
+      .map((v) => {
+        const slug = v.slug || v.id;
+        const displayName =
+          v.name === "6 Seater Maxi Cab" ? "Toyota Alphard / Vellfire" :
+          v.name === "7 Seater Maxi Cab" ? "Mercedes Viano" :
+          v.name === "9 Seater Maxi Cab" ? "Mercedes Viano" :
+          v.name;
+        return {
+          id: v.id,
+          name: displayName,
+          capacity: `${v.pax} | ${v.bags}`,
+          slug,
+          image: getVehicleImage(slug, v.image || "/images/Cab.png"),
+        };
+      });
   }, []);
 
   const fleets =
@@ -40,9 +48,14 @@ export default function FleetsDropdown({ onItemClick }: FleetsDropdownProps) {
           const slug = resolveSlugFromApiVehicle(v);
           const pax = v.passengerCapacity ?? 7;
           const bags = v.luggageCapacity ?? 4;
+          const displayName =
+            v.name === "6 Seater Maxi Cab" ? "Toyota Alphard / Vellfire" :
+            v.name === "7 Seater Maxi Cab" ? "Mercedes Viano" :
+            v.name === "9 Seater Maxi Cab" ? "Mercedes Viano" :
+            v.name;
           return {
             id: String(v.id),
-            name: v.name,
+            name: displayName,
             capacity: `${pax} Pax | ${bags} Bags`,
             slug,
             image: getVehicleImage(v, "/images/Cab.png"),
@@ -66,19 +79,19 @@ export default function FleetsDropdown({ onItemClick }: FleetsDropdownProps) {
               key={fleet.id}
               href={`/fleets/${fleet.slug}`}
               onClick={onItemClick}
-              className="p-2.5 sm:p-3 rounded-xl flex items-center gap-3.5 hover:bg-[#FBF7EC] active:scale-[0.99] transition-all group"
+              className="p-2 sm:p-2.5 rounded-xl flex items-center gap-3.5 hover:bg-[#FBF7EC] active:scale-[0.99] transition-all group"
             >
-              <div className="w-14 h-11 shrink-0 relative rounded-md overflow-hidden bg-slate-100 flex items-center justify-center p-1 border border-slate-200/70">
+              <div className="w-16 h-11 sm:w-[72px] sm:h-12 shrink-0 relative rounded-lg overflow-hidden bg-slate-100 border border-slate-200/80 shadow-2xs">
                 <Image
                   src={fleet.image}
                   alt={fleet.name}
                   fill
-                  sizes="56px"
-                  className="object-contain group-hover:scale-105 transition-transform"
+                  sizes="80px"
+                  className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
-              <div className="flex flex-col items-start gap-0.5">
-                <span className="text-[#071E3B] text-sm sm:text-base font-semibold font-manrope leading-snug group-hover:text-[#C6A45A] transition-colors">
+              <div className="flex flex-col items-start gap-0.5 min-w-0">
+                <span className="text-[#071E3B] text-sm sm:text-base font-semibold font-manrope leading-snug group-hover:text-[#C6A45A] transition-colors truncate w-full">
                   {fleet.name}
                 </span>
                 <span className="text-[#667085] text-xs font-normal font-manrope leading-4">

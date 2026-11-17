@@ -637,10 +637,10 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         {/* Row 1: Pick Up & Destination */}
         <div className="self-stretch grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 items-start">
           {/* Pick Up */}
-          <div className="flex flex-col justify-start items-start gap-1 sm:gap-2 min-w-0">
+          <div className="flex flex-col justify-start items-start gap-1 min-w-0">
             <div className="inline-flex items-center gap-1.5 flex-wrap">
-              <span className="text-[#8A5A00] text-sm font-medium font-inter leading-5">
-                Pick Up
+              <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase tracking-wider">
+                PICK UP
               </span>
               {bookingData.terminal && (
                 <span className="px-2 py-0.5 bg-[#123F6B] rounded-sm text-white text-xs font-normal font-manrope leading-4">
@@ -659,9 +659,9 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           </div>
 
           {/* Destination */}
-          <div className="flex flex-col justify-start items-start gap-1 sm:gap-2 min-w-0">
-            <span className="text-[#8A5A00] text-sm font-medium font-inter leading-5">
-              Destination
+          <div className="flex flex-col justify-start items-start gap-1 min-w-0">
+            <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase tracking-wider">
+              DESTINATION
             </span>
             <div className="text-[#071E3B] text-base font-bold font-manrope leading-snug sm:leading-7 break-words">
               {displayDropoff}
@@ -677,7 +677,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         {/* Row 2: Date & Time and Meet & Greet Signboard OR Selected Fleet */}
         <div className="self-stretch grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8 items-start">
           <div className="flex flex-col justify-start items-start gap-1 min-w-0">
-            <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase">
+            <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase tracking-wider">
               DATE &amp; TIME
             </span>
             <div className="text-[#071E3B] text-base font-bold font-manrope leading-6">
@@ -690,7 +690,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
           {bookingData.meetAndGreet ? (
             <div className="flex flex-col justify-start items-start gap-1 min-w-0">
-              <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase">
+              <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase tracking-wider">
                 ARRIVAL MEET &amp; GREET SIGNBOARD
               </span>
               <div className="text-[#071E3B] text-base font-bold font-manrope leading-6 break-words">
@@ -702,7 +702,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
             </div>
           ) : (
             <div className="flex flex-col justify-start items-start gap-1 min-w-0">
-              <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase">
+              <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase tracking-wider">
                 SELECTED FLEET
               </span>
               <div className="text-[#071E3B] text-base font-bold font-manrope leading-6 break-words">
@@ -717,7 +717,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
 
         {/* Row 3: Passenger */}
         <div className="flex flex-col justify-start items-start gap-1">
-          <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase">
+          <span className="text-[#C6A45A] text-xs font-bold font-manrope leading-4 uppercase tracking-wider">
             PASSENGER
           </span>
           <div className="text-[#071E3B] text-base font-bold font-manrope leading-6">

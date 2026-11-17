@@ -44,12 +44,12 @@ export default function OccasionsSection() {
             {occasionsData.cards.map((card) => (
               <div
                 key={card.id}
-                className="p-4 sm:p-6 bg-white rounded-xl border border-[#E9ECEF]/60 flex flex-col gap-1.5 sm:gap-2 shadow-xs hover:shadow-md transition-shadow"
+                className="p-4 sm:p-6 bg-white rounded-xl border border-[#E9ECEF]/60 flex flex-col justify-start gap-2 shadow-xs hover:shadow-md transition-shadow min-h-[110px] sm:min-h-[124px]"
               >
                 <h3 className="text-base sm:text-lg font-bold text-[#071E3B] uppercase font-manrope leading-snug line-clamp-1">
                   {card.title}
                 </h3>
-                <p className="text-xs sm:text-sm font-normal text-[#5F6B7A] leading-relaxed font-manrope line-clamp-2 h-10">
+                <p className="text-xs sm:text-sm font-normal text-[#5F6B7A] leading-relaxed font-manrope line-clamp-2 min-h-[44px] sm:min-h-[48px]">
                   {card.description}
                 </p>
               </div>
