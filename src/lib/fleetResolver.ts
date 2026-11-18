@@ -4,14 +4,14 @@ import { VehicleCard } from "@/types/api";
 import { Vehicle } from "@/Components/Fleet/FleetCard";
 
 /**
- * Fetch all vehicles directly from the live API with quick timeout and caching
+ * Fetch all vehicles directly from the live API with caching and reasonable timeout
  */
 export async function fetchLiveVehicles(): Promise<VehicleCard[]> {
   try {
     const res = await fetch("https://api.singaporemaxicabs.com.sg/api/vehicles", {
-      next: { revalidate: 60 },
+      next: { revalidate: 300 },
       headers: { Accept: "application/json" },
-      signal: AbortSignal.timeout(4000),
+      signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) return [];
     const json = await res.json();
@@ -23,98 +23,183 @@ export async function fetchLiveVehicles(): Promise<VehicleCard[]> {
 }
 
 /**
+ * Create a clean, SEO-friendly URL slug directly from a vehicle/fleet name
+ * e.g. "Toyota Alphard / Vellfire" -> "toyota-alphard-vellfire"
+ * e.g. "Mercedes E Class" -> "mercedes-e-class"
+ * e.g. "Mercedes Vito/Viano" -> "mercedes-vito-viano"
+ */
+export function createSlugFromName(name: string): string {
+  if (!name) return "";
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[/\\+]/g, "-") // convert slashes, plus to hyphens
+    .replace(/[^a-z0-9]+/g, "-") // convert non-alphanumeric to hyphens
+    .replace(/^-+|-+$/g, ""); // strip leading/trailing hyphens
+}
+
+/**
+ * Determine a canonical slug for an API vehicle - ALWAYS derived directly from the fleet name!
+ */
+export function resolveSlugFromApiVehicle(v: VehicleCard): string {
+  if (v?.name) {
+    const slug = createSlugFromName(v.name);
+    if (slug) return slug;
+  }
+  return `vehicle-${v?.id || "unknown"}`;
+}
+
+/**
  * Match a raw slug or ID to an API vehicle
  */
 export function findMatchingApiVehicle(
   rawSlug: string,
   apiVehicles: VehicleCard[]
 ): VehicleCard | undefined {
+  if (!apiVehicles || apiVehicles.length === 0) return undefined;
   const slug = decodeURIComponent(rawSlug).toLowerCase().trim();
+
+  // 1. Exact match by slug derived from vehicle name
+  const exactSlugMatch = apiVehicles.find((v) => createSlugFromName(v.name) === slug);
+  if (exactSlugMatch) return exactSlugMatch;
+
+  // 2. Match by vehicle ID or vehicle-X
+  const idMatch = apiVehicles.find(
+    (v) => String(v.id) === slug || `vehicle-${v.id}` === slug
+  );
+  if (idMatch) return idMatch;
+
+  // 3. Match known aliases and legacy URLs for complete backward compatibility
+  if (
+    slug === "toyota-alphard-vellfire" ||
+    slug === "toyota-vellfire" ||
+    slug === "toyota-alphard" ||
+    slug === "alphard" ||
+    slug === "vellfire" ||
+    slug === "6-seater" ||
+    slug === "6-seater-maxi-cab"
+  ) {
+    return apiVehicles.find(
+      (v) => v.id === 3 || v.name.toLowerCase().includes("alphard") || v.name.toLowerCase().includes("vellfire")
+    );
+  }
+
+  if (
+    slug === "mercedes-vito-viano" ||
+    slug === "mercedes-vito" ||
+    slug === "mercedes-viano" ||
+    slug === "vito" ||
+    slug === "viano" ||
+    slug === "7-seater" ||
+    slug === "7-seater-maxi-cab"
+  ) {
+    return apiVehicles.find(
+      (v) => v.id === 4 || (v.name.toLowerCase().includes("vito") && !v.name.toLowerCase().includes("wheelchair"))
+    );
+  }
+
+  if (
+    slug === "mercedes-v-class" ||
+    slug === "v-class" ||
+    slug === "vip-lounge" ||
+    slug === "vip-lounge-7-seater"
+  ) {
+    return apiVehicles.find(
+      (v) => v.id === 5 || v.name.toLowerCase().includes("v-class")
+    );
+  }
+
+  if (
+    slug === "mercedes-e-class" ||
+    slug === "e-class" ||
+    slug === "mercedes-e"
+  ) {
+    return apiVehicles.find(
+      (v) => v.id === 1 || v.name.toLowerCase().includes("e class") || v.name.toLowerCase().includes("e-class")
+    );
+  }
+
+  if (
+    slug === "mercedes-s-class" ||
+    slug === "s-class" ||
+    slug === "mercedes-s"
+  ) {
+    return apiVehicles.find(
+      (v) => v.id === 2 || v.name.toLowerCase().includes("s class") || v.name.toLowerCase().includes("s-class")
+    );
+  }
+
+  if (
+    slug === "toyota-hiace-13-seater-minibus" ||
+    slug === "toyota-hiace" ||
+    slug === "hiace" ||
+    slug === "13-seater" ||
+    slug === "13-seater-minibus"
+  ) {
+    return apiVehicles.find(
+      (v) => v.id === 6 || (v.name.toLowerCase().includes("hiace") && !v.name.toLowerCase().includes("vip"))
+    );
+  }
+
+  if (
+    slug === "vip-executive-minibus" ||
+    slug === "vip-minibus"
+  ) {
+    return apiVehicles.find(
+      (v) => v.id === 7 || (v.name.toLowerCase().includes("vip") && v.name.toLowerCase().includes("minibus"))
+    );
+  }
+
+  if (
+    slug === "7-seater-maxi-cab-wheelchair" ||
+    slug === "wheelchair-cab" ||
+    slug === "wheelchair-maxi-cab" ||
+    slug === "7-seater-wheelchair"
+  ) {
+    return apiVehicles.find(
+      (v) => v.id === 8 || (v.name.toLowerCase().includes("wheelchair") && (v.passengerCapacity === 3 || v.name.includes("7")))
+    );
+  }
+
+  if (
+    slug === "9-seater-maxi-cab-wheelchair" ||
+    slug === "9-seater-wheelchair"
+  ) {
+    return apiVehicles.find(
+      (v) => v.id === 11 || (v.name.toLowerCase().includes("wheelchair") && v.name.includes("9"))
+    );
+  }
+
+  if (
+    slug === "9-seater-minibus" ||
+    slug === "9-seater"
+  ) {
+    return apiVehicles.find(
+      (v) => v.id === 12 || (v.passengerCapacity === 9 && !v.name.toLowerCase().includes("wheelchair"))
+    );
+  }
+
+  if (
+    slug === "23-seater-coaches" ||
+    slug === "23-seater-coach" ||
+    slug === "23-seater"
+  ) {
+    return apiVehicles.find((v) => v.id === 9 || v.passengerCapacity === 23);
+  }
+
+  if (
+    slug === "40-seater-coaches" ||
+    slug === "40-seater-coach" ||
+    slug === "40-seater"
+  ) {
+    return apiVehicles.find((v) => v.id === 10 || v.passengerCapacity === 40);
+  }
+
+  // 4. Fuzzy substring match
   return apiVehicles.find((v) => {
-    const vName = v.name.toLowerCase();
-    const vIdStr = v.id.toString();
-    const vNameSlug = vName.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-
-    if (vIdStr === slug || `vehicle-${vIdStr}` === slug || vNameSlug === slug) {
-      return true;
-    }
-
-    if (
-      slug === "6-seater" &&
-      (v.passengerCapacity === 6 || v.id === 3 || vName.includes("alphard") || vName.includes("6 seater"))
-    ) {
-      return true;
-    }
-    if (
-      slug === "7-seater" &&
-      ((v.passengerCapacity === 7 && !vName.includes("wheelchair")) || v.id === 4 || vName.includes("vito"))
-    ) {
-      return true;
-    }
-    if (
-      slug === "9-seater" &&
-      ((v.passengerCapacity === 9 && !vName.includes("wheelchair")) || v.id === 12)
-    ) {
-      return true;
-    }
-    if (
-      slug === "13-seater" &&
-      ((v.passengerCapacity === 13 && !vName.includes("vip")) || v.id === 6 || vName.includes("hiace"))
-    ) {
-      return true;
-    }
-    if (
-      (slug === "vip-minibus" || slug === "vip-executive-minibus") &&
-      (v.id === 7 || (vName.includes("vip") && vName.includes("minibus")))
-    ) {
-      return true;
-    }
-    if (
-      slug === "vip-lounge" &&
-      (vName.includes("v-class") || v.id === 5 || (vName.includes("vip") && !vName.includes("minibus")))
-    ) {
-      return true;
-    }
-    if (slug === "mercedes-e-class" && (vName.includes("e class") || v.id === 1)) {
-      return true;
-    }
-    if (slug === "mercedes-s-class" && (vName.includes("s class") || v.id === 2)) {
-      return true;
-    }
-    if (slug === "wheelchair-cab" && (vName.includes("wheelchair") || v.id === 8 || v.id === 11)) {
-      return true;
-    }
-    if (slug === "23-seater-coach" && (v.passengerCapacity === 23 || v.id === 9)) {
-      return true;
-    }
-    if (slug === "40-seater-coach" && (v.passengerCapacity === 40 || v.id === 10)) {
-      return true;
-    }
-
-    return false;
+    const vNameSlug = createSlugFromName(v.name);
+    return vNameSlug.includes(slug) || slug.includes(vNameSlug);
   });
-}
-
-/**
- * Determine a canonical slug for an API vehicle
- */
-export function resolveSlugFromApiVehicle(v: VehicleCard): string {
-  const vName = (v.name || "").toLowerCase();
-  const vId = v.id;
-  const pax = v.passengerCapacity;
-
-  if (vName.includes("e-class") || vName.includes("e class") || vId === 1) return "mercedes-e-class";
-  if (vName.includes("s-class") || vName.includes("s class") || vId === 2) return "mercedes-s-class";
-  if (vName.includes("wheelchair") || vId === 8 || vId === 11) return "wheelchair-cab";
-  if (vId === 7 || (vName.includes("vip") && vName.includes("minibus"))) return "vip-minibus";
-  if (vName.includes("vip") || vName.includes("lounge") || vName.includes("v-class") || vId === 5) return "vip-lounge";
-  if (pax === 6 || vId === 3 || vName.includes("alphard") || vName.includes("6 seater")) return "6-seater";
-  if (pax === 7 || vId === 4 || vName.includes("vito") || vName.includes("7 seater")) return "7-seater";
-  if (pax === 9 || vId === 12 || vName.includes("9 seater")) return "9-seater";
-  if (pax === 13 || vId === 6 || vName.includes("hiace") || vName.includes("13 seater")) return "13-seater";
-  if (pax === 23 || vId === 9 || vName.includes("23")) return "23-seater-coach";
-  if (pax === 40 || vId === 10 || vName.includes("40")) return "40-seater-coach";
-  return `vehicle-${vId}`;
 }
 
 /**
@@ -125,19 +210,30 @@ const DEFAULT_FLEET_IMAGES: Record<string, string> = {
   "e-class": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/75d82abd-50eb-4acd-9a04-5cb82094eaf2.webp",
   "mercedes-s-class": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/df92deb4-258d-4ba2-a420-b53676c2d335.webp",
   "s-class": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/df92deb4-258d-4ba2-a420-b53676c2d335.webp",
+  "toyota-alphard-vellfire": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/4f3b6a13-491d-4a94-8d38-73bacdac848d.webp",
   "6-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/4f3b6a13-491d-4a94-8d38-73bacdac848d.webp",
   "alphard": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/4f3b6a13-491d-4a94-8d38-73bacdac848d.webp",
+  "vellfire": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/4f3b6a13-491d-4a94-8d38-73bacdac848d.webp",
+  "mercedes-vito-viano": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/c02b35a2-1aa8-4eea-ad16-51e393566d9a.webp",
   "7-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/c02b35a2-1aa8-4eea-ad16-51e393566d9a.webp",
   "viano": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/c02b35a2-1aa8-4eea-ad16-51e393566d9a.webp",
   "vito": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/c02b35a2-1aa8-4eea-ad16-51e393566d9a.webp",
-  "9-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/c02b35a2-1aa8-4eea-ad16-51e393566d9a.webp",
+  "mercedes-v-class": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/352642b2-b916-4e34-99cb-8d1007580ab7.webp",
+  "vip-lounge": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/352642b2-b916-4e34-99cb-8d1007580ab7.webp",
+  "toyota-hiace-13-seater-minibus": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/14947438-8bd8-475e-a77f-146fe5ebdfa3.webp",
   "13-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/14947438-8bd8-475e-a77f-146fe5ebdfa3.webp",
   "hiace": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/14947438-8bd8-475e-a77f-146fe5ebdfa3.webp",
-  "vip-minibus": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/352642b2-b916-4e34-99cb-8d1007580ab7.webp",
-  "vip-lounge": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/352642b2-b916-4e34-99cb-8d1007580ab7.webp",
+  "vip-executive-minibus": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/f794619f-f244-4f7a-947a-1876dd466547.webp",
+  "vip-minibus": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/f794619f-f244-4f7a-947a-1876dd466547.webp",
+  "7-seater-maxi-cab-wheelchair": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/bb8f5a22-63fa-46c8-a847-1714f722b018.webp",
   "wheelchair-cab": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/bb8f5a22-63fa-46c8-a847-1714f722b018.webp",
+  "9-seater-maxi-cab-wheelchair": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/52cbcbc1-9980-4d88-8e78-07469a03b578.webp",
+  "9-seater-minibus": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/c02b35a2-1aa8-4eea-ad16-51e393566d9a.webp",
+  "9-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/c02b35a2-1aa8-4eea-ad16-51e393566d9a.webp",
+  "23-seater-coaches": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/4796c88b-e958-4a27-8809-ab7d72c41576.webp",
   "23-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/4796c88b-e958-4a27-8809-ab7d72c41576.webp",
   "23-seater-coach": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/4796c88b-e958-4a27-8809-ab7d72c41576.webp",
+  "40-seater-coaches": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/e118cc3e-de71-476d-a618-044439d18158.webp",
   "40-seater": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/e118cc3e-de71-476d-a618-044439d18158.webp",
   "40-seater-coach": "https://api.singaporemaxicabs.com.sg/uploads/vehicles/e118cc3e-de71-476d-a618-044439d18158.webp",
 };
@@ -530,9 +626,11 @@ export async function resolveVehicle(rawSlug: string): Promise<VehicleDetail | n
   // Display Name: prefer live API name, fallback to static name
   const displayName = apiMatch?.name || staticMatch?.name || "Singapore Maxi Cab";
 
+  const canonicalSlug = apiMatch ? resolveSlugFromApiVehicle(apiMatch) : (staticMatch?.slug || slug);
+
   return {
     id: apiMatch ? String(apiMatch.id) : staticMatch?.id || slug,
-    slug,
+    slug: canonicalSlug,
     apiVehicleId: apiMatch?.id,
     name: displayName,
     model: modelStr,

@@ -50,6 +50,31 @@ let cachedAddOns: AddOnListResponse | null = null;
 const clientQuoteCache = new Map<string, { data: QuoteResponse; timestamp: number }>();
 const QUOTE_CACHE_TTL_MS = 3 * 60 * 1000; // 3 minutes cache for live quotes
 
+const VEHICLES_CACHE_KEY = "smc_cached_vehicles_v2";
+const VEHICLES_CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes cache for vehicles
+
+export function getCachedVehiclesFromStorage(): VehicleListResponse | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(VEHICLES_CACHE_KEY) || sessionStorage.getItem(VEHICLES_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.timestamp && Date.now() - parsed.timestamp < VEHICLES_CACHE_TTL_MS && parsed.data?.success) {
+      return parsed.data;
+    }
+  } catch {}
+  return null;
+}
+
+export function setCachedVehiclesToStorage(data: VehicleListResponse): void {
+  if (typeof window === "undefined" || !data || !data.success) return;
+  try {
+    const item = JSON.stringify({ data, timestamp: Date.now() });
+    localStorage.setItem(VEHICLES_CACHE_KEY, item);
+    sessionStorage.setItem(VEHICLES_CACHE_KEY, item);
+  } catch {}
+}
+
 // ==========================================
 // 1. PUBLIC CATALOG & PRICING
 // ==========================================
@@ -67,6 +92,24 @@ export async function getVehicles(
     return cachedVehicles;
   }
 
+  // Check persistent storage cache
+  if (isDefaultQuery && !cachedVehicles) {
+    const fromStorage = getCachedVehiclesFromStorage();
+    if (fromStorage) {
+      cachedVehicles = fromStorage;
+      // Background revalidate without blocking
+      apiFetch<VehicleListResponse>(ENDPOINTS.VEHICLES, { method: "GET" })
+        .then((fresh) => {
+          if (fresh && fresh.success && Array.isArray(fresh.data)) {
+            cachedVehicles = fresh;
+            setCachedVehiclesToStorage(fresh);
+          }
+        })
+        .catch(() => {});
+      return fromStorage;
+    }
+  }
+
   const query = new URLSearchParams();
   if (params?.persons !== undefined) query.set("persons", params.persons.toString());
   if (params?.luggage !== undefined) query.set("luggage", params.luggage.toString());
@@ -81,6 +124,7 @@ export async function getVehicles(
 
   if (isDefaultQuery && result && result.success) {
     cachedVehicles = result;
+    setCachedVehiclesToStorage(result);
   }
 
   return result;

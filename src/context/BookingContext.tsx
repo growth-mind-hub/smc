@@ -6,6 +6,7 @@ import {
   calculateQuote,
   createBookingCheckout,
   getVehicles,
+  getCachedVehiclesFromStorage,
   getVehicleRecommendation,
   getServices,
   getAddOns,
@@ -159,9 +160,15 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
     setStep(1);
   }, [pathname]);
 
-  // Live Catalog State from API
-  const [vehicles, setVehicles] = useState<VehicleCard[]>([]);
-  const [isLoadingVehicles, setIsLoadingVehicles] = useState(true);
+  // Live Catalog State from API (init from persistent cache if available)
+  const [vehicles, setVehicles] = useState<VehicleCard[]>(() => {
+    const cached = getCachedVehiclesFromStorage();
+    return cached && Array.isArray(cached.data) ? cached.data : [];
+  });
+  const [isLoadingVehicles, setIsLoadingVehicles] = useState(() => {
+    const cached = getCachedVehiclesFromStorage();
+    return !(cached && Array.isArray(cached.data) && cached.data.length > 0);
+  });
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [addOns, setAddOns] = useState<AddOnItem[]>([]);
 

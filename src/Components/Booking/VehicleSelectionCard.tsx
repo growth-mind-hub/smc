@@ -72,20 +72,17 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
             id:
               fv.id === "mercedes-e-class" ? 1 :
               fv.id === "mercedes-s-class" ? 2 :
-              fv.id === "6-seater" ? 3 :
-              fv.id === "7-seater" ? 4 :
+              fv.id === "toyota-alphard-vellfire" || fv.id === "6-seater" ? 3 :
+              fv.id === "mercedes-vito-viano" || fv.id === "7-seater" ? 4 :
               fv.id === "mercedes-v-class" ? 5 :
-              fv.id === "13-seater" ? 6 :
-              fv.id === "vip-lounge" ? 7 :
-              fv.id === "wheelchair-cab" ? 8 :
-              fv.id === "23-seater" ? 9 :
-              fv.id === "40-seater" ? 10 :
-              fv.id === "9-seater" ? 12 : 3,
-            name:
-              fv.name === "6 Seater Maxi Cab" ? "Toyota Alphard / Vellfire" :
-              fv.name === "7 Seater Maxi Cab" ? "Mercedes Viano" :
-              fv.name === "9 Seater Maxi Cab" ? "Mercedes Viano" :
-              fv.name,
+              fv.id === "toyota-hiace-13-seater-minibus" || fv.id === "13-seater" ? 6 :
+              fv.id === "vip-executive-minibus" || fv.id === "vip-lounge" ? 7 :
+              fv.id === "7-seater-maxi-cab-wheelchair" || fv.id === "wheelchair-cab" ? 8 :
+              fv.id === "23-seater-coaches" || fv.id === "23-seater" ? 9 :
+              fv.id === "40-seater-coaches" || fv.id === "40-seater" ? 10 :
+              fv.id === "9-seater-maxi-cab-wheelchair" ? 11 :
+              fv.id === "9-seater-minibus" || fv.id === "9-seater" ? 12 : 3,
+            name: fv.name,
             vehicleType: fv.model,
             passengerCapacity: fv.paxCount,
             luggageCapacity: fv.luggageCount,
@@ -145,15 +142,7 @@ export default function VehicleSelectionCard({ isModal = true }: VehicleSelectio
           shortModel = "Wheelchair Accessible Cab";
         }
 
-        let displayName = v.name;
-        if (!displayName || displayName === "6 Seater Maxi Cab" || displayName === "6-Seater Maxi Cab") {
-          displayName = "Toyota Alphard / Vellfire";
-        } else if (displayName === "7 Seater Maxi Cab" || displayName === "7-Seater Maxi Cab") {
-          displayName = "Mercedes Viano";
-        } else if (displayName === "9 Seater Minibus" || displayName === "9-Seater Minibus") {
-          displayName = "Mercedes Viano";
-        }
-
+        const displayName = v.name;
         const resolvedImage = getVehicleImage(v as any, fleetMatch?.image || "/images/Cab.png");
 
         return {

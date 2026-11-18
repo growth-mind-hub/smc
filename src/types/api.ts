@@ -246,7 +246,10 @@ export interface CheckoutSuccessResponse {
   payment_status: "PENDING" | "PAID";
   amount: number;
   currency: string;
-  stripe_checkout_url: string;
+  subtotal_amount?: number;
+  card_surcharge_amount?: number;
+  card_surcharge_percent?: number;
+  stripe_checkout_url?: string | null;
 }
 
 export type CheckoutResponse = CheckoutSuccessResponse | ContactSupportQuoteResponse;

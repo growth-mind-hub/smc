@@ -27,14 +27,9 @@ export default function FleetsDropdown({ onItemClick }: FleetsDropdownProps) {
       })
       .map((v) => {
         const slug = v.slug || v.id;
-        const displayName =
-          v.name === "6 Seater Maxi Cab" ? "Toyota Alphard / Vellfire" :
-          v.name === "7 Seater Maxi Cab" ? "Mercedes Viano" :
-          v.name === "9 Seater Maxi Cab" ? "Mercedes Viano" :
-          v.name;
         return {
           id: v.id,
-          name: displayName,
+          name: v.name,
           capacity: `${v.pax} | ${v.bags}`,
           slug,
           image: getVehicleImage(slug, v.image || "/images/Cab.png"),
@@ -44,23 +39,20 @@ export default function FleetsDropdown({ onItemClick }: FleetsDropdownProps) {
 
   const fleets =
     liveVehicles && liveVehicles.length > 0
-      ? liveVehicles.map((v) => {
-          const slug = resolveSlugFromApiVehicle(v);
-          const pax = v.passengerCapacity ?? 7;
-          const bags = v.luggageCapacity ?? 4;
-          const displayName =
-            v.name === "6 Seater Maxi Cab" ? "Toyota Alphard / Vellfire" :
-            v.name === "7 Seater Maxi Cab" ? "Mercedes Viano" :
-            v.name === "9 Seater Maxi Cab" ? "Mercedes Viano" :
-            v.name;
-          return {
-            id: String(v.id),
-            name: displayName,
-            capacity: `${pax} Pax | ${bags} Bags`,
-            slug,
-            image: getVehicleImage(v, "/images/Cab.png"),
-          };
-        })
+      ? liveVehicles
+          .filter((v) => v.status !== "inactive" && v.isActive !== false)
+          .map((v) => {
+            const slug = resolveSlugFromApiVehicle(v);
+            const pax = v.passengerCapacity ?? 7;
+            const bags = v.luggageCapacity ?? 4;
+            return {
+              id: String(v.id),
+              name: v.name,
+              capacity: `${pax} Pax | ${bags} Bags`,
+              slug,
+              image: getVehicleImage(v, "/images/Cab.png"),
+            };
+          })
       : staticFleets;
 
   return (
