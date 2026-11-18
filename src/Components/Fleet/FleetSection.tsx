@@ -20,7 +20,9 @@ export default function FleetSection() {
   // Fallback to static fleetData.vehicles when liveVehicles is empty
   const vehiclesToDisplay: Vehicle[] =
     liveVehicles && liveVehicles.length > 0
-      ? liveVehicles.map((v) => transformApiVehicleToCard(v))
+      ? liveVehicles
+          .filter((v) => v.status !== "inactive" && v.isActive !== false && !v.name.toLowerCase().includes("test"))
+          .map((v) => transformApiVehicleToCard(v))
       : (fleetData.vehicles as Vehicle[]).filter(
           (v, idx, arr) => arr.findIndex((x) => (x.slug || x.id) === (v.slug || v.id)) === idx
         );

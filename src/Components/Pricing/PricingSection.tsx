@@ -6,6 +6,7 @@ import { ShieldCheck, Clock, Plane, ArrowRight, Users, Luggage } from "lucide-re
 import { useBookingModal } from "@/context/BookingContext";
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
 import Link from "next/link";
+import { resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
 
 export default function PricingSection() {
   const { openModal, vehicles: liveVehicles } = useBookingModal();
@@ -72,7 +73,7 @@ export default function PricingSection() {
 
       return {
         id: String(liveMatch?.id ?? item.id),
-        slug: item.slug,
+        slug: liveMatch ? resolveSlugFromApiVehicle(liveMatch) : item.slug,
         name: liveMatch?.name || item.name,
         description,
         pax,
@@ -102,7 +103,7 @@ export default function PricingSection() {
           const hourlyRate = v.prices?.hourly?.amount || 65;
           rows.push({
             id: String(v.id),
-            slug: `vehicle-${v.id}`,
+            slug: resolveSlugFromApiVehicle(v),
             name: v.name,
             description: v.description || v.vehicleType || "Executive Maxi Cab",
             pax: `${v.passengerCapacity || 7}`,

@@ -509,7 +509,7 @@ export function buildSectionVehicles(
   const seenVehicleIds = new Set<string>();
 
   for (const v of apiVehicles) {
-    if (v.status === "inactive" || v.isActive === false) continue;
+    if (v.status === "inactive" || v.isActive === false || (v.name && v.name.toLowerCase().includes("test"))) continue;
     const card = transformApiVehicleToCard(v);
     if (seenVehicleIds.has(card.id)) continue;
     seenVehicleIds.add(card.id);

@@ -4,7 +4,7 @@ import Navbar from "@/Components/Header/Navbar";
 import FleetDetailTemplate from "@/Components/Fleet/FleetDetailTemplate";
 import Footer from "@/Components/Footer/Footer";
 import fleetData from "@/data/fleet.json";
-import { resolveVehicle } from "@/lib/fleetResolver";
+import { resolveVehicle, fetchLiveVehicles, resolveSlugFromApiVehicle } from "@/lib/fleetResolver";
 
 export const dynamicParams = true;
 export const revalidate = 60;
@@ -16,14 +16,29 @@ interface FleetPageProps {
 }
 
 export async function generateStaticParams() {
+  const liveVehicles = await fetchLiveVehicles();
+  const liveSlugs = liveVehicles.map((v) => ({
+    slug: resolveSlugFromApiVehicle(v),
+  }));
+
   const staticSlugs = fleetData.vehicles.map((v) => ({
     slug: v.slug || v.id,
   }));
 
-  // Canonical fleet aliases
+  // Canonical fleet aliases & legacy compatibility slugs
   const canonicalAliases = [
     "mercedes-e-class",
     "mercedes-s-class",
+    "toyota-alphard-vellfire",
+    "mercedes-vito-viano",
+    "mercedes-v-class",
+    "toyota-hiace-13-seater-minibus",
+    "vip-executive-minibus",
+    "7-seater-maxi-cab-wheelchair",
+    "23-seater-coaches",
+    "40-seater-coaches",
+    "9-seater-minibus",
+    "9-seater-maxi-cab-wheelchair",
     "6-seater",
     "7-seater",
     "9-seater",
@@ -36,11 +51,11 @@ export async function generateStaticParams() {
   ].map((slug) => ({ slug }));
 
   // Include known API vehicle IDs
-  const apiIdSlugs = Array.from({ length: 12 }, (_, i) => ({
+  const apiIdSlugs = Array.from({ length: 14 }, (_, i) => ({
     slug: String(i + 1),
   }));
 
-  const allSlugs = [...staticSlugs, ...canonicalAliases, ...apiIdSlugs];
+  const allSlugs = [...liveSlugs, ...staticSlugs, ...canonicalAliases, ...apiIdSlugs];
   const uniqueSlugs = Array.from(new Set(allSlugs.map((s) => s.slug))).map((slug) => ({ slug }));
 
   return uniqueSlugs;

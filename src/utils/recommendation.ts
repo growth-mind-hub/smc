@@ -263,6 +263,12 @@ export function checkVehicleCapacityFit(
   };
 }
 
+function toFleetSlug(name: string, fallback: string): string {
+  if (!name) return fallback;
+  const s = name.toLowerCase().trim().replace(/[/\\+]/g, "-").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return s || fallback;
+}
+
 export function getRecommendedFleet(
   passengers: number,
   luggage: number,
@@ -292,14 +298,14 @@ export function getRecommendedFleet(
         return {
           vehicleId: match.id,
           selectedFleet: match.name,
-          selectedFleetSlug: "wheelchair-cab",
+          selectedFleetSlug: toFleetSlug(match.name, "7-seater-maxi-cab-wheelchair"),
           baseFare: getVehicleFareForBooking(match, bookingCtx),
         };
       }
       return {
         vehicleId: 8,
-        selectedFleet: "7 Seater Wheelchair Maxi Cab",
-        selectedFleetSlug: "wheelchair-cab",
+        selectedFleet: "7 Seater Maxi Cab Wheelchair",
+        selectedFleetSlug: "7-seater-maxi-cab-wheelchair",
         baseFare: isAirport ? 85 : isHourly ? 65 : 75,
       };
     } else {
@@ -311,14 +317,14 @@ export function getRecommendedFleet(
         return {
           vehicleId: match.id,
           selectedFleet: match.name,
-          selectedFleetSlug: "wheelchair-cab",
+          selectedFleetSlug: toFleetSlug(match.name, "9-seater-maxi-cab-wheelchair"),
           baseFare: getVehicleFareForBooking(match, bookingCtx),
         };
       }
       return {
         vehicleId: 11,
-        selectedFleet: "9 Seater Wheelchair Maxi Cab",
-        selectedFleetSlug: "wheelchair-cab",
+        selectedFleet: "9 Seater Maxi Cab Wheelchair",
+        selectedFleetSlug: "9-seater-maxi-cab-wheelchair",
         baseFare: isAirport ? 90 : isHourly ? 70 : 85,
       };
     }
@@ -331,14 +337,14 @@ export function getRecommendedFleet(
       return {
         vehicleId: match.id,
         selectedFleet: match.name,
-        selectedFleetSlug: "40-seater-coach",
+        selectedFleetSlug: toFleetSlug(match.name, "40-seater-coaches"),
         baseFare: getVehicleFareForBooking(match, bookingCtx),
       };
     }
     return {
       vehicleId: 10,
-      selectedFleet: "40-Seater Tourist Coach",
-      selectedFleetSlug: "40-seater-coach",
+      selectedFleet: "40 Seater Coaches",
+      selectedFleetSlug: "40-seater-coaches",
       baseFare: isAirport ? 200 : isHourly ? 150 : 180,
     };
   }
@@ -350,21 +356,19 @@ export function getRecommendedFleet(
       return {
         vehicleId: match.id,
         selectedFleet: match.name,
-        selectedFleetSlug: "23-seater-coach",
+        selectedFleetSlug: toFleetSlug(match.name, "23-seater-coaches"),
         baseFare: getVehicleFareForBooking(match, bookingCtx),
       };
     }
     return {
       vehicleId: 9,
-      selectedFleet: "23-Seater Executive Coach",
-      selectedFleetSlug: "23-seater-coach",
+      selectedFleet: "23 Seater Coaches",
+      selectedFleetSlug: "23-seater-coaches",
       baseFare: isAirport ? 150 : isHourly ? 110 : 130,
     };
   }
 
   // 4. Above 7 Pax OR Above 7 Luggage -> 13-Seater Minibus
-  // "👆Anything above recommend the 13 seating"
-  // "13 Seater minibus - 13 passenger or 9 Pax with 8-9 luggage"
   if (passengers > 7 || luggage > 7) {
     const match = liveVehicles?.find(
       (v) => (v.id === 6 || v.passengerCapacity === 13) && !v.name.toLowerCase().includes("vip")
@@ -373,23 +377,20 @@ export function getRecommendedFleet(
       return {
         vehicleId: match.id,
         selectedFleet: match.name,
-        selectedFleetSlug: "13-seater",
+        selectedFleetSlug: toFleetSlug(match.name, "toyota-hiace-13-seater-minibus"),
         baseFare: getVehicleFareForBooking(match, bookingCtx),
       };
     }
     return {
       vehicleId: 6,
-      selectedFleet: "13 Seater Minibus",
-      selectedFleetSlug: "13-seater",
+      selectedFleet: "Toyota Hiace 13 seater Minibus",
+      selectedFleetSlug: "toyota-hiace-13-seater-minibus",
       baseFare: isAirport ? 85 : isHourly ? 75 : 80,
     };
   }
 
   // 5. More than 3 Pax OR More than 3 Luggage -> Mercedes V-Class!
-  // "Try to make V class as the recommended choice for any group that has more than 3 pax or 3 luggage"
-  // "7 pax 7 lugg still can push for vclass"
   if (passengers > 3 || luggage > 3) {
-    // Look for V-Class (id 5 or name includes v-class / vip lounge / 7-seater)
     const match =
       liveVehicles?.find(
         (v) => v.id === 5 || v.name.toLowerCase().includes("v-class") || v.name.toLowerCase().includes("v class")
@@ -400,26 +401,23 @@ export function getRecommendedFleet(
       liveVehicles?.find((v) => (v.passengerCapacity ?? 7) >= 7);
 
     if (match) {
-      const slug = match.id === 5 || match.name.toLowerCase().includes("v-class") ? "vip-lounge" : "7-seater";
       return {
         vehicleId: match.id,
         selectedFleet: match.name,
-        selectedFleetSlug: slug,
+        selectedFleetSlug: toFleetSlug(match.name, "mercedes-v-class"),
         baseFare: getVehicleFareForBooking(match, bookingCtx),
       };
     }
 
     return {
       vehicleId: 5,
-      selectedFleet: "Mercedes-Benz V-Class / VIP Lounge",
-      selectedFleetSlug: "vip-lounge",
+      selectedFleet: "Mercedes V-Class",
+      selectedFleetSlug: "mercedes-v-class",
       baseFare: isAirport ? 90 : isHourly ? 85 : 90,
     };
   }
 
-  // 6. Up to 3 Pax and Up to 3 Luggage (e.g. 2 pax 3 lugg, or 3 pax 2 lugg) -> Mercedes E-Class Sedan
-  // "Eg. max capacity 3 Pax only"
-  // "2 pax 3 lugg (e or s class is still ok, above that then promt for vclass)"
+  // 6. Up to 3 Pax and Up to 3 Luggage -> Mercedes E-Class Sedan
   const sedanMatch = liveVehicles?.find(
     (v) => v.id === 1 || v.name.toLowerCase().includes("e-class") || v.name.toLowerCase().includes("e class")
   );
@@ -428,15 +426,16 @@ export function getRecommendedFleet(
     return {
       vehicleId: sedanMatch.id,
       selectedFleet: sedanMatch.name,
-      selectedFleetSlug: "mercedes-e-class",
+      selectedFleetSlug: toFleetSlug(sedanMatch.name, "mercedes-e-class"),
       baseFare: getVehicleFareForBooking(sedanMatch, bookingCtx),
     };
   }
 
   return {
     vehicleId: 1,
-    selectedFleet: "Mercedes-Benz E-Class",
+    selectedFleet: "Mercedes E Class",
     selectedFleetSlug: "mercedes-e-class",
     baseFare: isAirport ? 85 : isHourly ? 70 : 85,
   };
+}
 }

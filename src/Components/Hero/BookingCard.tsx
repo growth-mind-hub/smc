@@ -211,7 +211,7 @@ export default function BookingCard() {
         <div className="flex items-center justify-between px-3.5 py-2.5 bg-white/10 rounded-xl border border-white/15 text-xs font-manrope">
           <div className="flex items-center gap-2">
             <span className="text-[#C6A45A] font-bold">Recommended:</span>
-            <span className="text-white font-medium">{bookingData.selectedFleet || "7 Seater Maxi Cab"}</span>
+            <span className="text-white font-medium">{bookingData.selectedFleet || "Toyota Alphard / Vellfire"}</span>
           </div>
           <span className="text-white font-bold text-sm">From ${bookingData.baseFare || 80}</span>
         </div>

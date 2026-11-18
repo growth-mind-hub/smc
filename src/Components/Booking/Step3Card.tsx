@@ -492,7 +492,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           </div>
           <div className="flex justify-between">
             <span className="text-[#5F6B7A]">Vehicle:</span>
-            <span>{bookingData.selectedFleet || "7 Seater Maxi Cab"}</span>
+            <span>{bookingData.selectedFleet || "Toyota Alphard / Vellfire"}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-[#5F6B7A]">Date &amp; Time:</span>
@@ -517,7 +517,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         {/* Action Buttons: WhatsApp Chat & Make Another Booking */}
         <div className="flex flex-col gap-3 w-full max-w-sm">
           <a
-            href={`https://wa.me/6588006006?text=${encodeURIComponent(`Hi, I just placed a booking (Booking ID: ${displayBookingId}) for ${bookingData.name || "Customer"} (${bookingData.selectedFleet || "7 Seater Maxi Cab"}) on ${formatDateDisplay(bookingData.pickupDate)}${bookingData.pickupTime ? ` at ${formatTimeDisplay(bookingData.pickupTime)} (${bookingData.pickupTime} SGT)` : ""}. Total: $${totalFare}.00 SGD.`)}`}
+            href={`https://wa.me/6588006006?text=${encodeURIComponent(`Hi, I just placed a booking (Booking ID: ${displayBookingId}) for ${bookingData.name || "Customer"} (${bookingData.selectedFleet || "Toyota Alphard / Vellfire"}) on ${formatDateDisplay(bookingData.pickupDate)}${bookingData.pickupTime ? ` at ${formatTimeDisplay(bookingData.pickupTime)} (${bookingData.pickupTime} SGT)` : ""}. Total: $${totalFare}.00 SGD.`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full py-3.5 px-6 bg-[#E8F8EE] hover:bg-[#d5f4e0] border border-[#16803C] text-[#16803C] rounded-lg text-base font-semibold font-manrope transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
@@ -592,7 +592,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
       <div className="w-full h-[240px] sm:h-[288px] min-h-[240px] sm:min-h-[288px] shrink-0 relative rounded-2xl flex flex-col justify-between p-3.5 sm:p-5 overflow-hidden bg-slate-900 shadow-md">
         <Image
           src="/images/bookinpage3.png"
-          alt={bookingData.selectedFleet || "7 Seater Maxi Cab"}
+          alt={bookingData.selectedFleet || "Toyota Alphard / Vellfire"}
           fill
           sizes="(max-width: 640px) 100vw, 560px"
           className="object-cover object-center"
