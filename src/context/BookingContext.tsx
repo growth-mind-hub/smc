@@ -65,6 +65,7 @@ export interface BookingData {
   phone: string;
   countryCode: string;
   email: string;
+  bookingId?: string;
 }
 
 interface BookingModalOptions {
@@ -136,6 +137,7 @@ const defaultBookingData: BookingData = {
   phone: "",
   countryCode: "+65",
   email: "",
+  bookingId: "",
 };
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
@@ -470,7 +472,8 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
 
     try {
       const response = await createBookingCheckout(payload, { idempotencyKey });
-      if (response && "stripe_checkout_url" in response && response.stripe_checkout_url) {
+
+      if (response && "booking_id" in response && response.booking_id) {
         if (typeof window !== "undefined") {
           try {
             sessionStorage.setItem("last_booking_id", response.booking_id || "");
@@ -478,6 +481,12 @@ export function BookingModalProvider({ children }: { children: ReactNode }) {
             sessionStorage.setItem("last_booking_currency", response.currency || "SGD");
             sessionStorage.setItem("last_payment_method", paymentType || "stripe");
           } catch {}
+        }
+        setBookingData((prev) => ({ ...prev, bookingId: response.booking_id }));
+      }
+
+      if (response && "stripe_checkout_url" in response && response.stripe_checkout_url) {
+        if (typeof window !== "undefined") {
           // Navigate to Stripe checkout URL
           window.location.href = response.stripe_checkout_url;
         }

@@ -28,7 +28,10 @@ export default function PayNowQRModal({
   const uenNumber = "202401234M";
   const dateStr = bookingData.pickupDate ? bookingData.pickupDate.replace(/-/g, "") : "2026";
   const phoneDigits = (bookingData.phone || "8800").replace(/\D/g, "").slice(-4);
-  const bookingRef = `SMC-${dateStr}-${phoneDigits || "8800"}`;
+  const bookingRef =
+    bookingData.bookingId ||
+    (typeof window !== "undefined" ? sessionStorage.getItem("last_booking_id") : null) ||
+    `SMC-${dateStr}-${phoneDigits || "8800"}`;
 
   const handleCopyUEN = () => {
     if (typeof navigator !== "undefined" && navigator.clipboard) {

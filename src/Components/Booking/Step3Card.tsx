@@ -78,6 +78,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
   } = useBookingModal();
 
   const [isSuccess, setIsSuccess] = useState(false);
+  const [confirmedBookingId, setConfirmedBookingId] = useState<string>("");
   const [isRedirecting, setIsRedirecting] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"paynow" | "stripe">("paynow");
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -401,6 +402,9 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
     if (selectedPaymentMethod === "paynow") {
       try {
         const checkoutRes = await submitLiveCheckout("paynow");
+        if (checkoutRes && "booking_id" in checkoutRes && checkoutRes.booking_id) {
+          setConfirmedBookingId(checkoutRes.booking_id);
+        }
         if (checkoutRes && "stripe_checkout_url" in checkoutRes && checkoutRes.stripe_checkout_url) {
           setIsRedirecting(true);
           return;
@@ -434,6 +438,12 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
   };
 
   if (isSuccess) {
+    const displayBookingId =
+      confirmedBookingId ||
+      bookingData.bookingId ||
+      (typeof window !== "undefined" ? sessionStorage.getItem("last_booking_id") : null) ||
+      `SMC-${(bookingData.pickupDate || new Date().toISOString().slice(0, 10)).replace(/-/g, "")}-${(bookingData.phone || "8800").replace(/\D/g, "").slice(-4) || "8800"}`;
+
     return (
       <div className="w-full max-w-[562px] mx-auto bg-white rounded-2xl border border-[#E9ECEF] p-6 sm:p-10 text-center flex flex-col items-center justify-center gap-6 shadow-2xl relative max-h-[92vh] overflow-y-auto selection:bg-[#C6A45A] selection:text-[#071E3B]">
         {isModal && closeModal && (
@@ -467,7 +477,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
           <div className="flex justify-between font-semibold pb-1.5 border-b border-[#C6A45A]/20">
             <span className="text-[#5F6B7A]">Booking ID:</span>
             <span className="font-mono font-bold text-[#071E3B] bg-white px-2 py-0.5 rounded border border-slate-200">
-              {`SMC-${(bookingData.pickupDate || new Date().toISOString().slice(0, 10)).replace(/-/g, "")}-${(bookingData.phone || "8800").replace(/\D/g, "").slice(-4) || "8800"}`}
+              {displayBookingId}
             </span>
           </div>
           <div className="flex justify-between font-semibold">
@@ -507,7 +517,7 @@ export default function Step3Card({ isModal = true }: Step3CardProps) {
         {/* Action Buttons: WhatsApp Chat & Make Another Booking */}
         <div className="flex flex-col gap-3 w-full max-w-sm">
           <a
-            href={`https://wa.me/6588006006?text=${encodeURIComponent(`Hi, I just placed a booking for ${bookingData.name || "Customer"} (${bookingData.selectedFleet || "7 Seater Maxi Cab"}) on ${formatDateDisplay(bookingData.pickupDate)}${bookingData.pickupTime ? ` at ${formatTimeDisplay(bookingData.pickupTime)} (${bookingData.pickupTime} SGT)` : ""}. Total: $${totalFare}.00 SGD.`)}`}
+            href={`https://wa.me/6588006006?text=${encodeURIComponent(`Hi, I just placed a booking (Booking ID: ${displayBookingId}) for ${bookingData.name || "Customer"} (${bookingData.selectedFleet || "7 Seater Maxi Cab"}) on ${formatDateDisplay(bookingData.pickupDate)}${bookingData.pickupTime ? ` at ${formatTimeDisplay(bookingData.pickupTime)} (${bookingData.pickupTime} SGT)` : ""}. Total: $${totalFare}.00 SGD.`)}`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full py-3.5 px-6 bg-[#E8F8EE] hover:bg-[#d5f4e0] border border-[#16803C] text-[#16803C] rounded-lg text-base font-semibold font-manrope transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
