@@ -5,11 +5,15 @@ import StatsSection from "@/Components/Stats/StatsSection";
 import FleetSection from "@/Components/Fleet/FleetSection";
 import OccasionsSection from "@/Components/Occasions/OccasionsSection";
 import ServicesSection from "@/Components/Services/ServicesSection";
-import TestimonialsSection from "@/Components/Testimonials/TestimonialsSection";
 import CTASection from "@/Components/CTA/CTASection";
 import Footer from "@/Components/Footer/Footer";
+import { getPrismicServices } from "@/lib/prismic/services";
 
-export default function Home() {
+export const revalidate = 60; // Auto-revalidate every 60 seconds (ISR)
+
+export default async function Home() {
+  const services = await getPrismicServices();
+
   return (
     <main className="min-h-screen flex flex-col w-full selection:bg-[#C49B55] selection:text-[#070D1E]">
       {/* 1. Header / Navbar */}
@@ -31,15 +35,12 @@ export default function Home() {
       <OccasionsSection />
 
       {/* 7. Rides for Every Need (Services Grid) */}
-      <ServicesSection />
+      <ServicesSection services={services} />
 
-      {/* 8. Customer Reviews & Testimonials */}
-      {/* <TestimonialsSection /> */}
-
-      {/* 9. Final CTA */}
+      {/* 8. Final CTA */}
       <CTASection />
 
-      {/* 10. Footer */}
+      {/* 9. Footer */}
       <Footer />
     </main>
   );

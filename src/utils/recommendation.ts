@@ -438,4 +438,3 @@ export function getRecommendedFleet(
     baseFare: isAirport ? 85 : isHourly ? 70 : 85,
   };
 }
-}

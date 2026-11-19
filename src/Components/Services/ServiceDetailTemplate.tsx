@@ -6,6 +6,12 @@ import Image from "next/image";
 import { ArrowLeft, ArrowRight, Check, ShieldCheck } from "lucide-react";
 import { useBookingModal } from "@/context/BookingContext";
 import WhatsAppIcon from "@/Components/Shared/WhatsAppIcon";
+import PrismicRichTextRenderer from "@/Components/Prismic/PrismicRichTextRenderer";
+import {
+  DEFAULT_SERVICE_INCLUSIONS,
+  DEFAULT_SERVICE_PRICING,
+  DEFAULT_SERVICE_FAQS,
+} from "@/lib/prismic/services";
 
 export interface ServiceDetail {
   id: string;
@@ -14,6 +20,7 @@ export interface ServiceDetail {
   subtitle: string;
   shortDescription: string;
   heroDescription: string;
+  heroDescriptionRichText?: any;
   icon: string;
   tags: string[];
   inclusions: string[];
@@ -27,9 +34,31 @@ export default function ServiceDetailTemplate({ service }: { service: ServiceDet
   const handleBookNow = () => {
     openModal({
       initialStep: 0,
-      serviceType: service.title,
+      serviceType: service?.title || "Maxi Cab Transfer",
     });
   };
+
+  const inclusions =
+    service?.inclusions && service.inclusions.length > 0
+      ? service.inclusions.filter((item) => typeof item === "string" && item.trim().length > 0)
+      : DEFAULT_SERVICE_INCLUSIONS;
+
+  const pricing =
+    service?.pricing && service.pricing.length > 0
+      ? service.pricing
+      : DEFAULT_SERVICE_PRICING;
+
+  const faqs =
+    service?.faqs && service.faqs.length > 0
+      ? service.faqs
+      : DEFAULT_SERVICE_FAQS;
+
+  const hasValidRichText =
+    Array.isArray(service?.heroDescriptionRichText) &&
+    service.heroDescriptionRichText.length > 0 &&
+    service.heroDescriptionRichText.some(
+      (block: any) => (typeof block?.text === "string" && block.text.trim().length > 0) || block?.type === "image"
+    );
 
   return (
     <div className="w-full flex flex-col bg-white">
@@ -39,7 +68,7 @@ export default function ServiceDetailTemplate({ service }: { service: ServiceDet
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/Home/Hero_tab.png"
-            alt={service.title}
+            alt={service?.title || "Singapore Maxi Cab Service"}
             fill
             priority
             sizes="100vw"
@@ -66,14 +95,26 @@ export default function ServiceDetailTemplate({ service }: { service: ServiceDet
               Our Services
             </span>
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.15]">
-              {service.title}
+              {service?.title || "Singapore Maxicabs Service"}
             </h1>
-            <span className="text-base sm:text-xl font-bold text-[#C6A45A]">
-              {service.subtitle}
-            </span>
-            <p className="text-sm sm:text-lg text-white/90 leading-relaxed max-w-2xl font-normal">
-              {service.heroDescription}
-            </p>
+            {service?.subtitle && (
+              <span className="text-base sm:text-xl font-bold text-[#C6A45A]">
+                {service.subtitle}
+              </span>
+            )}
+
+            {hasValidRichText ? (
+              <div className="text-sm sm:text-lg text-white/90 leading-relaxed max-w-2xl font-normal">
+                <PrismicRichTextRenderer
+                  document={service.heroDescriptionRichText}
+                  ParaclassName="!text-white/90 !text-sm sm:!text-lg"
+                />
+              </div>
+            ) : (
+              <p className="text-sm sm:text-lg text-white/90 leading-relaxed max-w-2xl font-normal">
+                {service?.heroDescription || service?.shortDescription || "Professional chauffeured transport across Singapore with guaranteed fixed fares."}
+              </p>
+            )}
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-3 sm:pt-4 w-full sm:w-auto">
@@ -108,7 +149,7 @@ export default function ServiceDetailTemplate({ service }: { service: ServiceDet
             </h2>
 
             <div className="flex flex-col gap-3 sm:gap-4">
-              {service.inclusions.map((item, idx) => (
+              {inclusions.map((item, idx) => (
                 <div key={idx} className="flex items-start gap-3">
                   <div className="w-5 h-5 rounded-full bg-[#ECFDF3] border border-[#16803C] flex items-center justify-center shrink-0 mt-0.5">
                     <Check className="w-3 h-3 text-[#16803C] stroke-[3]" />
@@ -129,9 +170,9 @@ export default function ServiceDetailTemplate({ service }: { service: ServiceDet
 
             {/* Pricing Matrix */}
             <div className="w-full rounded-xl border border-[#E9ECEF] overflow-hidden shadow-xs">
-              {service.pricing.map((p, idx) => (
+              {pricing.map((p, idx) => (
                 <div
-                  key={p.vehicle}
+                  key={`${p.vehicle}-${idx}`}
                   className={`flex items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 text-xs sm:text-sm ${
                     idx % 2 === 0 ? "bg-white" : "bg-[#F7F5EF]"
                   } border-b border-slate-100 last:border-none`}
@@ -158,14 +199,14 @@ export default function ServiceDetailTemplate({ service }: { service: ServiceDet
         </div>
 
         {/* 3. Frequently Asked Questions (Permanently Open) */}
-        {service.faqs && service.faqs.length > 0 && (
+        {faqs && faqs.length > 0 && (
           <div className="flex flex-col gap-4 sm:gap-6 pt-2 sm:pt-4">
             <h2 className="text-2xl sm:text-3xl font-bold text-[#071E3B]">
               Frequently Asked Questions
             </h2>
 
             <div className="flex flex-col gap-3 sm:gap-3.5">
-              {service.faqs.map((faq, idx) => (
+              {faqs.map((faq, idx) => (
                 <div
                   key={idx}
                   className="rounded-xl border border-[#E9ECEF] bg-white p-4 sm:p-6 shadow-2xs transition-colors"

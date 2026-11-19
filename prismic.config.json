@@ -1,0 +1,9 @@
+{
+  "repositoryName": "singaporemaxicab",
+  "routes": [
+    {
+      "type": "service",
+      "path": "/services/:uid"
+    }
+  ]
+}

@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@prismicio/client": "^7.23.1",
+    "@prismicio/next": "^3.0.0",
+    "@prismicio/react": "^3.5.1",
     "lucide-react": "^1.48.0",
     "next": "16.3.6",
     "react": "19.2.8",

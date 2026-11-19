@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Navbar from "@/Components/Header/Navbar";
 import ServiceDetailTemplate, { ServiceDetail } from "@/Components/Services/ServiceDetailTemplate";
 import Footer from "@/Components/Footer/Footer";
-import servicesData from "@/data/services.json";
+import { getPrismicServices, getPrismicServiceBySlug } from "@/lib/prismic/services";
 
 interface ServicePageProps {
   params: Promise<{
@@ -11,15 +11,19 @@ interface ServicePageProps {
   }>;
 }
 
+export const revalidate = 60; // Auto-revalidate every 60 seconds (ISR)
+export const dynamicParams = true; // Allow newly created Prismic services to be rendered on demand
+
 export async function generateStaticParams() {
-  return servicesData.services.map((s) => ({
+  const services = await getPrismicServices();
+  return services.map((s) => ({
     slug: s.slug || s.id,
   }));
 }
 
 export async function generateMetadata({ params }: ServicePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const service = servicesData.services.find((s) => (s.slug || s.id) === slug);
+  const service = await getPrismicServiceBySlug(slug);
 
   if (!service) {
     return {
@@ -28,14 +32,14 @@ export async function generateMetadata({ params }: ServicePageProps): Promise<Me
   }
 
   return {
-    title: `${service.title} | Singapore Maxicabs Flat-Rate Booking`,
-    description: service.heroDescription || service.shortDescription,
+    title: service.metaTitle || `${service.title} | Singapore Maxicabs Flat-Rate Booking`,
+    description: service.metaDescription || service.heroDescription || service.shortDescription,
   };
 }
 
 export default async function ServiceDetailPage({ params }: ServicePageProps) {
   const { slug } = await params;
-  const service = servicesData.services.find((s) => (s.slug || s.id) === slug);
+  const service = await getPrismicServiceBySlug(slug);
 
   if (!service) {
     notFound();

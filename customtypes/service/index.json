@@ -1,0 +1,128 @@
+{
+  "format": "page",
+  "id": "service",
+  "json": {
+    "Main": {
+      "uid": {
+        "config": {
+          "label": "UID"
+        },
+        "type": "UID"
+      },
+      "slices": {
+        "config": {
+          "choices": {}
+        },
+        "fieldset": "Slice Zone",
+        "type": "Slices"
+      },
+      "title": {
+        "config": {
+          "label": "Service Title",
+          "single": "heading1"
+        },
+        "type": "StructuredText"
+      },
+      "tagline": {
+        "config": {
+          "label": "Tagline or Badge",
+          "placeholder": "e.g. Airport Transfer or Most Popular"
+        },
+        "type": "Text"
+      },
+      "short_description": {
+        "config": {
+          "label": "Short Description",
+          "placeholder": "Brief overview shown on cards"
+        },
+        "type": "Text"
+      },
+      "hero_description": {
+        "config": {
+          "label": "Hero Description",
+          "multi": "paragraph,preformatted,heading1,heading2,heading3,heading4,heading5,heading6,strong,em,hyperlink,image,embed,list-item,o-list-item,rtl",
+          "placeholder": "Detailed overview on the service page"
+        },
+        "type": "StructuredText"
+      },
+      "featured_image": {
+        "config": {
+          "label": "Featured Image"
+        },
+        "type": "Image"
+      },
+      "icon_name": {
+        "config": {
+          "label": "Icon Key",
+          "placeholder": "e.g. plane, car, clock, building"
+        },
+        "type": "Text"
+      },
+      "starting_price": {
+        "config": {
+          "label": "Starting Price Note",
+          "placeholder": "e.g. From  SGD"
+        },
+        "type": "Text"
+      },
+      "display_order": {
+        "config": {
+          "label": "Display Order",
+          "placeholder": "1, 2, 3..."
+        },
+        "type": "Number"
+      },
+      "is_featured": {
+        "config": {
+          "label": "Featured on Home Page (Top 4)"
+        },
+        "type": "Boolean"
+      },
+      "highlights": {
+        "config": {
+          "fields": {
+            "highlight_text": {
+              "config": {
+                "label": "Highlight Feature",
+                "placeholder": "e.g. 60-min complimentary airport wait"
+              },
+              "type": "Text"
+            }
+          },
+          "label": "Key Highlights / Features"
+        },
+        "type": "Group"
+      }
+    },
+    "SEO & Metadata": {
+      "meta_title": {
+        "config": {
+          "label": "Meta Title",
+          "placeholder": "A title of the page used for social media and search engines"
+        },
+        "type": "Text"
+      },
+      "meta_description": {
+        "config": {
+          "label": "Meta Description",
+          "placeholder": "A brief summary of the page"
+        },
+        "type": "Text"
+      },
+      "meta_image": {
+        "config": {
+          "constraint": {
+            "height": 1260,
+            "width": 2400
+          },
+          "label": "Meta Image",
+          "thumbnails": []
+        },
+        "type": "Image"
+      }
+    }
+  },
+  "label": "Service",
+  "repeatable": true,
+  "status": true
+}
